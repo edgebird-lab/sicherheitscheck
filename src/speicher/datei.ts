@@ -8,7 +8,7 @@
 import { heuteLokal } from '../modell/datum'
 import { neueId, type NeueId } from '../modell/operationen'
 import { FORMAT_VERSION, type Betrieb, type Datenbestand, type Datum, type Exportdatei, type Id, type Katalog, type Umfang, type Verschluesselung } from '../modell/typen'
-import { KDF_STANDARD, type KdfParameter, type Krypto } from './krypto'
+import { KDF_STANDARD, type KdfParameter, type Krypto } from './krypto-grundlagen'
 import { migriere, MIGRATIONEN, type Migrationen } from './migration'
 import { Formatfehler, istObj, pruefeDatenbestand } from './pruefen'
 

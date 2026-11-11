@@ -73,6 +73,15 @@ export class Schreibpuffer {
     this.zeitgeber = setTimeout(() => void this.schreibeJetzt(), this.verzoegerung)
   }
 
+  /** Verwirft Ausstehendes, z. B. vor „Alle Daten löschen“. */
+  verwerfe(): void {
+    clearTimeout(this.zeitgeber)
+    this.zeitgeber = undefined
+    this.betriebe.clear()
+    this.geloescht.clear()
+    this.einstellungen = null
+  }
+
   get hatAusstehende(): boolean {
     return this.betriebe.size > 0 || this.geloescht.size > 0 || this.einstellungen !== null
   }

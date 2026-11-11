@@ -10,29 +10,9 @@
  */
 import { argon2id } from '@noble/hashes/argon2.js'
 
-export interface KdfParameter {
-  speicherKiB: number
-  durchlaeufe: number
-  parallelitaet: number
-}
+import { Entschluesselungsfehler, IV_BYTES, SALZ_BYTES, type KdfParameter, type Krypto, type Verschluesselt } from './krypto-grundlagen'
 
-export const KDF_STANDARD: KdfParameter = { speicherKiB: 65_536, durchlaeufe: 3, parallelitaet: 1 }
-
-export const SALZ_BYTES = 16
-export const IV_BYTES = 12
-
-export class Entschluesselungsfehler extends Error {
-  constructor() {
-    super('Passwort falsch oder Datei beschädigt.')
-    this.name = 'Entschluesselungsfehler'
-  }
-}
-
-export interface Verschluesselt {
-  salzB64: string
-  ivB64: string
-  chiffratB64: string
-}
+export { Entschluesselungsfehler, KDF_STANDARD, type KdfParameter, type Krypto, type Verschluesselt } from './krypto-grundlagen'
 
 const utf8 = (text: string) => new TextEncoder().encode(text)
 
@@ -86,12 +66,6 @@ export async function entschluessele(v: Verschluesselt, passwort: string, aad: s
   } catch {
     throw new Entschluesselungsfehler()
   }
-}
-
-/** Schnittstelle, damit der Browser die Arbeit im Web Worker erledigen und Vitest direkt rechnen kann. */
-export interface Krypto {
-  verschluessele(klartext: string, passwort: string, aad: string, p: KdfParameter): Promise<Verschluesselt>
-  entschluessele(v: Verschluesselt, passwort: string, aad: string, p: KdfParameter): Promise<string>
 }
 
 export const direkteKrypto: Krypto = { verschluessele, entschluessele }

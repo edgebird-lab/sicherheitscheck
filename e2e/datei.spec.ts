@@ -1,0 +1,97 @@
+import { readFile } from 'node:fs/promises'
+import { expect, leeresProfil, schritt, test, zurStartseite } from './hilfen.ts'
+
+const PASSWORT = 'korrekt Pferd Batterie'
+
+test('E-11: verschlüsselt exportieren und in ein leeres Profil importieren', async ({ page, browser, baseURL }, testInfo) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Beispielbetrieb laden' }).click()
+  await zurStartseite(page)
+  await expect(page.getByText('Noch keine Sicherung exportiert.')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Sicherung exportieren' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Sicherung exportieren' })
+  await expect(dialog.getByRole('checkbox', { name: /verschlüsseln/ })).toBeChecked()
+  const exportieren = dialog.getByRole('button', { name: 'Exportieren' })
+  await dialog.getByLabel('Passwort', { exact: true }).fill('zu kurz')
+  await expect(dialog.getByText('Zu kurz: noch 5 Zeichen.')).toBeVisible()
+  await expect(exportieren).toBeDisabled()
+  await dialog.getByLabel('Passwort', { exact: true }).fill(PASSWORT)
+  await dialog.getByLabel('Passwort wiederholen').fill(PASSWORT)
+  const download = page.waitForEvent('download')
+  await exportieren.click()
+  const datei = await download
+  expect(datei.suggestedFilename()).toMatch(/^Sicherheitscheck-Sicherung-\d{4}-\d{2}-\d{2}\.sicherheitscheck$/)
+  const pfad = testInfo.outputPath('sicherung.sicherheitscheck')
+  await datei.saveAs(pfad)
+  const text = await readFile(pfad, 'utf8')
+  expect(text).not.toContain('Tischlerei')
+  expect(JSON.parse(text)).toMatchObject({ format: 'sicherheitscheck', formatVersion: 1, umfang: 'alles', verschluesselung: { verfahren: 'AES-256-GCM', kdf: 'Argon2id', speicherKiB: 65536 } })
+  // Nach der Sicherung verschwindet der Hinweis
+  await expect(page.getByText('Noch keine Sicherung exportiert.')).toHaveCount(0)
+
+  const { context, page: leer } = await leeresProfil(browser, baseURL!)
+  await expect(leer.getByRole('button', { name: 'Beispielbetrieb laden' })).toBeVisible()
+  const auswahl = leer.waitForEvent('filechooser')
+  await leer.getByRole('button', { name: 'Datei importieren' }).click()
+  await (await auswahl).setFiles(pfad)
+  const pw = leer.getByRole('dialog', { name: 'Datei entschlüsseln' })
+  await pw.getByLabel('Passwort der Datei').fill('falsches Passwort!')
+  await pw.getByRole('button', { name: 'Entschlüsseln' }).click()
+  await expect(pw.getByText('Passwort falsch oder Datei beschädigt.')).toBeVisible()
+  await pw.getByLabel('Passwort der Datei').fill(PASSWORT)
+  await pw.getByRole('button', { name: 'Entschlüsseln' }).click()
+  await leer.getByRole('dialog', { name: 'Einstellungen übernehmen?' }).getByRole('button', { name: 'Nein, behalten' }).click()
+  await expect(leer.getByText('Import: 1 hinzugefügt.')).toBeVisible()
+
+  // Daten gleich: Liste, Antworten, Ergebnis
+  await expect(leer.getByRole('row', { name: /Tischlerei Beispiel/ })).toContainText('18 von 37 Punkten')
+  await leer.getByRole('button', { name: 'Tischlerei Beispiel GmbH (fiktiv)' }).click()
+  await expect(leer.getByLabel('Branche')).toHaveValue('Handwerk, Tischlerei')
+  await schritt(leer, /Interview/)
+  await expect(leer.getByLabel('Begründung in Stichpunkten (Pflicht)')).toHaveValue('Inhaberin kümmert sich selbst; Budget für IT jährlich eingeplant; IT-Service berichtet vierteljährlich')
+  await schritt(leer, /Auswertung/)
+  await expect(leer.getByTestId('statuswert')).toHaveText('18 von 37 Punkten · 49 %')
+  await context.close()
+})
+
+test('Betrieb unverschlüsselt exportieren und als Kopie wieder importieren', async ({ page }, testInfo) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Beispielbetrieb laden' }).click()
+  await page.getByRole('button', { name: 'Betrieb exportieren' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Betrieb exportieren' })
+  await dialog.getByRole('checkbox', { name: /verschlüsseln/ }).uncheck()
+  await expect(dialog.getByText('Ohne Verschlüsselung stehen alle Angaben im Klartext')).toBeVisible()
+  const download = page.waitForEvent('download')
+  await dialog.getByRole('button', { name: 'Exportieren' }).click()
+  const datei = await download
+  expect(datei.suggestedFilename()).toMatch(/^Sicherheitscheck-Tischlerei-Beispiel-GmbH-fiktiv-\d{4}-\d{2}-\d{2}\.sicherheitscheck$/)
+  const pfad = testInfo.outputPath('betrieb.sicherheitscheck')
+  await datei.saveAs(pfad)
+
+  await zurStartseite(page)
+  const auswahl = page.waitForEvent('filechooser')
+  await page.getByRole('button', { name: 'Datei importieren' }).click()
+  await (await auswahl).setFiles(pfad)
+  const frage = page.getByRole('dialog', { name: 'Betrieb schon vorhanden' })
+  await expect(frage.getByRole('button', { name: 'Überspringen' })).toBeFocused()
+  await frage.getByRole('button', { name: 'Als Kopie' }).click()
+  await expect(page.getByRole('button', { name: 'Tischlerei Beispiel GmbH (fiktiv) (Kopie)' })).toBeVisible()
+  await expect(page.getByRole('table', { name: 'Betriebe' }).getByRole('row')).toHaveCount(3)
+})
+
+test('Import einer fremden Datei meldet den Fehler und ändert nichts', async ({ page }, testInfo) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Beispielbetrieb laden' }).click()
+  await zurStartseite(page)
+  const pfad = testInfo.outputPath('fremd.sicherheitscheck')
+  const { writeFile } = await import('node:fs/promises')
+  await writeFile(pfad, JSON.stringify({ format: 'prozesslotse', formatVersion: 3 }))
+  const auswahl = page.waitForEvent('filechooser')
+  await page.getByRole('button', { name: 'Datei importieren' }).click()
+  await (await auswahl).setFiles(pfad)
+  const meldung = page.getByRole('dialog', { name: 'Import nicht möglich' })
+  await expect(meldung).toContainText('Die Datei ist keine Sicherheitscheck-Datei. Die vorhandenen Daten bleiben unverändert.')
+  await meldung.getByRole('button', { name: 'Schließen' }).click()
+  await expect(page.getByRole('table', { name: 'Betriebe' }).getByRole('row')).toHaveCount(2)
+})

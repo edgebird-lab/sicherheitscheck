@@ -1,7 +1,7 @@
 /**
  * Nachrichten zwischen Oberfläche und Krypto-Worker und die Krypto-Umsetzung für den Browser.
  */
-import { direkteKrypto, Entschluesselungsfehler, type KdfParameter, type Krypto, type Verschluesselt } from './krypto'
+import { Entschluesselungsfehler, type KdfParameter, type Krypto, type Verschluesselt } from './krypto-grundlagen'
 
 export type KryptoAuftrag =
   | { art: 'verschluesseln'; klartext: string; passwort: string; aad: string; kdf: KdfParameter }
@@ -26,10 +26,16 @@ function imWorker<T>(auftrag: KryptoAuftrag): Promise<T> {
   })
 }
 
-/** Rechnet im Web Worker; ohne Worker-Unterstützung direkt im Hauptthread. */
+/** Ohne Worker-Unterstützung rechnet der Hauptthread; Argon2 wird dann erst bei Bedarf geladen. */
+const direkt = () => import('./krypto').then((m) => m.direkteKrypto)
+
+/** Rechnet im Web Worker. */
 export const browserKrypto: Krypto =
   typeof Worker === 'undefined'
-    ? direkteKrypto
+    ? {
+        verschluessele: async (...args) => (await direkt()).verschluessele(...args),
+        entschluessele: async (...args) => (await direkt()).entschluessele(...args),
+      }
     : {
         verschluessele: (klartext, passwort, aad, kdf) => imWorker<Verschluesselt>({ art: 'verschluesseln', klartext, passwort, aad, kdf }),
         entschluessele: (verschluesselt, passwort, aad, kdf) => imWorker<string>({ art: 'entschluesseln', verschluesselt, passwort, aad, kdf }),

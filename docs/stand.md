@@ -22,11 +22,11 @@ Letzte Aktualisierung: 11.11.2026
 
 ## Phase 2 – Interview und Auswertung
 
-- [ ] **2.1** Rahmen: Schrittleiste, Hell/Dunkel, Startseite, Einstellungen, Sicherungshinweis, Export/Import (E-01, E-02, E-11, E-12).
-- [ ] **2.2** Schritte Betrieb und Vorgespräch (E-03).
-- [ ] **2.3** Schritt Interview (E-04).
-- [ ] **2.4** Wiederholungsprüfung in der Oberfläche (E-05).
-- [ ] **2.5** Schritt Auswertung mit Netzdiagramm (T-G01, T-G02, E-04 mit Statuswert, Bild in `docs/bilder`).
+- [x] **2.1** Rahmen: Schrittleiste, Hell/Dunkel, Startseite, Einstellungen, Sicherungshinweis, Export/Import. *E-01, E-02, E-11, E-12 grün; dazu Tests für Suche, Darstellung, „Alle Daten löschen“, Import als Kopie und fremde Datei. `ui/App.tsx`, `ui/daten.ts` (IndexedDB, Schreibpuffer, Sperre), `ui/datei.tsx` und `ui/DateiDialoge.tsx`.*
+- [x] **2.2** Schritte Betrieb und Vorgespräch mit Pflichtfeldern, Vorfragen und Vorbereitungsliste. *E-03 grün. Domainprüfung nach 6.3 vorgezogen (T-D01 bis T-D08), Löschen mit Eingabe des Namens.*
+- [x] **2.3** Schritt Interview mit Fragekarte, Bewertung, Begründung, Fortschritt und Tastaturbedienung. *E-04 grün (26 Fragen nur per Tastatur, Strg+Eingabe).*
+- [x] **2.4** Wiederholungsprüfung in der Oberfläche (Vorbelegung, „Unverändert bestätigen“). *E-05 grün; Abschluss mit Fehlerliste und Sprungmarken im Schritt Bericht (vorläufig, siehe E15).*
+- [~] **2.5** Schritt Auswertung mit Netzdiagramm (SVG) und Tabellen. *T-G01, T-G02 und E-04 mit Statuswert grün. Offen: Bild in `docs/bilder`.*
 - [ ] **2.6** Barrierefreiheit aller bisherigen Schritte, hell und dunkel (E-13).
 
 ## Phase 3 – Außenprüfung DNS
@@ -71,4 +71,5 @@ Letzte Aktualisierung: 11.11.2026
 | 11.11.2026 | 1.2 Katalog in eigenen Formulierungen | 7e21f2a |
 | 11.11.2026 | 1.3, 1.4 Bewertung und Operationen | 8d06ac4 |
 | 11.11.2026 | 1.5 Speicher | 40d6bc8 |
-| 11.11.2026 | 1.6 Export und Import | Export und Import: Argon2id und AES-256-GCM im Web Worker |
+| 11.11.2026 | 1.6 Export und Import | c6c0316 |
+| 11.11.2026 | 2.1 bis 2.5 Oberfläche | Oberfläche: Startseite, Einstellungen, Betrieb, Vorgespräch, Interview, Auswertung, Abschluss |

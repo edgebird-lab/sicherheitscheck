@@ -6,6 +6,7 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import { FORMAT_VERSION, type Betrieb } from '../modell/typen'
 import type { Aenderungen, Schreibziel } from './aenderungen'
+import { standardEinstellungen } from './pruefen'
 
 export const DB_NAME = 'sicherheitscheck'
 const DB_VERSION = 1
@@ -44,8 +45,8 @@ export async function oeffneSpeicher(): Promise<Speicher> {
         tx.objectStore('meta').get('einstellungen'),
       ])
       await tx.done
-      // Neue, leere Datenbank: aktuelle Version
-      return { formatVersion: formatVersion ?? (betriebe.length === 0 ? FORMAT_VERSION : undefined), einstellungen, betriebe }
+      // Neue, leere Datenbank: aktuelle Version. Fehlende Einstellungen sind kein Fehler (noch nie geändert).
+      return { formatVersion: formatVersion ?? (betriebe.length === 0 ? FORMAT_VERSION : undefined), einstellungen: einstellungen ?? standardEinstellungen(), betriebe }
     },
 
     async schreibe(a: Aenderungen) {
