@@ -136,3 +136,4 @@ git push -u origin main
 | 11.11.2026 | 4.4, 4.5 Bericht, ISMS-Brücke, Methodik | 31c7b76 |
 | 11.11.2026 | 4.6 README, Bilder, Beispielbericht, 0.1.0-web | 9f1a382 |
 | 11.11.2026 | Startseite: überfällige Frist | f9028fb |
+| 11.11.2026 | Durchsicht Phase 1 bis 4: Prüfung beim Laden, Rückfrage bei Wiederholung, Tests für Lade- und Speicherfehler | de085c5 |
