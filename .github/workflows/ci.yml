@@ -1,0 +1,22 @@
+name: Prüfung
+
+# Lint, Unit-Tests und Build bei jedem Push. Die Browsertests (Playwright mit axe)
+# laufen lokal vor jedem Commit mit Edge; so bleibt der Lauf im privaten Repo kurz.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build

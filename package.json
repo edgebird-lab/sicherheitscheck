@@ -1,0 +1,36 @@
+{
+  "name": "sicherheitscheck",
+  "private": true,
+  "version": "0.1.0-dev",
+  "description": "IT-Sicherheitsberatung nach DIN SPEC 27076 für kleine Betriebe: geführtes Interview, Statuswert, Maßnahmenplan und passive Prüfung von E-Mail-Domain und Website.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@noble/hashes": "^2.4.0",
+    "idb": "^8.0.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tldts": "^7.4.21"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "oxlint": "^1.93.0",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.7",
+    "vitest": "^5.1.0"
+  }
+}
