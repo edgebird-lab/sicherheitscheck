@@ -1306,6 +1306,89 @@ fieldset:disabled .auswahl-option {
   overflow-wrap: anywhere;
 }
 
+/* Maßnahmen -------------------------------------------------------------- */
+
+.massnahmen-zahlen {
+  margin: 0;
+}
+.ueberfaellig,
+.ueberfaellig .symbol {
+  color: var(--schlecht-text);
+}
+.ueberfaellig .symbol {
+  color: var(--warnung);
+}
+.massnahmenliste {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.massnahme {
+  border: 1px solid var(--linie);
+  border-left: 4px solid var(--akzent);
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: var(--karte);
+}
+.massnahme > div > * + * {
+  margin-top: 0.5rem;
+}
+.massnahme-erledigt,
+.massnahme-verworfen {
+  border-left-color: var(--linie-stark);
+  background: var(--karte-2);
+}
+.massnahme-kopf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.massnahme-kopf h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.massnahme-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-erledigt .symbol {
+  color: var(--gut);
+}
+.status-in_arbeit .symbol {
+  color: var(--akzent);
+}
+.status-offen .symbol,
+.status-verworfen .symbol {
+  color: var(--neutral);
+}
+.massnahme-ursache {
+  margin: 0.2rem 0 0 !important;
+}
+.massnahme-tun ul {
+  margin: 4px 0 0;
+  padding-left: 20px;
+}
+.massnahme-felder {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 14px;
+}
+.ursache-entfallen {
+  border: 1px dashed var(--linie-stark);
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+.ursache-entfallen .symbol {
+  color: var(--neutral);
+}
+
 @media (max-width: 960px) {
   .interview,
   .netz,
@@ -1326,6 +1409,9 @@ fieldset:disabled .auswahl-option {
   }
 }
 @media (max-width: 560px) {
+  .massnahme-felder {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .feldreihe {
     grid-template-columns: minmax(0, 1fr);
   }

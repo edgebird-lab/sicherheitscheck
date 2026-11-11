@@ -1,5 +1,5 @@
 /** Anzeigetexte für Werte des Datenmodells */
-import type { Bestaetigung, Bewertung, Modus, Pruefung, Stufe, TeilnahmeRolle } from '../modell/typen'
+import type { Bestaetigung, Bewertung, MassnahmeStatus, Modus, Prioritaet, Pruefung, Stufe, TeilnahmeRolle } from '../modell/typen'
 import type { SymbolArt } from './Symbole'
 
 export const BEWERTUNG_TEXT: Record<Bewertung, string> = {
@@ -82,4 +82,25 @@ export const ROLLE_BESTAETIGUNG_TEXT: Record<Bestaetigung['rolle'], string> = {
 export const MODUS_TEXT: Record<Modus, string> = {
   browser: 'Browser: nur DNS-Prüfungen',
   desktop: 'Windows-Programm: DNS und Website',
+}
+
+export const MASSNAHME_STATUS_TEXT: Record<MassnahmeStatus, string> = {
+  offen: 'offen',
+  in_arbeit: 'in Arbeit',
+  erledigt: 'erledigt',
+  verworfen: 'verworfen',
+}
+
+export const MASSNAHME_STATUS_SYMBOL: Record<MassnahmeStatus, SymbolArt> = {
+  offen: 'kreis',
+  in_arbeit: 'pfeil',
+  erledigt: 'haken',
+  verworfen: 'strich',
+}
+
+/** Gruppen im Schritt Maßnahmen (5.8) */
+export const PRIORITAET_GRUPPE: Record<Prioritaet, string> = {
+  1: 'Sofort (Priorität 1)',
+  2: 'Zeitnah (Priorität 2)',
+  3: 'Geplant (Priorität 3)',
 }

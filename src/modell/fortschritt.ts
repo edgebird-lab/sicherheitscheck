@@ -3,6 +3,7 @@
  */
 import { durchVorfrageAusgeblendet, istBeantwortet } from './bewertung'
 import { istDatum } from './datum'
+import { istOffen } from './massnahmen'
 import type { Anforderung, Betrieb, Katalog, Pruefung, Thema } from './typen'
 
 /** Anforderungen, die im Interview erscheinen (nicht durch eine Vorfrage ausgeblendet), in Katalogreihenfolge */
@@ -66,8 +67,8 @@ export function schrittVollstaendig(s: Schritt, b: Betrieb, p: Pruefung | null, 
     case 'aussen':
       return p.aussen !== null && !p.aussen.abgebrochen
     case 'massnahmen':
-      // Schritt 4.2: vollständig, wenn jede offene Maßnahme Frist und Verantwortlichen hat
-      return p.massnahmen.length > 0 && p.massnahmen.every((m) => m.status === 'erledigt' || m.status === 'verworfen' || m.verantwortlich.trim() !== '')
+      // Interview fertig und jede offene Maßnahme hat einen Verantwortlichen (ohne Maßnahmen ebenso)
+      return interviewVollstaendig(k, p) && p.massnahmen.every((m) => !istOffen(m) || m.verantwortlich.trim() !== '')
     case 'bericht':
       return p.status === 'abgeschlossen'
   }

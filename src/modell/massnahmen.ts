@@ -3,12 +3,12 @@
  * Quellen sind nicht erfüllte, relevante Anforderungen und Befunde der Außenprüfung mit Stufe
  * kritisch, warnung oder hinweis. Prioritäten und Fristen sind eigene Festlegung (F6).
  */
-import { regeltext } from '../katalog/regeltexte'
-import { PRUEF_IDS } from '../pruefung/stufen'
+import { mitDomain, regeltext } from '../katalog/regeltexte'
+import { PRUEF_IDS, PRUEF_NAME } from '../pruefung/stufen'
 import { istRelevant, wirksameBewertung } from './bewertung'
 import { heuteLokal, istDatum, plusTage } from './datum'
 import { neueId, type NeueId } from './kennung'
-import type { Datum, Id, Katalog, Massnahme, MassnahmeQuelle, Prioritaet, Pruefung, Stufe } from './typen'
+import type { Befund, Betrieb, Datum, Id, Katalog, Massnahme, MassnahmeQuelle, Prioritaet, Pruefung, Stufe } from './typen'
 
 /** Frist in Tagen ab dem Datum des Interviews je Priorität (6.8, F6) */
 export const FRIST_TAGE: Record<Prioritaet, number> = { 1: 14, 2: 90, 3: 180 }
@@ -191,4 +191,56 @@ export function setzePrioritaet(p: Pruefung, massnahmeId: Id, prioritaet: Priori
 /** offen oder in Arbeit */
 export function istOffen(m: Massnahme): boolean {
   return m.status === 'offen' || m.status === 'in_arbeit'
+}
+
+/** Zähler für Übersicht und Startseite */
+export function zaehleMassnahmen(liste: Massnahme[], heute: Datum): { alle: number; offen: number; erledigt: number; ueberfaellig: number } {
+  return {
+    alle: liste.length,
+    offen: liste.filter(istOffen).length,
+    erledigt: liste.filter((m) => m.status === 'erledigt').length,
+    ueberfaellig: liste.filter((m) => istOffen(m) && m.frist < heute).length,
+  }
+}
+
+/**
+ * Befund zu einer Maßnahme mit der geprüften Domain: aus der Außenprüfung dieser Prüfung, sonst aus
+ * der jüngsten früheren Prüfung des Betriebs (übernommene Maßnahmen einer Wiederholung haben noch
+ * keinen neuen Lauf).
+ */
+export function befundZu(b: Pick<Betrieb, 'pruefungen'>, p: Pruefung, q: MassnahmeQuelle): { befund: Befund; domain: string } | null {
+  if (q.art !== 'befund') return null
+  const kandidaten = [p, ...b.pruefungen.filter((x) => x.nr < p.nr).sort((x, y) => y.nr - x.nr)]
+  for (const x of kandidaten) {
+    const befund = x.aussen?.befunde.find((f) => f.pruefId === q.pruefId && f.ziel === q.ziel)
+    if (befund && x.aussen) return { befund, domain: x.aussen.domain }
+  }
+  return null
+}
+
+/** Ursache in Worten, z. B. „Anforderung 1.2 · Organisation & Sensibilisierung · TOP“ oder „Außenprüfung: DMARC · example.com“ */
+export function ursacheText(k: Katalog, m: Massnahme): string {
+  if (m.quelle.art === 'befund') return `Außenprüfung: ${PRUEF_NAME[m.quelle.pruefId]} · ${m.quelle.ziel}`
+  const id = m.quelle.anforderungId
+  const a = k.anforderungen.find((x) => x.id === id)
+  if (!a) return `Anforderung ${id}`
+  const thema = k.themen.find((t) => t.id === a.thema)
+  return `Anforderung ${a.normNr} · ${thema?.name ?? a.thema}${a.top ? ' · TOP' : ''}`
+}
+
+/**
+ * Was zu tun ist: die Handlungsempfehlung der Anforderung bzw. die Maßnahme der Hauptregel; die
+ * Maßnahmen weiterer Regeln ab Stufe hinweis erscheinen als Unterpunkte (6.8).
+ */
+export function wasZuTun(k: Katalog, b: Pick<Betrieb, 'pruefungen'>, p: Pruefung, m: Massnahme): { text: string | null; unterpunkte: string[] } {
+  if (m.quelle.art === 'anforderung') {
+    const id = m.quelle.anforderungId
+    return { text: k.anforderungen.find((a) => a.id === id)?.massnahme ?? null, unterpunkte: [] }
+  }
+  const gefunden = befundZu(b, p, m.quelle)
+  if (!gefunden) return { text: null, unterpunkte: [] }
+  const { befund, domain } = gefunden
+  const texte = [befund.regel, ...befund.weitere.filter((w) => prioritaetFuerStufe(w.stufe) !== null).map((w) => w.regel)].map((r) => regeltext(r).massnahme)
+  const [text, ...unterpunkte] = texte.map((t) => (t === null ? null : mitDomain(t, domain)))
+  return { text, unterpunkte: unterpunkte.filter((t): t is string => t !== null) }
 }

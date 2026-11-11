@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { KATALOG } from '../katalog'
-import { HEUTE, JETZT, pruefungMit } from '../testhilfen/pruefung'
+import { HEUTE, JETZT, pruefungMit, zaehler } from '../testhilfen/pruefung'
+import { aendereMassnahme, gleicheMassnahmenAb } from './massnahmen'
 import { naechsteOffene, offeneAnforderungen, schrittVollstaendig, sichtbareAnforderungen, themenFortschritt } from './fortschritt'
 import { neuePruefung, neuerBetrieb, setzeAntwort, setzeVorfrage } from './operationen'
 
@@ -48,5 +49,16 @@ describe('Häkchen der Schrittleiste', () => {
     expect(schrittVollstaendig('bericht', betrieb, { ...fertig, status: 'abgeschlossen' }, K)).toBe(true)
     expect(schrittVollstaendig('aussen', betrieb, fertig, K)).toBe(false)
     expect(schrittVollstaendig('interview', betrieb, null, K)).toBe(false)
+  })
+
+  it('Maßnahmen: Interview fertig und jede offene Maßnahme hat einen Verantwortlichen', () => {
+    const { betrieb, pruefung } = leer()
+    const fertig = pruefungMit(K, () => 'erfuellt')
+    expect(schrittVollstaendig('massnahmen', betrieb, fertig, K)).toBe(true)
+    expect(schrittVollstaendig('massnahmen', betrieb, pruefung, K)).toBe(false)
+    const mit = gleicheMassnahmenAb(K, pruefungMit(K, (a) => (a.id === 'A04' || a.id === 'A06' ? 'nicht_erfuellt' : 'erfuellt')), JETZT, zaehler())
+    expect(schrittVollstaendig('massnahmen', betrieb, mit, K)).toBe(false)
+    const zugeteilt = aendereMassnahme(aendereMassnahme(mit, 'id-1', { verantwortlich: 'Erika' }, JETZT), 'id-2', { status: 'verworfen' }, JETZT)
+    expect(schrittVollstaendig('massnahmen', betrieb, zugeteilt, K)).toBe(true)
   })
 })
