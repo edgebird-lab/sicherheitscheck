@@ -17,7 +17,7 @@ Letzte Aktualisierung: 11.11.2026
 - [x] **1.2** `typen.ts` nach Abschnitt 4 und Katalog. *T-K01 bis T-K03 grün. Katalog vorläufig (27 Anforderungen, 6/5/4/3/3/6 je Thema, Nummern 1.1–6.6, vier Vorfragen); `KATALOG_ABGEGLICHEN = false` zeigt das in der Oberfläche an. Test hält `docs/katalog-abgleich.md` und `docs/katalog-texte.md` mit dem Code synchron.*
 - [x] **1.3** `bewertung.ts`: Punkte, Statuswert, Themen, Relevanz. *T-B01 bis T-B12 grün (T-B06 zusätzlich über eine Vorfrage). Prüfmeldung R1 für „nicht relevant“, wo die Regel es nicht erlaubt.*
 - [x] **1.4** Operationen: Betrieb und Prüfung anlegen, Antwort setzen, Vorfragen, abschließen, wieder öffnen, Wiederholungsprüfung. *T-O01 bis T-O06 grün. Der Maßnahmenabgleich beim Abschließen (6.8) fehlt noch und kommt mit 4.1 (Kommentar in `abschliessen`).*
-- [ ] **1.5** Speicher: Prüffunktionen, Migrationsgerüst, IndexedDB-Adapter, Tab-Sperre (T-L01 bis T-L03).
+- [x] **1.5** Speicher: Prüffunktionen, Migrationsgerüst, IndexedDB-Adapter, Tab-Sperre. *T-L01 bis T-L03 grün. `speicher/pruefen.ts`, `migration.ts`, `idb.ts` (Datenbank `sicherheitscheck` v1), `aenderungen.ts` (Differenz und Schreibpuffer, 400 ms, mit Tests), `sperre.ts` (Web Locks). Adapter und Sperre prüfen E-01 und E-12 (Schritt 2.1).*
 - [ ] **1.6** Export und Import mit Argon2id und AES-GCM im Web Worker (T-E01 bis T-E09).
 
 ## Phase 2 – Interview und Auswertung
@@ -44,7 +44,7 @@ Letzte Aktualisierung: 11.11.2026
 - [ ] **4.3** Vergleich mit der Vorgängerprüfung (T-V01 bis T-V05, E-09).
 - [ ] **4.4** Bericht als Druckansicht (E-10).
 - [ ] **4.5** ISMS-Brücke und „Methodik und Grenzen“.
-- [ ] **4.6** Beispielbetrieb, README mit Bildern, Stand „0.1.0-web“.
+- [~] **4.6** Beispielbetrieb, README mit Bildern, Stand „0.1.0-web“. *Beispielbetrieb vorgezogen (`modell/beispiel.ts`, Test sichert 18 von 37); README-Bilder und Stand 0.1.0-web offen.*
 
 ## Phase 5 – Windows-Programm und Website-Prüfung (später)
 
@@ -69,4 +69,5 @@ Letzte Aktualisierung: 11.11.2026
 |---|---|---|
 | 11.11.2026 | 1.1 Gerüst | 2dd51a1 |
 | 11.11.2026 | 1.2 Katalog in eigenen Formulierungen | 7e21f2a |
-| 11.11.2026 | 1.3, 1.4 Bewertung und Operationen | Bewertung nach dem Punkteschema, Operationen für Prüfungen |
+| 11.11.2026 | 1.3, 1.4 Bewertung und Operationen | 8d06ac4 |
+| 11.11.2026 | 1.5 Speicher | Speicher: Prüfung beim Laden, Migrationsgerüst, IndexedDB, Tab-Sperre |
