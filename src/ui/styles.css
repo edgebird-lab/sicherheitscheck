@@ -1389,10 +1389,30 @@ fieldset:disabled .auswahl-option {
   color: var(--neutral);
 }
 
+/* Vergleich --------------------------------------------------------------- */
+
+.vergleich > * + * {
+  margin-top: 0.6rem;
+}
+.vergleich-differenz {
+  font-size: 1.1rem;
+}
+.vergleich-listen {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 24px;
+}
+.vergleich-listen h3,
+.vergleich-listen h4 {
+  margin: 0.4rem 0 0.2rem;
+  font-size: 0.98rem;
+}
+
 @media (max-width: 960px) {
   .interview,
   .netz,
-  .spalten {
+  .spalten,
+  .vergleich-listen {
     grid-template-columns: minmax(0, 1fr);
   }
   .themen-nav {

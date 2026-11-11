@@ -41,7 +41,7 @@ Letzte Aktualisierung: 11.11.2026, nach Phase 2 (Stand: Phase 1 und 2 fertig, Ph
 
 - [x] **4.1** Maßnahmen ableiten, priorisieren, sortieren, abgleichen (T-P01 bis T-P08). *`modell/massnahmen.ts`: Soll-Menge, Fristen 14/90/180 Tage ab Interview, Sortierung nach 6.8, idempotenter Abgleich mit der Ausnahme für Befund-Maßnahmen, Priorität von Hand nur mit Begründung, Bearbeiten auch nach dem Abschluss. Der Abgleich läuft beim Abschließen (`abschliessen`) und nach jeder Außenprüfung (`setzeAussenpruefung`); T-O06 an den Abgleich beim Abschluss angepasst.*
 - [x] **4.2** Schritt Maßnahmen (E-08). *`ui/schritte/MassnahmenSchritt.tsx`: Abgleich beim Öffnen (nur Entwurf), Zähler (offen, erledigt, überfällig), Filter „Offen und in Arbeit“ / „Alle“, Gruppen Sofort/Zeitnah/Geplant, je Maßnahme Ursache, Frist, „Was ist zu tun?“ (mit Unterpunkten weiterer Regeln), Status, Verantwortlich, Notiz, „Ursache entfallen“, Priorität von Hand mit Begründung. Häkchen „vollständig“: Interview fertig und jede offene Maßnahme hat einen Verantwortlichen. E-08 grün, dazu ein Test für die Priorität von Hand.*
-- [ ] **4.3** Vergleich mit der Vorgängerprüfung (T-V01 bis T-V05, E-09).
+- [x] **4.3** Vergleich mit der Vorgängerprüfung (T-V01 bis T-V05, E-09). *`modell/vergleich.ts` (Vorgänger nach 6.9, Statuswert direkt oder über Prozent, Anforderungen und Befunde mit besser/schlechter/neu/entfallen/nicht vergleichbar, Maßnahmen der letzten Prüfung), Anzeige `ui/Vergleich.tsx` in der Auswertung (auch im Bericht nutzbar); die Auswertung zeigt jetzt auch die Anzahl je Stufe der Außenprüfung. T-V01 bis T-V05 und E-09 grün; E-05 auf die neue Anzeige umgestellt.*
 - [ ] **4.4** Bericht als Druckansicht (E-10).
 - [ ] **4.5** ISMS-Brücke und „Methodik und Grenzen“.
 - [~] **4.6** Beispielbetrieb, README mit Bildern, Stand „0.1.0-web“. *Beispielbetrieb vorgezogen (`modell/beispiel.ts`, Test sichert 18 von 37), seit 4.2 mit fiktiver Außenprüfung (Tests prüfen sie gegen den Ablauf über `testdaten/dns/beispiel-zone.json`) und 13 Maßnahmen (eine erledigt, eine in Arbeit). README-Bilder und Stand 0.1.0-web offen.*
@@ -76,7 +76,6 @@ git push -u origin main
 
 **Offene Haken für Phase 4:**
 - Die Druckansicht in `BerichtSchritt.tsx` ist ein Platzhalter; der Abschluss mit Fehlerliste steht schon.
-- Die Auswertung zeigt statt des Vergleichs (6.9) nur den Statuswert der Vorgängerprüfung.
 
 **Fallstricke:**
 - Playwright nutzt einen schon laufenden Server auf Port 4181 wieder und baut dann nicht neu. Vor `npm run e2e` keinen eigenen `vite preview` laufen lassen oder vorher `npm run build`. `netstat` zeigt den Vorschau-Server in der Git Bash nicht zuverlässig an; prüfen mit `curl -s -o /dev/null -w '%{http_code}' http://localhost:4181/` oder `Get-NetTCPConnection -LocalPort 4181`.

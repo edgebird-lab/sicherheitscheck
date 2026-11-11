@@ -3,9 +3,12 @@ import { antwortVon, berechneErgebnis } from '../../modell/bewertung'
 import { datumDeutsch } from '../../modell/datum'
 import { offeneAnforderungen } from '../../modell/fortschritt'
 import { TEXT_OHNE_GESCHAEFTSFUEHRUNG } from '../../modell/operationen'
+import { vergleiche, vorgaengerVon } from '../../modell/vergleich'
+import { Zaehlung } from '../Befunde'
 import { useApp, useAuswahl } from '../kontext'
 import { Netzdiagramm } from '../Netzdiagramm'
 import { Symbol } from '../Symbole'
+import { VergleichAnzeige } from '../Vergleich'
 import { mitVorzeichen, punkteText } from '../texte'
 
 export function AuswertungSchritt() {
@@ -16,7 +19,7 @@ export function AuswertungSchritt() {
   // Abgeschlossen: eingefrorenes Ergebnis; Entwurf: aktuell berechnet
   const e = p.ergebnis ?? berechneErgebnis(KATALOG, p)
   const offen = p.status === 'entwurf' ? offeneAnforderungen(KATALOG, p) : []
-  const vorgaenger = p.vorgaengerId ? betrieb.pruefungen.find((x) => x.id === p.vorgaengerId) : undefined
+  const vorgaenger = vorgaengerVon(betrieb, p)
 
   return (
     <section className="schritt" aria-labelledby="schritt-titel">
@@ -100,17 +103,26 @@ export function AuswertungSchritt() {
 
       <div className="karte">
         <h2>Außenprüfung</h2>
-        <p className="leise">{p.aussen ? `Außenprüfung vom ${datumDeutsch(p.aussen.gestartet.slice(0, 10))}.` : 'Keine Außenprüfung. Ohne sie entfällt Teil B des Berichts.'}</p>
+        {p.aussen ? (
+          <>
+            <p>
+              Außenprüfung von <code>{p.aussen.domain}</code> vom {datumDeutsch(p.aussen.gestartet.slice(0, 10))}
+              {p.aussen.abgebrochen && ' (abgebrochen)'}:
+            </p>
+            <Zaehlung befunde={p.aussen.befunde} />
+            <button type="button" className="verweis" onClick={() => dispatch({ typ: 'schritt', schritt: 'aussen' })}>
+              Befunde im Schritt Außenprüfung
+            </button>
+          </>
+        ) : (
+          <p className="leise">Keine Außenprüfung. Ohne sie entfällt Teil B des Berichts.</p>
+        )}
       </div>
 
-      {vorgaenger?.ergebnis && (
-        <div className="karte">
-          <h2>Letzte Prüfung</h2>
-          <p>
-            Prüfung {vorgaenger.nr} vom {datumDeutsch(vorgaenger.datum)}: {punkteText(vorgaenger.ergebnis.statuswert, vorgaenger.ergebnis.maximal)} ({vorgaenger.ergebnis.prozent} %). Jetzt:{' '}
-            {punkteText(e.statuswert, e.maximal)} ({e.prozent} %).
-          </p>
-          <p className="leise klein">Der Vergleich je Anforderung ist noch in Arbeit.</p>
+      {vorgaenger && (
+        <div className="karte" role="group" aria-labelledby="vergleich-titel">
+          <h2 id="vergleich-titel">Vergleich mit Prüfung {vorgaenger.nr}</h2>
+          <VergleichAnzeige k={KATALOG} vorher={vorgaenger} jetzt={p} v={vergleiche(KATALOG, vorgaenger, p)} />
         </div>
       )}
     </section>

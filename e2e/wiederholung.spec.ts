@@ -1,4 +1,4 @@
-import { expect, schritt, test } from './hilfen.ts'
+import { expect, pruefeBarrierefreiheit, schritt, test } from './hilfen.ts'
 
 test('E-05: Wiederholungsprüfung mit vorbelegten Antworten; Abschluss erst nach Bestätigung aller', async ({ page }) => {
   await page.goto('/')
@@ -49,7 +49,8 @@ test('E-05: Wiederholungsprüfung mit vorbelegten Antworten; Abschluss erst nach
 
   await schritt(page, /Auswertung/)
   await expect(page.getByTestId('statuswert')).toHaveText('24 von 37 Punkten · 65 %')
-  await expect(page.getByText(/Prüfung 1 vom .*: 18 von 37 Punkten \(49 %\)\. Jetzt: 24 von 37 Punkten \(65 %\)/)).toBeVisible()
+  await expect(page.getByTestId('vergleich-statuswert')).toHaveText(/^Prüfung 1 vom \d\d\.\d\d\.\d{4}: 18 von 37 Punkten \(49 %\) · jetzt 24 von 37 Punkten \(65 %\)$/)
+  await expect(page.getByText('+6 Punkte')).toBeVisible()
 })
 
 test('Abschluss nennt fehlende Angaben mit Sprungmarke; wieder öffnen nach Rückfrage', async ({ page }) => {
@@ -70,4 +71,33 @@ test('Abschluss nennt fehlende Angaben mit Sprungmarke; wieder öffnen nach Rüc
   await expect(page.getByRole('button', { name: 'Prüfung abschließen' })).toBeDisabled()
   await page.getByRole('button', { name: 'Zum Schritt Interview' }).click()
   await expect(page.locator('#fragekarte-titel')).toHaveText('Geschäftsführung verantwortet die Informationssicherheit')
+})
+
+test('E-09: Wiederholung mit geänderten Antworten: der Vergleich zeigt Differenz und Listen', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Beispielbetrieb laden' }).click()
+  await page.getByRole('button', { name: 'Wiederholungsprüfung' }).click()
+  await schritt(page, /Interview/)
+  const themen = page.getByRole('navigation', { name: 'Themenbereiche' })
+  await themen.getByRole('button', { name: /1\.2 Beschäftigte/ }).click()
+  await page.getByRole('radio', { name: 'Erfüllt', exact: true }).check()
+  await page.getByLabel('Begründung in Stichpunkten (Pflicht)').fill('Schulung im Oktober; Meldestelle festgelegt')
+  await themen.getByRole('button', { name: /^2 Identitäts/ }).click()
+  await expect(page.locator('#fragekarte-titel')).toHaveText('Persönliche Benutzerkonten für alle')
+  await page.getByRole('radio', { name: 'Nicht erfüllt' }).check()
+  await page.getByLabel('Begründung in Stichpunkten (Pflicht)').fill('neuer Mitarbeiter nutzt das Konto der Werkstatt')
+
+  await schritt(page, /Auswertung/)
+  // 18 + 6 (1.2 von −3 auf +3) − 1 (2.1) = 23 von 37; 23 / 37 = 62,2 % → 62 %
+  await expect(page.getByTestId('statuswert')).toHaveText('23 von 37 Punkten · 62 %')
+  const vergleich = page.getByRole('group', { name: 'Vergleich mit Prüfung 1' })
+  await expect(vergleich.getByText('+5 Punkte')).toBeVisible()
+  const liste = (titel: string) => vergleich.getByRole('heading', { name: titel, exact: true }).locator('xpath=following-sibling::*[1]')
+  await expect(liste('Besser')).toHaveText('1.2 Beschäftigte erkennen Phishing und Betrugsversuche (Nicht erfüllt → Erfüllt)')
+  await expect(liste('Schlechter')).toHaveText('2.1 Persönliche Benutzerkonten für alle (Erfüllt → Nicht erfüllt)')
+  await expect(liste('Neu')).toHaveText('keine')
+  await expect(liste('Entfallen')).toHaveText('keine')
+  await expect(vergleich.getByText('Befunde der Außenprüfung werden verglichen, sobald beide Prüfungen eine Außenprüfung haben.')).toBeVisible()
+  await expect(vergleich.getByText('Maßnahmen aus Prüfung 1: 1 erledigt, 12 offen oder in Arbeit.')).toBeVisible()
+  await pruefeBarrierefreiheit(page, 'Auswertung mit Vergleich')
 })
