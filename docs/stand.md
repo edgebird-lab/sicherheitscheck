@@ -18,7 +18,7 @@ Letzte Aktualisierung: 11.11.2026
 - [x] **1.3** `bewertung.ts`: Punkte, Statuswert, Themen, Relevanz. *T-B01 bis T-B12 grün (T-B06 zusätzlich über eine Vorfrage). Prüfmeldung R1 für „nicht relevant“, wo die Regel es nicht erlaubt.*
 - [x] **1.4** Operationen: Betrieb und Prüfung anlegen, Antwort setzen, Vorfragen, abschließen, wieder öffnen, Wiederholungsprüfung. *T-O01 bis T-O06 grün. Der Maßnahmenabgleich beim Abschließen (6.8) fehlt noch und kommt mit 4.1 (Kommentar in `abschliessen`).*
 - [x] **1.5** Speicher: Prüffunktionen, Migrationsgerüst, IndexedDB-Adapter, Tab-Sperre. *T-L01 bis T-L03 grün. `speicher/pruefen.ts`, `migration.ts`, `idb.ts` (Datenbank `sicherheitscheck` v1), `aenderungen.ts` (Differenz und Schreibpuffer, 400 ms, mit Tests), `sperre.ts` (Web Locks). Adapter und Sperre prüfen E-01 und E-12 (Schritt 2.1).*
-- [ ] **1.6** Export und Import mit Argon2id und AES-GCM im Web Worker (T-E01 bis T-E09).
+- [x] **1.6** Export und Import mit Argon2id und AES-GCM im Web Worker. *T-E01 bis T-E09 grün; Export mit 50 Prüfungen und Standardparametern (64 MiB, t = 3, p = 1) in Vitest rund 1 s. `speicher/krypto.ts` (ohne Worker testbar), `krypto.worker.ts` (Hülle), `krypto-auftrag.ts` (Browser), `datei.ts` (Export, Import in fester Reihenfolge, Zusammenführen). Den Worker im Browser prüft E-11.*
 
 ## Phase 2 – Interview und Auswertung
 
@@ -70,4 +70,5 @@ Letzte Aktualisierung: 11.11.2026
 | 11.11.2026 | 1.1 Gerüst | 2dd51a1 |
 | 11.11.2026 | 1.2 Katalog in eigenen Formulierungen | 7e21f2a |
 | 11.11.2026 | 1.3, 1.4 Bewertung und Operationen | 8d06ac4 |
-| 11.11.2026 | 1.5 Speicher | Speicher: Prüfung beim Laden, Migrationsgerüst, IndexedDB, Tab-Sperre |
+| 11.11.2026 | 1.5 Speicher | 40d6bc8 |
+| 11.11.2026 | 1.6 Export und Import | Export und Import: Argon2id und AES-256-GCM im Web Worker |
