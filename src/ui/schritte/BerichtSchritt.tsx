@@ -1,6 +1,10 @@
+import { useEffect } from 'react'
 import { KATALOG } from '../../katalog'
 import { zeitpunktDeutsch } from '../../modell/datum'
-import { abschliessen, pruefeAbschluss, wiederOeffnen, type Meldung } from '../../modell/operationen'
+import { gleicheMassnahmenAb } from '../../modell/massnahmen'
+import { abschliessen, aenderePruefung, pruefeAbschluss, wiederOeffnen, type Meldung } from '../../modell/operationen'
+import { Bericht } from '../Bericht'
+import { Feld } from '../Eingaben'
 import { useBestaetigen } from '../frage'
 import { useApp, useAuswahl } from '../kontext'
 import { Symbol } from '../Symbole'
@@ -13,14 +17,22 @@ function schrittName(id: Meldung['schritt']) {
 }
 
 /**
- * Abschluss der Prüfung (6.2, 5.9). Die Druckansicht des Berichts (6.13) folgt in Phase 4;
- * bis dahin enthält der Schritt nur Abschließen und Wiederöffnen.
+ * Schritt Bericht (5.9): Abschluss mit Fehlerliste und Sprungmarken (6.2), Drucken und
+ * Vorschau im Druckbild (6.13). Im Druck erscheint nur der Bericht.
  */
 export function BerichtSchritt() {
-  const { dispatch, melde } = useApp()
-  const { pruefung } = useAuswahl()
+  const { z, dispatch, melde } = useApp()
+  const { betrieb, pruefung } = useAuswahl()
   const aendern = useAendern()
+  const aenderePruefungFn = aendern.pruefung
   const bestaetigen = useBestaetigen()
+  const entwurf = pruefung?.status === 'entwurf'
+
+  // Maßnahmen im Entwurf abgleichen, damit die Vorschau aktuell ist (6.8)
+  useEffect(() => {
+    if (entwurf) aenderePruefungFn((alt, jetzt) => gleicheMassnahmenAb(KATALOG, alt, jetzt))
+  }, [entwurf, aenderePruefungFn])
+
   if (!pruefung) return null
   const p = pruefung
   const { fehler, warnungen } = pruefeAbschluss(KATALOG, p)
@@ -54,12 +66,11 @@ export function BerichtSchritt() {
 
   return (
     <section className="schritt" aria-labelledby="schritt-titel">
-      <h1 id="schritt-titel">Bericht</h1>
-      <div className="karte">
-        <p className="leise">Die Druckansicht des Berichts (Teil A Ergebnis, Teil B Außenprüfung, Teil C Maßnahmenplan, Anhang mit Unterschriften) ist noch in Arbeit.</p>
-      </div>
+      <h1 id="schritt-titel" className="nur-bildschirm">
+        Bericht
+      </h1>
 
-      <div className="karte" aria-labelledby="abschluss-titel">
+      <div className="karte nur-bildschirm" role="group" aria-labelledby="abschluss-titel">
         <h2 id="abschluss-titel">Abschluss</h2>
         {p.status === 'abgeschlossen' ? (
           <>
@@ -111,6 +122,34 @@ export function BerichtSchritt() {
             </button>
           </>
         )}
+      </div>
+
+      <div className="karte nur-bildschirm" role="group" aria-labelledby="druck-titel">
+        <h2 id="druck-titel">Drucken</h2>
+        <p className="leise">
+          Gedruckt wird nur der Bericht, immer hell auf A4, jeder Teil auf einer neuen Seite. Als PDF: im Druckdialog „Als PDF speichern“ wählen.
+          {p.status === 'entwurf' && ' Solange die Prüfung ein Entwurf ist, trägt der Bericht den Vermerk „Entwurf“.'}
+        </p>
+        <Feld label="Förderhinweise für den Bericht (Anhang)" hilfe="Freitext, z. B. passende Förderprogramme des Landes. Bleibt auch nach dem Abschluss änderbar.">
+          {(id, beschreibung) => (
+            <textarea
+              id={id}
+              rows={3}
+              value={p.foerderhinweise}
+              aria-describedby={beschreibung}
+              onChange={(e) => aendern.pruefung((alt, jetzt) => aenderePruefung(alt, { foerderhinweise: e.target.value }, jetzt))}
+            />
+          )}
+        </Feld>
+        <div className="knopfreihe">
+          <button type="button" className="knopf knopf-haupt" onClick={() => window.print()}>
+            Drucken / als PDF
+          </button>
+        </div>
+      </div>
+
+      <div className="bericht-vorschau">
+        <Bericht k={KATALOG} betrieb={betrieb} pruefung={p} einstellungen={z.bestand.einstellungen} />
       </div>
     </section>
   )

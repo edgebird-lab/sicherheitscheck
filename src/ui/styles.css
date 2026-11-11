@@ -1442,3 +1442,291 @@ fieldset:disabled .auswahl-option {
     display: none;
   }
 }
+
+/* Bericht (6.13): Vorschau im Druckbild, immer hell ------------------------- */
+
+.bericht-vorschau {
+  color-scheme: light;
+  --flaeche: #ffffff;
+  --karte: #ffffff;
+  --karte-2: #f1f0ec;
+  --linie: #e1e0d9;
+  --linie-stark: #c3c2b7;
+  --text: #0b0b0b;
+  --text-2: #52514e;
+  --text-3: #6b6a65;
+  --akzent: #1c5cab;
+  --akzent-text: #1c5cab;
+  --akzent-hauch: #e9f1fb;
+  --akzent-rand: #b7d3f6;
+  --fokus: #2a78d6;
+  --gut: #0a7d32;
+  --schlecht: #c42b2b;
+  --schlecht-text: #b42c2c;
+  --warnung: #a35f00;
+  --warnung-hauch: #fdf1d6;
+  --warnung-rand: #eccb83;
+  --neutral: #6b6a65;
+  --top: #7a3db8;
+  --symbol-innen: #ffffff;
+  --netz-flaeche: rgba(28, 92, 171, 0.18);
+  background: #ffffff;
+  color: var(--text);
+  border: 1px solid var(--linie-stark);
+  border-radius: 4px;
+  box-shadow: 0 2px 14px rgba(11, 11, 11, 0.14);
+  max-width: 210mm;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 26px 34px 34px;
+}
+.bericht {
+  font-size: 0.95rem;
+}
+.bericht > * + * {
+  margin-top: 1.6rem;
+}
+.bericht section > * + * {
+  margin-top: 0.6rem;
+}
+.bericht h2 {
+  font-size: 1.25rem;
+  border-bottom: 2px solid var(--akzent);
+  padding-bottom: 4px;
+}
+.bericht h3 {
+  font-size: 1.05rem;
+  margin-top: 1.2rem;
+}
+.bericht h4 {
+  font-size: 0.98rem;
+  margin: 0.8rem 0 0.3rem;
+}
+.bericht ul,
+.bericht ol {
+  margin: 0.3rem 0;
+  padding-left: 20px;
+}
+.bericht-titelblock > * + * {
+  margin-top: 0.3rem;
+}
+.bericht-vertraulich {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-2);
+}
+.bericht .bericht-haupttitel {
+  font-size: 1.55rem;
+  border: 0;
+  padding: 0;
+}
+.bericht-untertitel {
+  font-size: 1.05rem;
+}
+.bericht-entwurf {
+  border: 1px dashed var(--warnung);
+  background: var(--warnung-hauch);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+.bericht-statuswert {
+  font-size: 1.25rem;
+}
+.bericht-spalten {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+}
+.bericht-tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+.bericht-tabelle th,
+.bericht-tabelle td {
+  text-align: left;
+  vertical-align: top;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--linie);
+}
+.bericht-tabelle thead th {
+  border-bottom: 1.5px solid var(--linie-stark);
+  color: var(--text-2);
+}
+.bericht-tabelle tbody th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.bericht-tabelle .zahl-zelle {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.bericht-gruppe th {
+  background: var(--karte-2);
+  white-space: normal !important;
+}
+.bericht .tabelle-wrap {
+  overflow: visible;
+}
+.bericht .netz-tabelle {
+  font-size: 0.82rem;
+}
+.bericht .netz-tabelle th,
+.bericht .netz-tabelle td {
+  padding: 4px 6px;
+}
+.bericht .netz-tabelle .zahl-zelle {
+  white-space: normal;
+}
+.bericht-empfehlungen li + li,
+.bericht-befunde li + li {
+  margin-top: 0.6rem;
+}
+.bericht-empfehlungen p,
+.bericht-befund p {
+  margin: 0.15rem 0;
+}
+.bericht-befunde {
+  list-style: none;
+  padding-left: 0 !important;
+}
+.bericht-befund {
+  border-left: 3px solid var(--linie-stark);
+  padding-left: 10px;
+}
+.bericht-freitext {
+  white-space: pre-wrap;
+}
+.bericht-zitat {
+  margin: 0;
+  padding: 6px 12px;
+  border-left: 3px solid var(--akzent-rand);
+  color: var(--text-2);
+}
+.bericht a {
+  color: var(--akzent-text);
+}
+.unterschriften {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 1.2rem !important;
+}
+.unterschrift p {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+.unterschrift-linie {
+  height: 2.6em;
+  border-bottom: 1px solid var(--text);
+}
+.unterschrift-linie + p + .unterschrift-linie {
+  margin-top: 0.4rem;
+}
+@media (max-width: 760px) {
+  .bericht-vorschau {
+    padding: 18px 16px;
+  }
+  .bericht-spalten,
+  .unterschriften {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Druck: nur der Bericht, immer hell ------------------------------------- */
+
+@page {
+  size: A4;
+  margin: 20mm 16mm 18mm;
+}
+
+@media print {
+  :root:not([data-theme='__']),
+  :root[data-theme='dark'] {
+    color-scheme: light;
+    --flaeche: #ffffff;
+    --karte: #ffffff;
+    --karte-2: #f1f0ec;
+    --linie: #d6d5ce;
+    --linie-stark: #a8a79d;
+    --text: #0b0b0b;
+    --text-2: #45443f;
+    --text-3: #5d5c57;
+    --akzent: #1c5cab;
+    --akzent-text: #1c5cab;
+    --gut: #0a7d32;
+    --schlecht: #c42b2b;
+    --warnung: #a35f00;
+    --neutral: #5d5c57;
+    --symbol-innen: #ffffff;
+    --schatten: none;
+  }
+  html,
+  body,
+  .app {
+    background: #ffffff !important;
+    color: #0b0b0b !important;
+  }
+  .kopf,
+  .schrittleiste,
+  .sprungmarke,
+  .streifen,
+  .nur-bildschirm {
+    display: none !important;
+  }
+  .seite {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  .bericht-vorschau {
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    max-width: none;
+    margin: 0 !important;
+  }
+  .bericht {
+    font-size: 10pt;
+  }
+  .bericht-teil {
+    break-before: page;
+  }
+  .bericht-teil-erster {
+    break-before: auto;
+  }
+  .bericht-umbruch {
+    break-before: page;
+  }
+  .bericht h2,
+  .bericht h3,
+  .bericht h4 {
+    break-after: avoid;
+  }
+  .bericht-tabelle tr,
+  .bericht-befund,
+  .bericht-empfehlungen li,
+  .unterschriften,
+  .bericht .netz {
+    break-inside: avoid;
+  }
+  .bericht .netz {
+    grid-template-columns: 92mm minmax(0, 1fr);
+    gap: 8mm;
+  }
+  .bericht .netz-bild svg {
+    max-width: 92mm;
+  }
+  .bericht-spalten,
+  .unterschriften {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bericht a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

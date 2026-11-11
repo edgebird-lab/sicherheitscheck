@@ -8,7 +8,7 @@ import { PRUEF_IDS, PRUEF_NAME } from '../pruefung/stufen'
 import { istRelevant, wirksameBewertung } from './bewertung'
 import { heuteLokal, istDatum, plusTage } from './datum'
 import { neueId, type NeueId } from './kennung'
-import type { Befund, Betrieb, Datum, Id, Katalog, Massnahme, MassnahmeQuelle, Prioritaet, Pruefung, Stufe } from './typen'
+import type { Anforderung, Befund, Betrieb, Datum, Id, Katalog, Massnahme, MassnahmeQuelle, Prioritaet, Pruefung, Stufe } from './typen'
 
 /** Frist in Tagen ab dem Datum des Interviews je Priorität (6.8, F6) */
 export const FRIST_TAGE: Record<Prioritaet, number> = { 1: 14, 2: 90, 3: 180 }
@@ -243,4 +243,27 @@ export function wasZuTun(k: Katalog, b: Pick<Betrieb, 'pruefungen'>, p: Pruefung
   const texte = [befund.regel, ...befund.weitere.filter((w) => prioritaetFuerStufe(w.stufe) !== null).map((w) => w.regel)].map((r) => regeltext(r).massnahme)
   const [text, ...unterpunkte] = texte.map((t) => (t === null ? null : mitDomain(t, domain)))
   return { text, unterpunkte: unterpunkte.filter((t): t is string => t !== null) }
+}
+
+export interface Empfehlung {
+  anforderung: Anforderung
+  prioritaet: Prioritaet
+  massnahme: Massnahme | null
+}
+
+/**
+ * Handlungsempfehlungen für den Bericht (6.13, Teil A): alle relevanten, nicht erfüllten
+ * Anforderungen nach Priorität (die der Maßnahme, sonst TOP 1 und Basis 2), dann TOP vor Basis,
+ * Themenbereich und Katalogreihenfolge.
+ */
+export function handlungsempfehlungen(k: Katalog, p: Pruefung): Empfehlung[] {
+  const themaNr = new Map(k.themen.map((t) => [t.id, t.nr]))
+  return k.anforderungen
+    .filter((a) => istRelevant(a, p) && wirksameBewertung(a, p) === 'nicht_erfuellt')
+    .map((a, position) => {
+      const massnahme = p.massnahmen.find((m) => m.quelle.art === 'anforderung' && m.quelle.anforderungId === a.id) ?? null
+      return { anforderung: a, prioritaet: massnahme ? wirksamePrioritaet(massnahme) : a.top ? 1 : 2, massnahme, position }
+    })
+    .sort((x, y) => x.prioritaet - y.prioritaet || Number(y.anforderung.top) - Number(x.anforderung.top) || (themaNr.get(x.anforderung.thema) ?? 0) - (themaNr.get(y.anforderung.thema) ?? 0) || x.position - y.position)
+    .map(({ anforderung, prioritaet, massnahme }) => ({ anforderung, prioritaet, massnahme }))
 }

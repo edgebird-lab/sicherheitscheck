@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { KATALOG } from '../katalog'
 import { JETZT, pruefungMit, zaehler } from '../testhilfen/pruefung'
-import { aendereMassnahme, FEHLT_BEGRUENDUNG_PRIORITAET, gleicheMassnahmenAb, setzePrioritaet, sollMassnahmen, sortiereMassnahmen, wirksamePrioritaet } from './massnahmen'
+import { aendereMassnahme, FEHLT_BEGRUENDUNG_PRIORITAET, gleicheMassnahmenAb, handlungsempfehlungen, setzePrioritaet, sollMassnahmen, sortiereMassnahmen, wirksamePrioritaet } from './massnahmen'
 import { abschliessen, setzeAntwort, setzeAussenpruefung } from './operationen'
 import type { Aussenpruefung, Befund, Massnahme, Pruefung, Stufe } from './typen'
 
@@ -201,5 +201,32 @@ describe('Maßnahme bearbeiten', () => {
     if (!r.ok) throw new Error('nicht abgeschlossen')
     const id = r.pruefung.massnahmen[0].id
     expect(aendereMassnahme(r.pruefung, id, { status: 'erledigt' }, SPAETER).massnahmen[0].status).toBe('erledigt')
+  })
+})
+
+describe('Handlungsempfehlungen für den Bericht', () => {
+  it('alle nicht erfüllten relevanten Anforderungen nach Priorität; eine eigene Priorität der Maßnahme zählt', () => {
+    let p = abgleich(nurNicht('A04', 'A19', 'A02', 'A24'))
+    expect(handlungsempfehlungen(K, p).map((e) => [e.anforderung.id, e.prioritaet])).toEqual([
+      ['A02', 1],
+      ['A19', 1],
+      ['A04', 2],
+      ['A24', 2],
+    ])
+    const a24 = p.massnahmen.find((m) => m.quelle.art === 'anforderung' && m.quelle.anforderungId === 'A24')!
+    const r = setzePrioritaet(p, a24.id, 1, 'Fernwartung offen erreichbar', SPAETER)
+    if (!r.ok) throw new Error(r.fehler)
+    p = r.pruefung
+    expect(handlungsempfehlungen(K, p).map((e) => [e.anforderung.id, e.prioritaet])).toEqual([
+      ['A02', 1],
+      ['A19', 1],
+      ['A24', 1],
+      ['A04', 2],
+    ])
+    // ohne Maßnahmen (Entwurf vor dem Abgleich): TOP 1, Basis 2
+    expect(handlungsempfehlungen(K, nurNicht('A04', 'A02')).map((e) => [e.anforderung.id, e.prioritaet, e.massnahme])).toEqual([
+      ['A02', 1, null],
+      ['A04', 2, null],
+    ])
   })
 })
