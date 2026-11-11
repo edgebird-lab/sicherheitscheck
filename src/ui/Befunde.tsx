@@ -81,7 +81,7 @@ export function BefundGruppen({ aussen, ueberschrift = 'h2' }: { aussen: Aussenp
           <section key={g.id} className="karte befundgruppe" aria-labelledby={`gruppe-${g.id}`}>
             <Kopf id={`gruppe-${g.id}`}>{g.name}</Kopf>
             {befunde.length === 0 ? (
-              <p className="leise">{g.id === 'website' && aussen.modus === 'desktop' ? 'Die Website-Prüfung folgt mit dem Windows-Programm.' : 'Nicht geprüft (Lauf vorher beendet).'}</p>
+              <p className="leise">Nicht geprüft (Lauf vorher beendet).</p>
             ) : nurBrowser ? (
               <div className="befund befund-nicht_geprueft">
                 <div className="befund-kopf">

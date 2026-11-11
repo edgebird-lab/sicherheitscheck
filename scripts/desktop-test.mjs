@@ -1,7 +1,8 @@
 /**
  * Prüft das echte Windows-Programm (Debug-Build) ohne Installation (Spezifikation 9.9):
  * D-01 Start im sicheren Kontext, Beispielbetrieb; D-02 verschlüsselt exportieren, alles
- * löschen, importieren, Daten gleich; D-03 Bericht als PDF in A4; D-05 Außenprüfung von
+ * löschen, importieren, Daten gleich; D-03 Bericht als PDF in A4; D-04 Netzbefehle ohne
+ * Freigabe werden abgelehnt (kein Netzverkehr); D-05 Außenprüfung von
  * example.com mit nachgebildeten DoH-Antworten (nichts verlässt den Rechner); dazu zweiter
  * Start mit einer Sicherung (Einzelinstanz, Rückfrage vor dem Import), Speichern beim
  * Schließen und keine Verstöße gegen die Content-Security-Policy. Dateidialoge beantwortet der Debug-Build
@@ -241,8 +242,18 @@ try {
   pruefe(seiten >= 3, `PDF hat mindestens 3 Seiten (${seiten})`)
   pruefe(!existsSync(datei('bericht.pdf.speichern.tmp')), 'keine Hilfsdatei übrig')
 
+  // D-04: Netzbefehle ohne Freigabe: abgelehnt, bevor ein Name aufgelöst oder verbunden wird
+  console.log('D-04 Netzbefehle ohne Freigabe')
+  const rust = (befehl, args) => seite.evaluate(([b, a]) => window.__TAURI_INTERNALS__.invoke(b, a).then((wert) => ({ ok: wert }), (fehler) => ({ fehler })), [befehl, args])
+  const ohneFreigabe = await rust('http_abruf', { url: 'https://example.com/' })
+  pruefe(ohneFreigabe.fehler?.fehler === 'nicht_erlaubt', `http_abruf an https://example.com/ ohne Freigabe: nicht_erlaubt (${ohneFreigabe.fehler?.text})`)
+  pruefe((await rust('tls_info', { host: 'example.com' })).fehler?.fehler === 'nicht_erlaubt', 'tls_info ohne Freigabe: nicht_erlaubt')
+  pruefe((await rust('freigabe_setzen', { domain: 'co.uk' })).fehler?.fehler === 'nicht_erlaubt', 'freigabe_setzen für co.uk: nicht_erlaubt')
+  pruefe((await rust('doh_abfrage', { anbieter: 'cloudflare', name: 'example.com', typ: 'ANY', ohnePruefung: false })).fehler?.fehler === 'nicht_erlaubt', 'doh_abfrage mit Typ ANY: nicht_erlaubt')
+
   // D-05: Außenprüfung example.com; DoH-Antworten aus der fiktiven Zone, nichts verlässt den Rechner.
-  // Belegt, dass die CSP des Programms DoH beim Anbieter zulässt.
+  // Belegt, dass die CSP des Programms DoH beim Anbieter zulässt. Die Zone hat keine A- und
+  // AAAA-Einträge; deshalb ruft der Rust-Teil weder HTTP noch TLS ab (WEB-00).
   console.log('D-05 Außenprüfung mit nachgebildeten DoH-Antworten')
   const zone = JSON.parse(readFileSync('testdaten/dns/beispiel-zone.json', 'utf8'))
   const anfragen = []
@@ -279,6 +290,12 @@ try {
   pruefe(email[0] === 'Mailserver eingetragen' && email.includes('DMARC beobachtet nur, ohne Berichte'), `Befunde der Gruppe E-Mail aus der fiktiven Zone (${email.length})`)
   pruefe(anfragen.length >= 8 && anfragen[0] === 'MX example.com', `DoH-Abfragen gehen an den Anbieter, CSP lässt sie zu (${anfragen.length})`)
   pruefe(fremd.length === 0, `keine Anfrage an andere Ziele${fremd.length ? `: ${fremd.join(', ')}` : ''}`)
+  pruefe(anfragen.includes('A www.example.com') && anfragen.includes('AAAA example.com'), 'Vorprüfung der Website über A und AAAA')
+  const website = await seite.getByRole('region', { name: 'Website' }).getByRole('heading', { level: 3 }).allTextContents()
+  pruefe(website.length === 1 && website[0] === 'Keine Website gefunden', `Website-Gruppe: ${website.join(', ')}`)
+  await gespeichert(seite)
+  const protokoll = JSON.parse(await leseBetriebe(seite)).find((b) => b.name === 'Bäckerei Probe').pruefungen[0].aussen.protokoll
+  pruefe(protokoll.length > 0 && protokoll.every((a) => a.art === 'dns'), `Abrufprotokoll nur mit DNS-Abfragen (${protokoll.length}), kein HTTP- oder TLS-Abruf`)
   await kontext.unrouteAll({ behavior: 'ignoreErrors' })
 
   // Speichern beim Schließen: Änderung, sofort schließen, neu starten

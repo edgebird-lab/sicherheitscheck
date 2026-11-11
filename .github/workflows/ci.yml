@@ -1,7 +1,8 @@
 name: Prüfung
 
-# Lint, Unit-Tests und Build bei jedem Push. Die Browsertests (Playwright mit axe)
-# laufen lokal vor jedem Commit mit Edge; so bleibt der Lauf im privaten Repo kurz.
+# Lint, Unit-Tests und Build bei jedem Push, dazu die Netztests der Crate netzpruefung
+# (ohne Tauri, deshalb unter Linux). Die Browsertests (Playwright mit axe) laufen lokal vor
+# jedem Commit mit Edge; so bleibt der Lauf im privaten Repo kurz.
 on:
   push:
     branches: [main]
@@ -20,3 +21,9 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+      - name: Netztests (cargo test -p netzpruefung)
+        run: cargo test --manifest-path src-tauri/Cargo.toml -p netzpruefung

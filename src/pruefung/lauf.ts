@@ -101,6 +101,7 @@ export class Lauf {
   readonly protokoll: Abruf[] = []
   private readonly zaehler: Record<Abruf['art'], number> = { dns: 0, http: 0, tls: 0 }
   private readonly zwischenspeicher = new Map<string, Promise<DnsAntwort | NetzFehler>>()
+  private readonly httpSpeicher = new Map<string, Promise<HttpAntwort | NetzFehler>>()
   private readonly netz: Netz
   private readonly u: LaufUmgebung
   private readonly beginn: number
@@ -154,8 +155,22 @@ export class Lauf {
     return this.abruf('dns', `${anfrage}, Wiederholung`, ausfuehren, text)
   }
 
-  /** HTTP-Abruf ohne Weiterleitung (nur Windows-Programm), mindestens 250 ms nach dem vorigen */
-  async http(url: string): Promise<HttpAntwort | NetzFehler> {
+  /**
+   * HTTP-Abruf ohne Weiterleitung (nur Windows-Programm), mindestens 250 ms nach dem vorigen.
+   * Dieselbe Adresse ruft ein Lauf nur einmal ab (eigene Festlegung, wie bei DNS): Mehrere Ketten
+   * enden oft auf derselben Startseite. Ein abgebrochener Abruf wird nicht gemerkt.
+   */
+  http(url: string): Promise<HttpAntwort | NetzFehler> {
+    let ergebnis = this.httpSpeicher.get(url)
+    if (!ergebnis) {
+      ergebnis = this.httpAbruf(url)
+      this.httpSpeicher.set(url, ergebnis)
+      ergebnis.catch(() => this.httpSpeicher.delete(url))
+    }
+    return ergebnis
+  }
+
+  private async httpAbruf(url: string): Promise<HttpAntwort | NetzFehler> {
     if (this.letzterHttpAbruf !== null) {
       const rest = this.letzterHttpAbruf + HTTP_ABSTAND_MS - this.u.uhr()
       if (rest > 0) await this.u.warte(rest, this.u.signal)

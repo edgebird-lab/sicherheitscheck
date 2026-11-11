@@ -87,7 +87,7 @@ export function AussenSchritt() {
     setFertig([])
     try {
       const { aussenpruefung } = await import('../../pruefung/ablauf')
-      const netz = plattform.netz({ anbieter, signal: steuerung.signal })
+      const netz = await plattform.netz({ anbieter, signal: steuerung.signal })
       const r = await aussenpruefung(
         { domain: D, dkimSelektoren: betrieb.dkimSelektoren, dohAnbieter: anbieter, bestaetigung: { name, rolle, zugestimmt } },
         netz,
@@ -134,8 +134,9 @@ export function AussenSchritt() {
         <div className="karte" role="group" aria-labelledby="vorbereitung-titel">
           <h2 id="vorbereitung-titel">{p.aussen ? 'Neue Außenprüfung' : 'Prüfung vorbereiten'}</h2>
           <p className="leise">
-            Passive Prüfung von außen: Die App liest nur öffentliche DNS-Einträge, so wie es jeder Mailserver tut. Keine Portscans, keine Anmeldeversuche. Geprüft werden MX, SPF, DMARC, DKIM, MTA-STS,
-            TLS-RPT, DNSSEC und CAA.
+            {plattform.desktop
+              ? 'Passive Prüfung von außen: Das Programm liest öffentliche DNS-Einträge und ruft die Startseite, das Zertifikat und zwei Standarddateien ab, so wie es ein Besucher oder ein Mailserver auch tut. Keine Portscans, keine Anmeldeversuche. Geprüft werden MX, SPF, DMARC, DKIM, MTA-STS, TLS-RPT, DNSSEC, CAA und die Website (Weiterleitung auf HTTPS, Zertifikat, TLS-Version, HSTS, Sicherheits-Header, Cookies, security.txt).'
+              : 'Passive Prüfung von außen: Die App liest nur öffentliche DNS-Einträge, so wie es jeder Mailserver tut. Keine Portscans, keine Anmeldeversuche. Geprüft werden MX, SPF, DMARC, DKIM, MTA-STS, TLS-RPT, DNSSEC und CAA.'}
           </p>
           <div className="feldreihe">
             <Feld label="Domain" fehler={domain && !domain.ok ? domain.fehler : null} hilfe={domain?.ok ? (domain.hinweis ?? 'geprüft nach 6.3: registrierbare Domain') : 'z. B. firma.de'}>
@@ -165,15 +166,18 @@ export function AussenSchritt() {
                 </button>
               </dd>
               <dt>Modus</dt>
-              <dd>{MODUS_TEXT.browser}</dd>
+              <dd>{MODUS_TEXT[plattform.desktop ? 'desktop' : 'browser']}</dd>
               <dt>DNS-Anbieter</dt>
               <dd>{ANBIETER_NAME[anbieter]} (in den Einstellungen wählbar)</dd>
             </dl>
           </div>
           <p>
             <strong>Geplante Abrufe:</strong> bis zu {STANDARD_GRENZEN.dns} DNS-Abfragen über {ANBIETER_NAME[anbieter]} zu {D ?? 'der Domain'} und ihren Unternamen (_dmarc, _mta-sts, _smtp._tls
-            {betrieb.dkimSelektoren.length > 0 ? ', DKIM-Selektoren' : ''}). Die Website wird im Browser nicht abgerufen; das kann nur das Windows-Programm. Der Anbieter sieht die abgefragten Namen und die
-            IP-Adresse dieses Rechners.
+            {betrieb.dkimSelektoren.length > 0 ? ', DKIM-Selektoren' : ''})
+            {plattform.desktop
+              ? `, dazu bis zu ${STANDARD_GRENZEN.tls} TLS-Verbindungen und ${STANDARD_GRENZEN.http} HTTP-Abrufe an ${D ?? 'die Domain'} und ihre Subdomains (Startseite, security.txt, MTA-STS-Richtlinie), ohne Weiterleitungen auf andere Domains zu folgen. Die Website sieht die IP-Adresse dieses Rechners wie bei jedem Besuch. `
+              : '. Die Website wird im Browser nicht abgerufen; das kann nur das Windows-Programm. '}
+            Der Anbieter sieht die abgefragten Namen und die IP-Adresse dieses Rechners.
           </p>
 
           <Auswahl<Bestaetigung['rolle']>

@@ -36,6 +36,6 @@ export interface Plattform {
   beiDatei(f: (d: Datei) => void): () => void
   /** Vor dem Schließen des Fensters läuft `vorher` (Speichern), danach schließt das Fenster. */
   beimSchliessen(vorher: () => Promise<void>): () => void
-  /** Netz der Außenprüfung: im Browser nur DNS, im Programm auch Website und TLS */
-  netz(o: NetzOptionen): Netz
+  /** Netz der Außenprüfung: im Browser nur DNS, im Programm auch Website und TLS (nur dann geladen) */
+  netz(o: NetzOptionen): Promise<Netz>
 }

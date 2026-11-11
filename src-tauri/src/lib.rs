@@ -1,15 +1,20 @@
 //! Windows-Programm des Sicherheitschecks.
 //!
-//! Die Oberfläche bekommt keine allgemeinen Dateirechte. Sie ruft nur die Befehle
-//! dieses Moduls auf. Gelesen wird nur, was der Benutzer selbst gewählt hat (Dialog,
-//! Doppelklick oder „Öffnen mit“, ins Fenster gezogen), geschrieben nur an den Ort,
-//! den er im Speichern-Dialog angibt. Die Daten selbst liegen in der IndexedDB der
+//! Die Oberfläche bekommt keine allgemeinen Datei- oder Netzrechte. Sie ruft nur die
+//! Befehle dieses Moduls auf. Gelesen wird nur, was der Benutzer selbst gewählt hat
+//! (Dialog, Doppelklick oder „Öffnen mit“, ins Fenster gezogen), geschrieben nur an den
+//! Ort, den er im Speichern-Dialog angibt. Die Daten selbst liegen in der IndexedDB der
 //! WebView2 (Spezifikation 7.4); Dateien entstehen nur bei Export und PDF.
+//!
+//! Die Außenprüfung ruft Websites und Zertifikate nur über die Crate `netzpruefung` ab:
+//! erst nach `freigabe_setzen` für genau diese Domain (15 Minuten), nie zu privaten
+//! Adressen, ohne Weiterleitung und mit festen Grenzen (7.7).
 
 use std::path::{Path, PathBuf};
 
+use netzpruefung::{FehlerArt, Freigabe, HttpAntwort, NetzFehler, TlsInfo};
 use serde::Serialize;
-use tauri::{AppHandle, DragDropEvent, Emitter, Manager, WindowEvent};
+use tauri::{AppHandle, DragDropEvent, Emitter, Manager, State, WindowEvent};
 use tauri_plugin_dialog::DialogExt;
 
 /// Größte Datei, die gelesen wird (wie im Browser, Spezifikation 6.11).
@@ -197,6 +202,32 @@ async fn als_pdf(app: AppHandle, fenster: tauri::WebviewWindow, vorschlag: Strin
     }
 }
 
+/// Gibt eine Domain für HTTP und TLS frei (15 Minuten; eine neue Freigabe ersetzt die alte).
+#[tauri::command]
+fn freigabe_setzen(domain: String, freigabe: State<'_, Freigabe>) -> Result<(), NetzFehler> {
+    freigabe.setze(&domain)
+}
+
+/// DNS über HTTPS bei Cloudflare oder Google; Rückgabe ist der JSON-Text der Antwort.
+#[tauri::command]
+async fn doh_abfrage(anbieter: String, name: String, typ: String, ohne_pruefung: bool) -> Result<String, NetzFehler> {
+    netzpruefung::doh_abfrage(&anbieter, &name, &typ, ohne_pruefung).await
+}
+
+/// Ein GET ohne Weiterleitung an die freigegebene Domain oder eine Subdomain davon.
+#[tauri::command]
+async fn http_abruf(url: String, freigabe: State<'_, Freigabe>) -> Result<HttpAntwort, NetzFehler> {
+    netzpruefung::http_abruf(&url, &freigabe).await
+}
+
+/// TLS-Handshake mit Port 443 eines freigegebenen Hosts (blockierend, deshalb in einem eigenen Thread).
+#[tauri::command]
+async fn tls_info(app: AppHandle, host: String) -> Result<TlsInfo, NetzFehler> {
+    tauri::async_runtime::spawn_blocking(move || netzpruefung::tls_info(&host, &app.state::<Freigabe>()))
+        .await
+        .map_err(|e| NetzFehler::neu(FehlerArt::Verbindung, format!("TLS-Prüfung abgebrochen: {e}")))?
+}
+
 /// Bringt das Hauptfenster nach vorn, z. B. wenn ein zweiter Start eine Datei übergibt.
 fn zeige_hauptfenster(app: &AppHandle) {
     if let Some(w) = app.get_webview_window("main") {
@@ -217,6 +248,8 @@ fn melde_datei(app: &AppHandle, p: &Path) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Kryptoanbieter ring für rustls (7.6)
+    netzpruefung::kryptoanbieter_einrichten();
     tauri::Builder::default()
         // Zuerst: Ein zweiter Start (Doppelklick auf eine weitere Datei) landet im laufenden Programm.
         .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
@@ -226,6 +259,7 @@ pub fn run() {
             zeige_hauptfenster(app);
         }))
         .plugin(tauri_plugin_dialog::init())
+        .manage(Freigabe::default())
         .on_window_event(|fenster, ereignis| {
             // Sicherung ins Fenster gezogen: Das ist eine Auswahl des Benutzers.
             if let WindowEvent::DragDrop(DragDropEvent::Drop { paths, .. }) = ereignis {
@@ -234,7 +268,7 @@ pub fn run() {
                 }
             }
         })
-        .invoke_handler(tauri::generate_handler![start_datei, oeffnen, speichern_unter, als_pdf])
+        .invoke_handler(tauri::generate_handler![start_datei, oeffnen, speichern_unter, als_pdf, freigabe_setzen, doh_abfrage, http_abruf, tls_info])
         .run(tauri::generate_context!())
         .expect("Der Sicherheitscheck konnte nicht starten");
 }

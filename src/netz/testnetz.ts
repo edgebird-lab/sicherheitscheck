@@ -20,11 +20,15 @@ export interface TestnetzDaten {
   tls?: Record<string, TlsInfo | NetzFehler>
   /** vor jeder Antwort gerufen, z. B. um nach dem dritten Abruf abzubrechen */
   beiAufruf?: (nr: number, aufruf: string) => void
+  /** Antwort auf die Freigabe im Windows-Programm; Standard: Erfolg */
+  freigabe?: NetzFehler
 }
 
 export interface Testnetz extends Netz {
   /** alle Aufrufe in Reihenfolge, z. B. 'DNS TXT firma.test', 'HTTP https://…', 'TLS firma.test' */
   aufrufe: string[]
+  /** freigegebene Domains (nur Windows-Programm) */
+  freigaben: string[]
   zaehle(art: 'DNS' | 'HTTP' | 'TLS'): number
 }
 
@@ -40,10 +44,16 @@ export function testnetz(d: TestnetzDaten = {}): Testnetz {
     d.beiAufruf?.(aufrufe.length, aufruf)
   }
 
+  const freigaben: string[] = []
   return {
     modus,
     aufrufe,
+    freigaben,
     zaehle: (art) => aufrufe.filter((a) => a.startsWith(`${art} `)).length,
+    async freigeben(domain) {
+      freigaben.push(domain)
+      return d.freigabe ?? null
+    },
     async dns(name, typ, ohneDnssecPruefung = false) {
       const schluessel = `${typ} ${normName(name)}${ohneDnssecPruefung ? ' cd' : ''}`
       melde(`DNS ${schluessel}`)

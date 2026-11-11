@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { DnsAntwort } from '../modell/typen'
 import { ausDohJson } from '../netz/schnittstelle'
-import { http, nxdomain, testnetz, txt, mx, type TestnetzDaten } from '../netz/testnetz'
+import { daten, http, nxdomain, testnetz, txt, mx, type TestnetzDaten } from '../netz/testnetz'
 import { JETZT } from '../testhilfen/pruefung'
 import { aussenpruefung, type Laufauftrag, type LaufOptionen } from './ablauf'
 import { bestaetigungsText, FEHLT_BESTAETIGUNG } from './bestaetigung'
@@ -120,25 +120,78 @@ describe('Ablauf der Außenprüfung (6.7)', () => {
     expect(netz.aufrufe).toEqual(['DNS MX example.com'])
   })
 
-  it('T-A02 (DNS-Teil): Windows-Programm: erst alle DNS-Abfragen, dann der HTTP-Abruf der MTA-STS-Richtlinie; jeder Abruf genau einmal im Protokoll', async () => {
-    const url = 'https://mta-sts.example.com/.well-known/mta-sts.txt'
+  it('T-A02: Windows-Programm: Freigabe, dann DNS vor TLS vor HTTP; jeder Abruf genau einmal im Protokoll, dauerMs ≥ 0', async () => {
+    const D = 'example.com'
+    const W = `www.${D}`
+    const S = `mta-sts.${D}`
+    const richtlinie = `https://${S}/.well-known/mta-sts.txt`
+    const tls = (host: string) => ({
+      host,
+      version: 'TLS 1.3' as const,
+      suite: 'TLS_AES_128_GCM_SHA256',
+      vertrauenswuerdig: true,
+      namePasst: true,
+      pruefFehler: null,
+      zertifikat: { inhaber: `CN=${host}`, aussteller: 'CN=Test', sans: [D, W, S], gueltigAb: '2026-10-01T00:00:00Z', gueltigBis: '2027-01-01T00:00:00Z', schluessel: 'EC P-256', signatur: 'ecdsa-with-SHA256' },
+      kettenlaenge: 2,
+    })
     const { r, netz } = await laufe({
       modus: 'desktop',
       dns: {
         ...BEISPIEL_DNS,
         'TXT _mta-sts.example.com': txt('_mta-sts.example.com', 'v=STSv1; id=1;'),
         'MX example.com': mx('example.com', '10 mail.example.com.'),
+        'A example.com': daten(D, 'A', ['203.0.113.10']),
+        'A www.example.com': daten(W, 'A', ['203.0.113.10']),
       },
-      http: { [url]: http(url, 200, [['content-type', 'text/plain']], 'version: STSv1\nmode: enforce\nmx: mail.example.com\nmax_age: 86400\n') },
+      tls: { [D]: tls(D), [W]: tls(W), [S]: tls(S) },
+      http: {
+        [`http://${D}/`]: http(`http://${D}/`, 301, [['location', `https://${W}/`]]),
+        [`http://${W}/`]: http(`http://${W}/`, 301, [['location', `https://${W}/`]]),
+        [`https://${D}/`]: http(`https://${D}/`, 301, [['location', `https://${W}/`], ['strict-transport-security', 'max-age=31536000']]),
+        [`https://${W}/`]: http(`https://${W}/`, 200, [['strict-transport-security', 'max-age=31536000'], ['content-security-policy', "default-src 'self'"]]),
+        [`https://${D}/.well-known/security.txt`]: http(`https://${D}/.well-known/security.txt`, 404),
+        [richtlinie]: http(richtlinie, 200, [['content-type', 'text/plain']], ['version: STSv1', 'mode: enforce', 'mx: mail.example.com', 'max_age: 86400', ''].join('\n')),
+      },
     })
     const a = aussen(r)
     expect(a.modus).toBe('desktop')
-    expect(a.protokoll.map((p) => p.art)).toEqual([...Array(8).fill('dns'), 'http'])
-    expect(a.protokoll.map((p) => p.anfrage)).toEqual(netz.aufrufe.map((x) => x.replace(/^DNS (\S+) (\S+)$/, '$1 $2').replace(/^HTTP /, 'GET ')))
+    expect(netz.freigaben).toEqual([D])
+    expect(a.protokoll.map((p) => p.art)).toEqual([...Array(12).fill('dns'), 'tls', 'tls', 'tls', ...Array(6).fill('http')])
+    expect(a.protokoll.slice(8, 12).map((p) => p.anfrage)).toEqual([`A ${D}`, `AAAA ${D}`, `A ${W}`, `AAAA ${W}`])
+    expect(a.protokoll.slice(12, 15).map((p) => p.anfrage)).toEqual([`TLS ${D}:443`, `TLS ${W}:443`, `TLS ${S}:443`])
+    // https://W/ wird nur einmal abgerufen, obwohl alle vier Ketten dort enden (Zwischenspeicher je Lauf)
+    expect(a.protokoll.slice(15).map((p) => p.anfrage)).toEqual([
+      `GET http://${D}/`,
+      `GET https://${W}/`,
+      `GET http://${W}/`,
+      `GET https://${D}/`,
+      `GET https://${D}/.well-known/security.txt`,
+      `GET ${richtlinie}`,
+    ])
     expect(new Set(a.protokoll.map((p) => p.anfrage)).size).toBe(a.protokoll.length)
+    // Protokoll und Netz stimmen Abruf für Abruf überein; jeder Abruf steht genau einmal da
+    const ausNetz = netz.aufrufe.map((x) => {
+      const [art, ...rest] = x.split(' ')
+      return art === 'DNS' ? rest.join(' ') : art === 'HTTP' ? `GET ${rest[0]}` : `TLS ${rest[0]}:443`
+    })
+    expect(a.protokoll.map((p) => p.anfrage)).toEqual(ausNetz)
     expect(a.protokoll.every((p) => p.dauerMs >= 0)).toBe(true)
     expect(a.befunde.find((b) => b.pruefId === 'mta_sts')).toMatchObject({ regel: 'STS-09', stufe: 'ok' })
     expect(a.befunde.find((b) => b.pruefId === 'tls_rpt')?.regel).toBe('RPT-02')
+    const web = (pruefId: string) => a.befunde.filter((b) => b.pruefId === pruefId).map((b) => `${b.ziel} ${b.regel}`)
+    expect(web('http_weiterleitung')).toEqual([`${D} WEB-01`, `${W} WEB-01`])
+    expect(web('zertifikat')).toEqual([`${D} CERT-06`, `${S} CERT-06`, `${W} CERT-06`])
+    expect(web('hsts')).toEqual([`${D} HSTS-04`, `${W} HSTS-04`])
+    expect(web('csp')).toEqual([`${W} CSP-01`])
+    expect(web('security_txt')).toEqual([`${D} SECTXT-01`])
+    expect(a.befunde.some((b) => b.regel === 'BROWSER-01')).toBe(false)
+  })
+
+  it('Windows-Programm: lehnt der Rust-Teil die Freigabe ab, gibt es keinen Lauf und keinen Abruf', async () => {
+    const { r, netz } = await laufe({ modus: 'desktop', dns: BEISPIEL_DNS, freigabe: { fehler: 'nicht_erlaubt', text: '„example.com“ ist keine registrierbare Domain.' } })
+    expect(r).toEqual({ ok: false, fehler: 'Die Domain ließ sich nicht für die Prüfung freigeben: „example.com“ ist keine registrierbare Domain.' })
+    expect(netz.aufrufe).toEqual([])
   })
 
   it('T-A03: Grenze 10 DNS-Abfragen: genau 10, übrige Prüfungen fehler „Grenze erreicht“, Lauf endet normal', async () => {

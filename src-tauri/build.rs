@@ -5,6 +5,10 @@ fn main() {
         "oeffnen",
         "speichern_unter",
         "als_pdf",
+        "freigabe_setzen",
+        "doh_abfrage",
+        "http_abruf",
+        "tls_info",
     ])))
     .expect("Fehler beim Vorbereiten des Tauri-Builds");
 }

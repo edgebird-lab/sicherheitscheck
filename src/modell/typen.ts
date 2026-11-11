@@ -366,6 +366,8 @@ export interface Netz {
   dns(name: string, typ: DnsTyp, ohneDnssecPruefung?: boolean): Promise<DnsAntwort | NetzFehler>
   http(url: string): Promise<HttpAntwort | NetzFehler>
   tls(host: string): Promise<TlsInfo | NetzFehler>
+  /** Nur im Windows-Programm: gibt D für HTTP und TLS frei (7.7); null bei Erfolg */
+  freigeben?(domain: string): Promise<NetzFehler | null>
 }
 
 /* ---------- Datei ---------- */

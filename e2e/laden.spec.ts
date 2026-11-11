@@ -54,13 +54,13 @@ test('Beschädigte Einträge beim Laden: Hinweis, die übrigen Betriebe bleiben 
   const fremd = JSON.parse(JSON.stringify(beispiel)) as { id: string; name: string; pruefungen: { aussen: { befunde: { regel: string }[] } }[] }
   fremd.id = 'b-regel'
   fremd.name = 'Kopie mit fremder Regel'
-  fremd.pruefungen[0].aussen.befunde[0].regel = 'WEB-01'
+  fremd.pruefungen[0].aussen.befunde[0].regel = 'WEB-99'
   await schreibeRoh(page, [{ id: 'b-kaputt', name: '' }, fremd])
 
   await page.reload()
   const hinweis = page.getByRole('alert').filter({ hasText: 'ließen sich nicht laden' })
   await expect(hinweis).toContainText('2 Einträge ließen sich nicht laden und werden übersprungen. Die Daten bleiben gespeichert und werden nicht gelöscht.')
-  await expect(hinweis.getByRole('listitem')).toHaveText(['Betrieb 2: Name fehlt.', 'Betrieb 3, Prüfung 1: Befund mit unbekannter Regel „WEB-01“ (Daten einer neueren Version?).'])
+  await expect(hinweis.getByRole('listitem')).toHaveText(['Betrieb 2: Name fehlt.', 'Betrieb 3, Prüfung 1: Befund mit unbekannter Regel „WEB-99“ (Daten einer neueren Version?).'])
 
   // Der gültige Betrieb lässt sich öffnen, auch Außenprüfung und Bericht
   await expect(page.getByRole('table', { name: 'Betriebe' }).getByRole('row')).toHaveCount(2)

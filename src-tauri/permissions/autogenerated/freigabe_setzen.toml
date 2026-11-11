@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-freigabe-setzen"
+description = "Enables the freigabe_setzen command without any pre-configured scope."
+commands.allow = ["freigabe_setzen"]
+
+[[permission]]
+identifier = "deny-freigabe-setzen"
+description = "Denies the freigabe_setzen command without any pre-configured scope."
+commands.deny = ["freigabe_setzen"]

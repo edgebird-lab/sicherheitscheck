@@ -86,6 +86,9 @@ export const REGEL_NICHT_PRUEFBAR: Partial<Record<PruefId, string>> = {
   caa: 'CAA-00',
 }
 
+/** Website-Prüfungen bei Grenze oder Abbruch (eigene Regel, 6.7: „enden mit Stufe fehler“) */
+export const REGEL_WEBSITE_NICHT_PRUEFBAR = 'WEB-15'
+
 /** Messwerte höchstens 300 Zeichen (4) */
 export const MAX_MESSWERT = 300
 

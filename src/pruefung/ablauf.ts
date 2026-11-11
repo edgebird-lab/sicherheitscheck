@@ -1,8 +1,9 @@
 /**
- * Ablauf der Außenprüfung (Spezifikation 6.7). Erst Domain und Bestätigung prüfen, dann die
- * DNS-Prüfungen in fester Reihenfolge: MX → SPF → DMARC → DKIM → MTA-STS → TLS-RPT → DNSSEC → CAA.
- * Im Windows-Programm folgt der Abruf der MTA-STS-Richtlinie; TLS und die Website-Prüfungen (6.6)
- * kommen mit Phase 5. Im Browser enden die Website-Prüfungen mit BROWSER-01 („nicht geprüft“).
+ * Ablauf der Außenprüfung (Spezifikation 6.7). Erst Domain und Bestätigung prüfen (im
+ * Windows-Programm danach die Freigabe der Domain im Rust-Teil), dann die DNS-Prüfungen in fester
+ * Reihenfolge: MX → SPF → DMARC → DKIM → MTA-STS → TLS-RPT → DNSSEC → CAA. Im Windows-Programm
+ * folgen A und AAAA für D und W, TLS, die HTTP-Ketten, security.txt (6.6, `website.ts`) und zuletzt
+ * die MTA-STS-Richtlinie. Im Browser enden die Website-Prüfungen mit BROWSER-01 („nicht geprüft“).
  *
  * Die Abfragen laufen nacheinander (höchstens eine gleichzeitig), damit Reihenfolge, Grenzen und
  * Protokoll nachvollziehbar bleiben. Grenze oder Abbruch beenden die laufende und alle übrigen
@@ -22,6 +23,7 @@ import { pruefeSelektoren } from './selektoren'
 import { pruefeSpf } from './spf'
 import { befund, PRUEF_IDS, REGEL_NICHT_PRUEFBAR, WEBSITE_PRUEF_IDS } from './stufen'
 import { pruefeTlsRpt } from './tlsrpt'
+import { pruefeWebsite } from './website'
 
 export interface Laufauftrag {
   /** Eingabe; wird nach 6.3 geprüft */
@@ -53,6 +55,11 @@ export async function aussenpruefung(auftrag: Laufauftrag, netz: Netz, optionen:
   if (!b.zugestimmt || b.rolle === null || b.name.trim() === '') return { ok: false, fehler: FEHLT_BESTAETIGUNG }
 
   const D = domain.domain
+  // Windows-Programm: HTTP und TLS gehen nur an die freigegebene Domain (7.7)
+  if (netz.modus === 'desktop' && netz.freigeben) {
+    const f = await netz.freigeben(D)
+    if (f) return { ok: false, fehler: `Die Domain ließ sich nicht für die Prüfung freigeben: ${f.text}` }
+  }
   const u = laufUmgebung(optionen)
   const lauf = new Lauf(netz, u)
   const gestartet = u.jetzt().toISOString()
@@ -133,16 +140,16 @@ export async function aussenpruefung(auftrag: Laufauftrag, netz: Netz, optionen:
   await sicher('caa', D, () => pruefeCaa(lauf, D))
   melde('caa')
 
+  // Website: im Browser nicht möglich (6.6); im Windows-Programm A/AAAA, TLS, HTTP, security.txt
+  if (netz.modus === 'desktop') befunde.push(...(await pruefeWebsite(lauf, D, { mitMtaSts: stsDa, jetzt: u.jetzt, melde })))
+  else for (const pruefId of WEBSITE_PRUEF_IDS) befunde.push(befund(pruefId, D, ['BROWSER-01'], 'nur im Windows-Programm'))
+  for (const pruefId of WEBSITE_PRUEF_IDS) melde(pruefId)
+
+  // Zuletzt die MTA-STS-Richtlinie (nur Windows-Programm, 6.7 Schritt 4)
   if (richtlinieFolgt) {
     const eintrag = richtlinieFolgt
     await sicher('mta_sts', D, async () => bewerteMtaSts(D, eintrag, 'desktop', await holeRichtlinie(lauf, D), mxHosts))
     melde('mta_sts')
   }
-
-  // Website: im Browser nicht möglich (6.6); im Windows-Programm folgen TLS und HTTP mit Phase 5
-  if (netz.modus === 'browser') {
-    for (const pruefId of WEBSITE_PRUEF_IDS) befunde.push(befund(pruefId, D, ['BROWSER-01'], 'nur im Windows-Programm'))
-  }
-  for (const pruefId of WEBSITE_PRUEF_IDS) melde(pruefId)
   return ergebnis()
 }

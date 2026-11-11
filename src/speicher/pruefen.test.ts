@@ -163,7 +163,7 @@ describe('Außenprüfung beim Laden prüfen', () => {
 
   it('Regel ohne Text in dieser Version (Hauptregel oder weitere): übersprungen statt Absturz der Anzeige', () => {
     for (const [befund, regel] of [
-      [{ ...aussen.befunde[0], regel: 'WEB-01' }, 'WEB-01'],
+      [{ ...aussen.befunde[0], regel: 'WEB-99' }, 'WEB-99'],
       [{ ...aussen.befunde[0], weitere: [{ regel: 'DMARC-99', stufe: 'hinweis' }] }, 'DMARC-99'],
     ] as const) {
       const { bestand, meldungen } = pruefeDatenbestand(mitAussen({ ...kopie(aussen), befunde: [befund] }), KATALOG)

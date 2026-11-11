@@ -5,7 +5,6 @@
  * ersten Aufruf geladen, damit die Web-Version sie nie mitlädt.
  */
 import type { InvokeArgs } from '@tauri-apps/api/core'
-import { browserNetz } from '../netz/browser'
 import type { Datei, Plattform } from './typen'
 
 const kern = () => import('@tauri-apps/api/core')
@@ -59,6 +58,11 @@ export const desktopPlattform: Plattform = {
         }
       }),
     ),
-  // DNS über HTTPS wie im Browser (CSP connect-src erlaubt nur die beiden Anbieter)
-  netz: (o) => browserNetz(o),
+  // DNS über HTTPS wie im Browser (CSP connect-src erlaubt nur die beiden Anbieter), HTTP und TLS
+  // über Rust. Fehler des Rust-Teils sind NetzFehler und gehen unverändert an den Lauf.
+  netz: async (o) => {
+    const { desktopNetz } = await import('../netz/desktop')
+    const { invoke } = await kern()
+    return desktopNetz({ ...o, rufe: (befehl, args) => invoke(befehl, args) })
+  },
 }

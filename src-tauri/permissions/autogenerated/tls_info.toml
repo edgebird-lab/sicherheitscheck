@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-tls-info"
+description = "Enables the tls_info command without any pre-configured scope."
+commands.allow = ["tls_info"]
+
+[[permission]]
+identifier = "deny-tls-info"
+description = "Denies the tls_info command without any pre-configured scope."
+commands.deny = ["tls_info"]

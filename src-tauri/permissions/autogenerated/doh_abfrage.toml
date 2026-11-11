@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-doh-abfrage"
+description = "Enables the doh_abfrage command without any pre-configured scope."
+commands.allow = ["doh_abfrage"]
+
+[[permission]]
+identifier = "deny-doh-abfrage"
+description = "Denies the doh_abfrage command without any pre-configured scope."
+commands.deny = ["doh_abfrage"]

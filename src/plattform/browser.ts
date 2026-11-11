@@ -31,5 +31,5 @@ export const browserPlattform: Plattform = {
   },
   beiDatei: () => () => {},
   beimSchliessen: () => () => {},
-  netz: (o) => browserNetz(o),
+  netz: async (o) => browserNetz(o),
 }
