@@ -1,0 +1,10 @@
+{
+  "Status": 2,
+  "TC": false,
+  "RD": true,
+  "RA": true,
+  "AD": false,
+  "CD": false,
+  "Question": [{ "name": "dnssec-kaputt.test", "type": 6 }],
+  "Comment": ["EDE(9): DNSKEY Missing (no SEP matching the DS found for dnssec-kaputt.test.)"]
+}

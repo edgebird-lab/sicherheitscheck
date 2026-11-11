@@ -1,0 +1,12 @@
+{
+  "Status": 0,
+  "TC": false,
+  "RD": true,
+  "RA": true,
+  "AD": false,
+  "CD": false,
+  "Question": [{ "name": "firma.test.", "type": 257 }],
+  "Answer": [{ "name": "firma.test.", "type": 257, "TTL": 3600, "data": "0 issue \"letsencrypt.org\"" }],
+  "Comment": "Response from 192.0.2.53.",
+  "edns_client_subnet": "0.0.0.0/0"
+}

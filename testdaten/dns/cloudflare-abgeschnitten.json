@@ -1,0 +1,10 @@
+{
+  "Status": 0,
+  "TC": true,
+  "RD": true,
+  "RA": true,
+  "AD": false,
+  "CD": false,
+  "Question": [{ "name": "firma.test", "type": 16 }],
+  "Answer": []
+}

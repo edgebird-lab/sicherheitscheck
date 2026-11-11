@@ -1,0 +1,12 @@
+{
+  "Status": 0,
+  "TC": false,
+  "RD": true,
+  "RA": true,
+  "AD": false,
+  "CD": true,
+  "Question": [{ "name": "dnssec-kaputt.test.", "type": 6 }],
+  "Answer": [{ "name": "dnssec-kaputt.test.", "type": 6, "TTL": 3600, "data": "ns1.dnssec-kaputt.test. hostmaster.dnssec-kaputt.test. 2026111101 7200 3600 1209600 3600" }],
+  "Comment": "Response from 192.0.2.53.",
+  "edns_client_subnet": "0.0.0.0/0"
+}

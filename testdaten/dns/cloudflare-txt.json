@@ -1,0 +1,10 @@
+{
+  "Status": 0,
+  "TC": false,
+  "RD": true,
+  "RA": true,
+  "AD": false,
+  "CD": false,
+  "Question": [{ "name": "firma.test", "type": 16 }],
+  "Answer": [{ "name": "firma.test", "type": 16, "TTL": 300, "data": "\"v=spf1 -all\"" }]
+}

@@ -31,7 +31,7 @@ Letzte Aktualisierung: 11.11.2026, nach Phase 2 (Stand: Phase 1 und 2 fertig, Ph
 
 ## Phase 3 – Außenprüfung DNS
 
-- [~] **3.1** Domainprüfung, Netz-Schnittstelle, Browser-DoH, TXT, DNS-Status, Zwischenspeicher, Testnetz (T-D01 bis T-D08, T-N01 bis T-N09). *Domainprüfung `pruefung/domain.ts` mit T-D01 bis T-D08 vorgezogen (Schritt Betrieb); der Rest ist offen.*
+- [x] **3.1** Domainprüfung, Netz-Schnittstelle, Browser-DoH, TXT, DNS-Status, Zwischenspeicher, Testnetz (T-D01 bis T-D08, T-N01 bis T-N09). *`netz/schnittstelle.ts` (TXT nach 6.4, JSON beider Anbieter, TC = gescheitert), `netz/browser.ts` (DoH mit 5 s Zeitlimit), `netz/testnetz.ts`, `pruefung/lauf.ts` (Zwischenspeicher je Lauf, ein Wiederholversuch nach 500 ms bei Netzfehler oder HTTP 5xx, Grenzen, Abbruch, Protokoll), `pruefung/dns.ts` (kein Eintrag / gescheitert). T-N01 bis T-N05, T-N07, T-N09 grün; T-N06 und T-N08 mit MX und DMARC (3.2, 3.3). Formatmuster unter `testdaten/dns` sind synthetisch (`testdaten/README.md`); `scripts/fixtures-aufnehmen.mjs` ist geschrieben, aber nie ausgeführt (keine Live-Abfragen).*
 - [ ] **3.2** MX und SPF (T-MX01, T-MX02, T-S01 bis T-S16).
 - [ ] **3.3** DMARC und DKIM (T-M01 bis T-M12, T-DK01 bis T-DK05).
 - [ ] **3.4** MTA-STS, TLS-RPT, DNSSEC, CAA (T-T01 bis T-T10, T-RP01 bis T-RP03, T-DS01 bis T-DS04, T-CA01 bis T-CA04).

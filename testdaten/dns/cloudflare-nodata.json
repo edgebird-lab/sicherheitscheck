@@ -1,0 +1,10 @@
+{
+  "Status": 0,
+  "TC": false,
+  "RD": true,
+  "RA": true,
+  "AD": false,
+  "CD": false,
+  "Question": [{ "name": "_dmarc.firma.test", "type": 16 }],
+  "Authority": [{ "name": "firma.test", "type": 6, "TTL": 1800, "data": "ns1.firma.test. hostmaster.firma.test. 2026111101 7200 3600 1209600 3600" }]
+}

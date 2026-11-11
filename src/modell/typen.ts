@@ -357,6 +357,8 @@ export interface TlsInfo {
 export interface NetzFehler {
   fehler: 'nicht_verfuegbar' | 'nicht_erlaubt' | 'zeitueberschreitung' | 'verbindung' | 'tls' | 'tls_version' | 'antwort'
   text: string
+  /** HTTP-Status des DoH-Anbieters bei fehler 'antwort'; 5xx erlaubt einen Wiederholversuch (6.4) */
+  httpStatus?: number
 }
 
 export interface Netz {

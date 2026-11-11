@@ -1,0 +1,15 @@
+{
+  "Status": 0,
+  "TC": false,
+  "RD": true,
+  "RA": true,
+  "AD": false,
+  "CD": false,
+  "Question": [{ "name": "firma.test.", "type": 15 }],
+  "Answer": [
+    { "name": "Firma.Test.", "type": 15, "TTL": 3600, "data": "20 b.firma.test." },
+    { "name": "firma.test.", "type": 15, "TTL": 3600, "data": "10 a.firma.test." }
+  ],
+  "Comment": "Response from 192.0.2.53.",
+  "edns_client_subnet": "0.0.0.0/0"
+}
