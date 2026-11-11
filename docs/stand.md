@@ -2,7 +2,7 @@
 
 Checkliste aller Phasen und Schritte aus [spezifikation.md](spezifikation.md), Abschnitt 11. `[x]` erledigt, `[ ]` offen, `[~]` teilweise. Nach jedem Schritt aktualisieren, damit ein Nachfolger hier weitermachen kann. Annahmen stehen in [entscheidungen.md](entscheidungen.md).
 
-Letzte Aktualisierung: 11.11.2026
+Letzte Aktualisierung: 11.11.2026, nach Phase 2 (Stand: Phase 1 und 2 fertig, Phase 0 teilweise)
 
 ## Phase 0 – Klären und Katalog
 
@@ -31,7 +31,7 @@ Letzte Aktualisierung: 11.11.2026
 
 ## Phase 3 – Außenprüfung DNS
 
-- [ ] **3.1** Domainprüfung, Netz-Schnittstelle, Browser-DoH, TXT, DNS-Status, Zwischenspeicher, Testnetz (T-D01 bis T-D08, T-N01 bis T-N09).
+- [~] **3.1** Domainprüfung, Netz-Schnittstelle, Browser-DoH, TXT, DNS-Status, Zwischenspeicher, Testnetz (T-D01 bis T-D08, T-N01 bis T-N09). *Domainprüfung `pruefung/domain.ts` mit T-D01 bis T-D08 vorgezogen (Schritt Betrieb); der Rest ist offen.*
 - [ ] **3.2** MX und SPF (T-MX01, T-MX02, T-S01 bis T-S16).
 - [ ] **3.3** DMARC und DKIM (T-M01 bis T-M12, T-DK01 bis T-DK05).
 - [ ] **3.4** MTA-STS, TLS-RPT, DNSSEC, CAA (T-T01 bis T-T10, T-RP01 bis T-RP03, T-DS01 bis T-DS04, T-CA01 bis T-CA04).
@@ -63,6 +63,28 @@ Letzte Aktualisierung: 11.11.2026
 - [ ] **6.3** Doku: README, `docs/datenmodell.md`, `docs/regeln.md`, Lizenzliste.
 - [ ] **6.4** Version 0.1.0 taggen (Repo bleibt privat).
 
+## Übergabe
+
+**Repo:** lokal unter `main`, nicht auf GitHub. Das Anlegen des privaten Repos (`gh repo create edgebird-lab/sicherheitscheck --private --source . --remote origin`) hat das Berechtigungssystem der Agentensitzung als Upload abgelehnt; deshalb gibt es weder Remote noch Push und noch keinen CI-Lauf. Robin kann es selbst nachholen:
+
+```bash
+gh repo create edgebird-lab/sicherheitscheck --private --source . --remote origin
+git push -u origin main
+```
+
+**Nächste Schritte (Phase 3):** `src/netz/schnittstelle.ts`, `browser.ts` (DoH für Cloudflare und Google nach 6.4), `testnetz.ts` mit Fixtures unter `testdaten/`; Regeln in `src/pruefung/*.ts` nach 6.5 mit `stufen.ts` und `src/katalog/regeltexte.ts`; Ablauf `ablauf.ts` nach 6.7; dann `ui/schritte/AussenSchritt.tsx` (heute ein Platzhalter) mit Bestätigung. Die Domainprüfung `pruefung/domain.ts` (6.3) steht schon.
+
+**Offene Haken für Phase 4:**
+- `abschliessen` in `src/modell/operationen.ts` gleicht die Maßnahmen noch nicht ab (6.8); der Abgleich gehört dorthin, nach jeder Außenprüfung und beim Öffnen des Schritts Maßnahmen.
+- `ui/schritte/MassnahmenSchritt.tsx` und die Druckansicht in `BerichtSchritt.tsx` sind Platzhalter; der Abschluss mit Fehlerliste steht schon.
+- Die Auswertung zeigt statt des Vergleichs (6.9) nur den Statuswert der Vorgängerprüfung.
+- `schrittVollstaendig` in `src/modell/fortschritt.ts` hat für „massnahmen“ und „aussen“ vorläufige Regeln.
+
+**Fallstricke:**
+- Playwright nutzt einen schon laufenden Server auf Port 4181 wieder und baut dann nicht neu. Vor `npm run e2e` keinen eigenen `vite preview` laufen lassen oder vorher `npm run build`.
+- Die Tests mit vollen Argon2-Parametern brauchen unter Last mehrere Sekunden (Zeitlimit 30 s).
+- Optionsfelder sind unsichtbar über die ganze Option gelegt; in Tests `getByRole('radio', { name, exact: true }).check()` nutzen, nicht den Text anklicken.
+
 ## Protokoll
 
 | Datum | Schritt | Commit |
@@ -73,4 +95,6 @@ Letzte Aktualisierung: 11.11.2026
 | 11.11.2026 | 1.5 Speicher | 40d6bc8 |
 | 11.11.2026 | 1.6 Export und Import | c6c0316 |
 | 11.11.2026 | 2.1 bis 2.5 Oberfläche | 23f28c5 |
-| 11.11.2026 | 2.5, 2.6 Barrierefreiheit, Bilder, README | Barrierefreiheit geprüft (hell und dunkel), README mit Bildern |
+| 11.11.2026 | 2.5, 2.6 Barrierefreiheit, Bilder, README | d1baea2 |
+| 11.11.2026 | Durchsicht: Kennung der Fragekarte | 2bb6b6e (Achtung: in diesem Commit lief ein Unit-Test wegen Last in sein Zeitlimit; behoben im nächsten) |
+| 11.11.2026 | Zeitlimit für Argon2-Tests | 45d7ece |
