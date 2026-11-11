@@ -105,7 +105,7 @@ export function Startseite({ ladeMeldungen }: { ladeMeldungen: string[] }) {
           <h1 id="willkommen-titel">{APP_NAME}</h1>
           <p>
             Der {APP_NAME} führt Schritt für Schritt durch die IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäftigten. Aus dem Interview zu 27 Anforderungen entstehen
-            der Statuswert, eine Auswertung je Themenbereich und ein Maßnahmenplan. Alle Daten bleiben in diesem Browser auf diesem Rechner.
+            der Statuswert, eine Auswertung je Themenbereich, ein Maßnahmenplan und ein druckfertiger Bericht; dazu kommt eine passive Prüfung der E-Mail-Domain von außen. Alle Daten bleiben in diesem Browser auf diesem Rechner.
           </p>
           {neuFormular ?? (
             <div className="knopfreihe">
@@ -189,7 +189,21 @@ export function Startseite({ ladeMeldungen }: { ladeMeldungen: string[] }) {
                       <td>{b.branche || <span className="leise">–</span>}</td>
                       <td>{letztePruefungText(b)}</td>
                       <td className="zahl-zelle">{m.offen}</td>
-                      <td>{m.frist ? datumDeutsch(m.frist) : <span className="leise">–</span>}</td>
+                      <td>
+                        {m.frist ? (
+                          <>
+                            {datumDeutsch(m.frist)}
+                            {m.frist < heute && (
+                              <span className="ueberfaellig">
+                                {' '}
+                                <Symbol art="warnung" /> überfällig
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="leise">–</span>
+                        )}
+                      </td>
                     </tr>
                   )
                 })}
