@@ -31,10 +31,13 @@ jobs:
       - name: Rust-Tests
         run: cargo test --manifest-path src-tauri/Cargo.toml --workspace
       - name: Kein aws-lc (Kryptoanbieter ist ring)
-        shell: pwsh
+        shell: bash
         run: |
-          $treffer = cargo tree --manifest-path src-tauri/Cargo.toml --workspace -i aws-lc-sys 2>&1
-          if ($LASTEXITCODE -eq 0) { throw "aws-lc-sys ist eingebunden: $treffer" }
+          if ausgabe=$(cargo tree --manifest-path src-tauri/Cargo.toml --workspace -e all -i aws-lc-sys 2>&1); then
+            echo "$ausgabe"; echo "aws-lc-sys ist eingebunden"; exit 1
+          fi
+          echo "$ausgabe" | grep -q "did not match any packages" || { echo "$ausgabe"; exit 1; }
+          echo "aws-lc-sys ist nicht eingebunden"
       - name: Programm und Installer bauen
         run: npx tauri build
       - name: Installer prüfen (still installieren, Verknüpfungen und Zuordnung prüfen, deinstallieren)
