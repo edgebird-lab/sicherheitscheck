@@ -32,7 +32,7 @@ export function AbgeschlossenHinweis() {
   return (
     <div className="banner banner-hinweis">
       <Symbol art="schloss" />
-      <p>Diese Prüfung ist abgeschlossen; Antworten und Vorgespräch sind schreibgeschützt.</p>
+      <p>Diese Prüfung ist abgeschlossen; Vorgespräch, Antworten und Außenprüfung sind schreibgeschützt.</p>
       <button type="button" className="knopf knopf-klein" onClick={() => dispatch({ typ: 'schritt', schritt: 'bericht' })}>
         Zum Abschluss
       </button>

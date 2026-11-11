@@ -55,6 +55,13 @@ export function zeitpunktDeutsch(z: Zeitpunkt): string {
   return `${zwei(d.getDate())}.${zwei(d.getMonth() + 1)}.${d.getFullYear()}, ${zwei(d.getHours())}:${zwei(d.getMinutes())}`
 }
 
+/** Uhrzeit in Ortszeit mit Sekunden, z. B. '14:05:09' (Abrufprotokoll) */
+export function uhrzeitDeutsch(z: Zeitpunkt): string {
+  const d = new Date(z)
+  if (Number.isNaN(d.getTime())) return z
+  return `${zwei(d.getHours())}:${zwei(d.getMinutes())}:${zwei(d.getSeconds())}`
+}
+
 export function istZeitpunkt(text: unknown): text is Zeitpunkt {
   return typeof text === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(text) && !Number.isNaN(Date.parse(text))
 }

@@ -6,6 +6,7 @@
 import { LEERE_ANTWORT } from '../modell/bewertung'
 import { istDatum, istZeitpunkt } from '../modell/datum'
 import { FORMAT_VERSION, type Betrieb, type Datenbestand, type Einstellungen, type Katalog, type Pruefung } from '../modell/typen'
+import { PRUEF_IDS, STUFEN } from '../pruefung/stufen'
 
 export class Formatfehler extends Error {}
 
@@ -68,7 +69,7 @@ function pruefeMassnahmen(x: unknown, wo: string): void {
     fordere(istObj(m) && istText(m.id) && istText(m.titel), `${w}: Angaben fehlen.`)
     const q = m.quelle
     fordere(
-      istObj(q) && ((q.art === 'anforderung' && istText(q.anforderungId)) || (q.art === 'befund' && istText(q.pruefId) && istText(q.ziel))),
+      istObj(q) && ((q.art === 'anforderung' && istText(q.anforderungId)) || (q.art === 'befund' && einerVon(q.pruefId, PRUEF_IDS) && istText(q.ziel))),
       `${w}: Ursache ungültig.`,
     )
     fordere([1, 2, 3].includes(m.prioritaet as number) && (m.prioritaetManuell === null || [1, 2, 3].includes(m.prioritaetManuell as number)), `${w}: Priorität ungültig.`)
@@ -78,6 +79,14 @@ function pruefeMassnahmen(x: unknown, wo: string): void {
   })
 }
 
+const istWert = (x: unknown) => x === null || typeof x === 'string' || typeof x === 'boolean' || istZahl(x)
+
+function pruefeBefund(f: unknown): boolean {
+  if (!istObj(f) || !einerVon(f.pruefId, PRUEF_IDS) || !istText(f.ziel) || !einerVon(f.stufe, STUFEN) || !istText(f.regel) || !istText(f.messwert)) return false
+  if (!Array.isArray(f.weitere) || !f.weitere.every((w) => istObj(w) && istText(w.regel) && einerVon(w.stufe, STUFEN))) return false
+  return istObj(f.werte) && Object.values(f.werte).every(istWert)
+}
+
 function pruefeAussen(x: unknown, wo: string): void {
   if (x === null) return
   fordere(istObj(x) && istText(x.domain) && istTextliste(x.dkimSelektoren), `${wo}: Außenprüfung ungültig.`)
@@ -85,8 +94,12 @@ function pruefeAussen(x: unknown, wo: string): void {
   const b = x.bestaetigung
   fordere(istObj(b) && istText(b.name) && istText(b.text) && istZeitpunkt(b.zeit) && einerVon(b.rolle, ['verantwortlich', 'beauftragt'] as const), `${wo}: Bestätigung der Außenprüfung ungültig.`)
   fordere(istZeitpunkt(x.gestartet) && (x.beendet === null || istZeitpunkt(x.beendet)) && typeof x.abgebrochen === 'boolean', `${wo}: Zeiten der Außenprüfung ungültig.`)
-  fordere(Array.isArray(x.befunde) && x.befunde.every((f) => istObj(f) && istText(f.pruefId) && istText(f.ziel) && istText(f.stufe) && istText(f.regel)), `${wo}: Befunde ungültig.`)
-  fordere(Array.isArray(x.protokoll) && x.protokoll.every((a) => istObj(a) && istText(a.anfrage) && istText(a.ergebnis)), `${wo}: Abrufprotokoll ungültig.`)
+  fordere(Array.isArray(x.befunde) && x.befunde.every(pruefeBefund), `${wo}: Befunde ungültig.`)
+  fordere(
+    Array.isArray(x.protokoll) &&
+      x.protokoll.every((a) => istObj(a) && istZeitpunkt(a.zeit) && einerVon(a.art, ['dns', 'http', 'tls'] as const) && istText(a.anfrage) && istText(a.ergebnis) && istZahl(a.dauerMs)),
+    `${wo}: Abrufprotokoll ungültig.`,
+  )
 }
 
 function pruefeErgebnis(x: unknown, wo: string): void {

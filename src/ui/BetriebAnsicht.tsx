@@ -24,7 +24,7 @@ export function BetriebAnsicht() {
         <>
           {schritt === 'vorgespraech' && <VorgespraechSchritt key={pruefung.id} />}
           {schritt === 'interview' && <InterviewSchritt key={pruefung.id} />}
-          {schritt === 'aussen' && <AussenSchritt />}
+          {schritt === 'aussen' && <AussenSchritt key={pruefung.id} />}
           {schritt === 'auswertung' && <AuswertungSchritt />}
           {schritt === 'massnahmen' && <MassnahmenSchritt />}
           {schritt === 'bericht' && <BerichtSchritt />}

@@ -5,7 +5,7 @@
  */
 import { antwortVon, begruendungReicht, berechneErgebnis, durchVorfrageAusgeblendet, istRelevant, LEERE_ANTWORT, nichtRelevantWaehlbar, relevanzMeldungen, wirksameBewertung } from './bewertung'
 import { datumDeutsch, istDatum, tageZwischen } from './datum'
-import type { Antwort, Betrieb, Datum, Id, Katalog, Massnahme, Pruefung, Teilnahme } from './typen'
+import type { Antwort, Aussenpruefung, Betrieb, Datum, Id, Katalog, Massnahme, Pruefung, Teilnahme } from './typen'
 
 export type NeueId = () => Id
 
@@ -255,6 +255,14 @@ export function abschliessen(k: Katalog, p: Pruefung, jetzt: Date): AbschlussErg
 export function wiederOeffnen(p: Pruefung, jetzt: Date): Pruefung {
   if (p.status === 'entwurf') return p
   return { ...p, status: 'entwurf', ergebnis: null, abgeschlossenAm: null, geaendert: zeit(jetzt) }
+}
+
+/* ---------- Außenprüfung (6.7) ---------- */
+
+/** Speichert das Ergebnis einer Außenprüfung und ersetzt ein früheres. Nach dem Abschluss schreibgeschützt (6.2). */
+export function setzeAussenpruefung(p: Pruefung, aussen: Aussenpruefung, jetzt: Date): Pruefung {
+  if (p.status === 'abgeschlossen') return p
+  return { ...p, aussen, geaendert: zeit(jetzt) }
 }
 
 /* ---------- Wiederholungsprüfung (6.10) ---------- */

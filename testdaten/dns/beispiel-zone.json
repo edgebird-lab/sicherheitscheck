@@ -1,0 +1,57 @@
+{
+  "MX example.com": {
+    "Status": 0,
+    "TC": false,
+    "AD": false,
+    "Question": [{ "name": "example.com", "type": 15 }],
+    "Answer": [{ "name": "example.com", "type": 15, "TTL": 3600, "data": "10 mail.example.com." }]
+  },
+  "TXT example.com": {
+    "Status": 0,
+    "TC": false,
+    "AD": false,
+    "Question": [{ "name": "example.com", "type": 16 }],
+    "Answer": [
+      { "name": "example.com", "type": 16, "TTL": 3600, "data": "\"v=spf1 mx a ?all\"" },
+      { "name": "example.com", "type": 16, "TTL": 3600, "data": "\"beispiel-verifizierung=12345\"" }
+    ]
+  },
+  "TXT _dmarc.example.com": {
+    "Status": 0,
+    "TC": false,
+    "AD": false,
+    "Question": [{ "name": "_dmarc.example.com", "type": 16 }],
+    "Answer": [{ "name": "_dmarc.example.com", "type": 16, "TTL": 3600, "data": "\"v=DMARC1; p=none\"" }]
+  },
+  "TXT _mta-sts.example.com": {
+    "Status": 3,
+    "TC": false,
+    "AD": false,
+    "Question": [{ "name": "_mta-sts.example.com", "type": 16 }]
+  },
+  "TXT _smtp._tls.example.com": {
+    "Status": 3,
+    "TC": false,
+    "AD": false,
+    "Question": [{ "name": "_smtp._tls.example.com", "type": 16 }]
+  },
+  "SOA example.com": {
+    "Status": 0,
+    "TC": false,
+    "AD": false,
+    "Question": [{ "name": "example.com", "type": 6 }],
+    "Answer": [{ "name": "example.com", "type": 6, "TTL": 3600, "data": "ns1.example.com. hostmaster.example.com. 2026111101 7200 3600 1209600 3600" }]
+  },
+  "CAA example.com": {
+    "Status": 0,
+    "TC": false,
+    "AD": false,
+    "Question": [{ "name": "example.com", "type": 257 }]
+  },
+  "CAA com": {
+    "Status": 0,
+    "TC": false,
+    "AD": false,
+    "Question": [{ "name": "com", "type": 257 }]
+  }
+}

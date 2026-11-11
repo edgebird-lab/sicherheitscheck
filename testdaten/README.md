@@ -13,8 +13,9 @@ Antworten für die Unit-Tests der Außenprüfung. Kein Test fragt echte Domains 
 | `cloudflare-nxdomain.json`, `cloudflare-nodata.json` | Status 3 (NXDOMAIN) und Status 0 ohne `Answer` | synthetisch |
 | `cloudflare-servfail-dnssec.json`, `google-servfail-dnssec.json`, `google-soa-cd.json` | DNSSEC-Fehler: Status 2, mit `cd=1` Status 0; Kommentar bei Cloudflare als Liste (EDE), bei Google als Text | synthetisch |
 | `cloudflare-abgeschnitten.json` | `TC: true` | synthetisch |
+| `beispiel-zone.json` | fiktive Zone von example.com für den Beispielbetrieb und den Browsertest E-07, Schlüssel „TYP name“ | synthetisch |
 
-**Synthetisch** heißt: von Hand geschrieben, im Aufbau der JSON-Antworten von Cloudflare und Google, wie ihn die Spezifikation (Abschnitt 3.3, [Q13], [Q14]) nach einer Abfrage mit curl am 11.11.2026 beschreibt: TXT bei Cloudflare in Anführungszeichen, bei Google ohne; `Comment` bei Cloudflare als Liste, bei Google als Text; Google mit Punkt am Ende der Namen und `edns_client_subnet`. Alle Namen liegen unter `.test` (RFC 6761); IP-Adressen aus 192.0.2.0/24 (RFC 5737).
+**Synthetisch** heißt: von Hand geschrieben, im Aufbau der JSON-Antworten von Cloudflare und Google, wie ihn die Spezifikation (Abschnitt 3.3, [Q13], [Q14]) nach einer Abfrage mit curl am 11.11.2026 beschreibt: TXT bei Cloudflare in Anführungszeichen, bei Google ohne; `Comment` bei Cloudflare als Liste, bei Google als Text; Google mit Punkt am Ende der Namen und `edns_client_subnet`. Alle Namen liegen unter `.test` (RFC 6761) oder `example.com` (RFC 2606); IP-Adressen aus 192.0.2.0/24 (RFC 5737).
 
 Aufgezeichnete Antworten echter Domains (TXT/CAA von google.com, MX von gmail.com, DNSSEC-Fehler von dnssec-failed.org, Spezifikation 9.10) liegen noch nicht vor: Agenten dürfen keine Live-Abfragen machen. Robin kann sie mit `node scripts/fixtures-aufnehmen.mjs` aufnehmen (siehe unten) und hier ergänzen; die Tests laufen auch ohne sie.
 

@@ -120,3 +120,44 @@ describe('Migrationsgerüst', () => {
     expect(() => migriere({ formatVersion: 0, betriebe: [] })).toThrow('Datenformat 0 wird nicht unterstützt.')
   })
 })
+
+describe('Außenprüfung beim Laden prüfen', () => {
+  const aussen = {
+    domain: 'example.com',
+    dkimSelektoren: [],
+    modus: 'browser',
+    dohAnbieter: 'cloudflare',
+    bestaetigung: { name: 'Robin', rolle: 'beauftragt', text: 'Ich bestätige …', zeit: '2026-11-11T12:00:00.000Z' },
+    gestartet: '2026-11-11T12:00:00.000Z',
+    beendet: '2026-11-11T12:00:01.000Z',
+    abgebrochen: false,
+    befunde: [{ pruefId: 'dmarc', ziel: 'example.com', stufe: 'warnung', regel: 'DMARC-05', weitere: [], messwert: 'v=DMARC1; p=none', werte: { p: 'none', pct: null } }],
+    protokoll: [{ zeit: '2026-11-11T12:00:00.000Z', art: 'dns', anfrage: 'TXT _dmarc.example.com', ergebnis: 'NOERROR, 1 Antwort', dauerMs: 12 }],
+  }
+
+  function mitAussen(a: unknown): Datenbestand {
+    const daten = kopie(gueltig())
+    ;(daten.betriebe[1].pruefungen[0] as { aussen: unknown }).aussen = a
+    return daten
+  }
+
+  it('eine gültige Außenprüfung bleibt erhalten', () => {
+    const { bestand, meldungen } = pruefeDatenbestand(mitAussen(kopie(aussen)), KATALOG)
+    expect(meldungen).toEqual([])
+    expect(bestand.betriebe[1].pruefungen[0].aussen).toEqual(aussen)
+  })
+
+  it('unbekannte Stufe, Prüfung oder fehlender Messwert: der Betrieb wird übersprungen und gemeldet', () => {
+    for (const befund of [
+      { ...aussen.befunde[0], stufe: 'gelb' },
+      { ...aussen.befunde[0], pruefId: 'ftp' },
+      { ...aussen.befunde[0], messwert: undefined },
+      { ...aussen.befunde[0], werte: { liste: [1, 2] } },
+    ]) {
+      const { meldungen } = pruefeDatenbestand(mitAussen({ ...kopie(aussen), befunde: [befund] }), KATALOG)
+      expect(meldungen).toEqual(['Betrieb 2, Prüfung 1: Befunde ungültig.'])
+    }
+    const { meldungen } = pruefeDatenbestand(mitAussen({ ...kopie(aussen), protokoll: [{ ...aussen.protokoll[0], art: 'ftp' }] }), KATALOG)
+    expect(meldungen).toEqual(['Betrieb 2, Prüfung 1: Abrufprotokoll ungültig.'])
+  })
+})

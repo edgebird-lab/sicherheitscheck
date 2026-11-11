@@ -1183,6 +1183,129 @@ fieldset:disabled .auswahl-option {
   vertical-align: -3px;
 }
 
+/* Außenprüfung ----------------------------------------------------------- */
+
+.stufe {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.stufe-ok .symbol {
+  color: var(--gut);
+}
+.stufe-info .symbol,
+.stufe-fehler .symbol,
+.stufe-nicht_geprueft .symbol {
+  color: var(--neutral);
+}
+.stufe-hinweis .symbol {
+  color: var(--akzent);
+}
+.stufe-warnung .symbol {
+  color: var(--warnung);
+}
+.stufe-kritisch .symbol {
+  color: var(--schlecht);
+}
+.zaehlung {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.befundgruppe > * + * {
+  margin-top: 0.7rem;
+}
+.befundliste {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+.befund {
+  border: 1px solid var(--linie);
+  border-left: 4px solid var(--linie-stark);
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: var(--karte);
+}
+.befund > * + * {
+  margin-top: 0.4rem;
+}
+.befund-ok {
+  border-left-color: var(--gut);
+}
+.befund-hinweis {
+  border-left-color: var(--akzent);
+}
+.befund-warnung {
+  border-left-color: var(--warnung);
+}
+.befund-kritisch {
+  border-left-color: var(--schlecht);
+}
+.befund-kopf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  align-items: center;
+  justify-content: space-between;
+}
+.befund-pruefung {
+  color: var(--text-2);
+  font-size: 0.9rem;
+}
+.befund-titel {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0.3rem 0 0;
+}
+.befund-messwert {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+  background: var(--karte-2);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.befund-weitere {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  font-size: 0.92rem;
+}
+.befund-weitere li + li {
+  margin-top: 3px;
+}
+.bestaetigung {
+  border: 1px solid var(--akzent-rand);
+  background: var(--akzent-hauch);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.laufanzeige progress {
+  width: 100%;
+  height: 10px;
+  accent-color: var(--knopf-haupt);
+}
+.lauf-gruppen {
+  margin: 0;
+  padding-left: 18px;
+}
+.protokoll-karte summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--akzent-text);
+}
+.protokoll code {
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 960px) {
   .interview,
   .netz,

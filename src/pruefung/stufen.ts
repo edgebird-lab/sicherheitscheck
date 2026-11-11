@@ -110,3 +110,8 @@ export function befund(pruefId: PruefId, ziel: string, regeln: string[], messwer
     werte,
   }
 }
+
+/** Anzahl je Stufe, schwerste zuerst; Stufen ohne Befund fehlen */
+export function zaehleStufen(befunde: Befund[]): { stufe: Stufe; anzahl: number }[] {
+  return STUFEN.map((stufe) => ({ stufe, anzahl: befunde.filter((b) => b.stufe === stufe).length })).filter((z) => z.anzahl > 0)
+}

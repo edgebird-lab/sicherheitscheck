@@ -2,7 +2,7 @@
  * Kleine Symbole. Sie stehen nie allein: Daneben steht immer ein Wort (sichtbar oder für
  * Screenreader), Farbe ist nie das einzige Merkmal (5.1).
  */
-export type SymbolArt = 'haken' | 'kreuz' | 'strich' | 'kreis' | 'warnung' | 'info' | 'pfeil' | 'schloss'
+export type SymbolArt = 'haken' | 'kreuz' | 'strich' | 'kreis' | 'warnung' | 'info' | 'hinweis' | 'frage' | 'pfeil' | 'schloss'
 
 export function Symbol({ art, groesse = 16, className }: { art: SymbolArt; groesse?: number; className?: string }) {
   const p = { width: groesse, height: groesse, viewBox: '0 0 16 16', 'aria-hidden': true, focusable: false, className: `symbol symbol-${art}${className ? ` ${className}` : ''}` } as const
@@ -48,6 +48,22 @@ export function Symbol({ art, groesse = 16, className }: { art: SymbolArt; groes
           <circle cx="8" cy="8" r="7" fill="currentColor" />
           <path d="M8 7.2v4.3" stroke="var(--symbol-innen, #fff)" strokeWidth="1.6" strokeLinecap="round" />
           <circle cx="8" cy="4.8" r="0.95" fill="var(--symbol-innen, #fff)" />
+        </svg>
+      )
+    case 'hinweis':
+      return (
+        <svg {...p}>
+          <circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" strokeWidth="1.6" />
+          <path d="M8 4.6v4.2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+          <circle cx="8" cy="11.3" r="0.95" fill="currentColor" />
+        </svg>
+      )
+    case 'frage':
+      return (
+        <svg {...p}>
+          <circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" strokeWidth="1.4" />
+          <path d="M6.2 6.3a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="8" cy="11.6" r="0.85" fill="currentColor" />
         </svg>
       )
     case 'pfeil':

@@ -35,7 +35,7 @@ Letzte Aktualisierung: 11.11.2026, nach Phase 2 (Stand: Phase 1 und 2 fertig, Ph
 - [x] **3.2** MX und SPF (T-MX01, T-MX02, T-S01 bis T-S16). *`pruefung/mx.ts`, `pruefung/spf.ts` (rekursive Zählung, Schleifen im Pfad, SPF-00 bei gescheiterter include-Abfrage), `pruefung/stufen.ts` (Hauptregel = schwerste, bei Gleichstand die zuerst in der Tabelle), `katalog/regeltexte.ts` mit eigenen Texten für alle DNS-Regeln und BROWSER-01. Alle Fälle grün, dazu T-N06 (Teil MX).*
 - [x] **3.3** DMARC und DKIM (T-M01 bis T-M12, T-DK01 bis T-DK05). *`pruefung/dmarc.ts` (nur „v=DMARC1“ in genau dieser Schreibweise, DMARC-08 bei „v=dmarc1“), `pruefung/dkim.ts` (Schlüssellänge aus SPKI oder PKCS#1, Testschlüssel zur Laufzeit mit Web Crypto). Alle Fälle grün, dazu T-N08.*
 - [x] **3.4** MTA-STS, TLS-RPT, DNSSEC, CAA (T-T01 bis T-T10, T-RP01 bis T-RP03, T-DS01 bis T-DS04, T-CA01 bis T-CA04). *`pruefung/mtasts.ts` (Eintrag, Richtlinienparser, MX-Abgleich mit „*.“; Richtlinie nur im Windows-Programm, im Browser STS-11), `tlsrpt.ts`, `dnssec.ts` (cd=1 nur bei SERVFAIL), `caa.ts` (Elternnamen bis zur TLD). Alle Fälle grün; T-DS03 nutzt ein synthetisches Formatmuster statt der Aufzeichnung von dnssec-failed.org.*
-- [ ] **3.5** Ablaufsteuerung und Schritt Außenprüfung (T-A01 bis T-A05, E-06, E-07).
+- [x] **3.5** Ablaufsteuerung und Schritt Außenprüfung (T-A01 bis T-A05, E-06, E-07). *`pruefung/ablauf.ts` (Reihenfolge, Grenzen, Abbruch, Protokoll, BROWSER-01), `pruefung/bestaetigung.ts`, Schritt `ui/schritte/AussenSchritt.tsx` mit Bestätigung, Laufanzeige, Abbrechen, Ergebnis in Gruppen, „Was heißt das?“, Abrufprotokoll und „Neue Außenprüfung“ nach Rückfrage; `ui/Befunde.tsx`. T-A01, T-A03 bis T-A05, E-06, E-07 grün (dazu Abbruch im Browser, axe hell und dunkel auf dem Ergebnis). T-A02 nur für den DNS-Teil: DNS vor HTTP (MTA-STS-Richtlinie); TLS und Website-Abrufe kommen mit 5.5. Fiktive Zone `testdaten/dns/beispiel-zone.json` für E-07 und den Beispielbetrieb.*
 
 ## Phase 4 – Maßnahmen, Vergleich, Bericht
 
@@ -72,7 +72,7 @@ gh repo create edgebird-lab/sicherheitscheck --private --source . --remote origi
 git push -u origin main
 ```
 
-**Nächste Schritte (Phase 3):** `src/netz/schnittstelle.ts`, `browser.ts` (DoH für Cloudflare und Google nach 6.4), `testnetz.ts` mit Fixtures unter `testdaten/`; Regeln in `src/pruefung/*.ts` nach 6.5 mit `stufen.ts` und `src/katalog/regeltexte.ts`; Ablauf `ablauf.ts` nach 6.7; dann `ui/schritte/AussenSchritt.tsx` (heute ein Platzhalter) mit Bestätigung. Die Domainprüfung `pruefung/domain.ts` (6.3) steht schon.
+**Phase 3 ist fertig.** Für Phase 5.5 offen: In `pruefung/ablauf.ts` fehlen im Windows-Programm TLS (Schritt 3 aus 6.7) und die HTTP-Ketten mit den Website-Regeln aus 6.6 (Schritt 4); die Stelle ist im Code markiert. Die MTA-STS-Richtlinie ruft der Ablauf im Windows-Programm schon ab.
 
 **Offene Haken für Phase 4:**
 - `abschliessen` in `src/modell/operationen.ts` gleicht die Maßnahmen noch nicht ab (6.8); der Abgleich gehört dorthin, nach jeder Außenprüfung und beim Öffnen des Schritts Maßnahmen.
