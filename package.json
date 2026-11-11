@@ -1,7 +1,7 @@
 {
   "name": "sicherheitscheck",
   "private": true,
-  "version": "0.1.0-dev",
+  "version": "0.1.0-web",
   "description": "IT-Sicherheitsberatung nach DIN SPEC 27076 für kleine Betriebe: geführtes Interview, Statuswert, Maßnahmenplan und passive Prüfung von E-Mail-Domain und Website.",
   "type": "module",
   "scripts": {

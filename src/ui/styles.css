@@ -1571,6 +1571,9 @@ fieldset:disabled .auswahl-option {
 .bericht .tabelle-wrap {
   overflow: visible;
 }
+.bericht .netz {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+}
 .bericht .netz-tabelle {
   font-size: 0.82rem;
 }

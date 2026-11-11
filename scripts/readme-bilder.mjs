@@ -1,6 +1,8 @@
-// Erzeugt die Bilder der README in docs/bilder (Beispielbetrieb, hell, 1440 × 900).
+// Erzeugt die Bilder der README in docs/bilder (Beispielbetrieb, hell, 1440 × 900) und den
+// Beispielbericht als PDF (A4, wie „Drucken / als PDF“ ohne Hintergrundgrafiken).
 // Aufruf: npm run build && npx vite preview  (Port 4181)  und dann  node scripts/readme-bilder.mjs
-// Nutzt das installierte Edge; fremde Anfragen werden abgebrochen.
+// Nutzt das installierte Edge; fremde Anfragen werden abgebrochen. Die Außenprüfung des
+// Beispielbetriebs ist fiktiv und schon gespeichert; es wird nichts abgefragt.
 import { chromium } from '@playwright/test'
 
 const ziel = 'docs/bilder'
@@ -27,6 +29,22 @@ await schritt(/^Auswertung/)
 await ruhig()
 await page.screenshot({ path: `${ziel}/auswertung.png`, fullPage: false })
 
+await schritt(/^Außenprüfung/)
+await ruhig()
+await page.screenshot({ path: `${ziel}/aussenpruefung.png`, fullPage: false })
+
+await schritt(/^Maßnahmen/)
+await ruhig()
+await page.screenshot({ path: `${ziel}/massnahmen.png`, fullPage: false })
+
+await schritt(/^Bericht/)
+await page.locator('.bericht-vorschau').evaluate((e) => window.scrollTo(0, e.getBoundingClientRect().top + window.scrollY - 16))
+await ruhig()
+await page.screenshot({ path: `${ziel}/bericht.png`, fullPage: false })
+await page.emulateMedia({ media: 'print' })
+await page.pdf({ path: `${ziel}/beispielbericht.pdf`, format: 'A4' })
+await page.emulateMedia({ media: 'screen' })
+
 await schritt(/^Betrieb/)
 await page.getByRole('button', { name: 'Wiederholungsprüfung' }).click()
 await schritt(/^Interview/)
@@ -35,4 +53,4 @@ await ruhig()
 await page.screenshot({ path: `${ziel}/interview.png`, fullPage: false })
 
 await browser.close()
-console.log('Bilder in', ziel)
+console.log('Bilder und Beispielbericht in', ziel)
