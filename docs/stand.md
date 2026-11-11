@@ -8,13 +8,13 @@ Letzte Aktualisierung: 11.11.2026
 
 - [ ] **0.1** Robin lädt die DIN SPEC 27076 und legt sie unter `normen/` ab; entscheidet F1 bis F6. *Offen, nur Robin.*
 - [ ] **0.2** Katalog- und Berichtsabgleich mit der Norm. *Offen: braucht die Norm.*
-- [ ] **0.3** Eigene Formulierungen für 27 Anforderungen und alle Vorfragen. *Offen.*
+- [~] **0.3** Eigene Formulierungen für 27 Anforderungen und alle Vorfragen. *Geschrieben: `src/katalog`, alle Texte in `docs/katalog-texte.md` (aus dem Code erzeugt). Offen: Robins Prüfung gegen die Norm und Freigabe in `docs/katalog-abgleich.md`.*
 - [ ] **0.4** Regeln aus 6.5 und 6.6 gegen die nicht geöffneten Standards prüfen. *Offen.*
 
 ## Phase 1 – Gerüst, Datenmodell, Bewertung
 
 - [x] **1.1** Projekt wie den Prozesslotsen anlegen. *Vite 8, React 19, TypeScript 7, Vitest 5, oxlint, Playwright mit Edge auf Port 4181, CSP im Build, `normen/` in `.gitignore`. CI nur mit Lint, Test und Build (Vorgabe des Auftrags, siehe entscheidungen.md).*
-- [ ] **1.2** `typen.ts` nach Abschnitt 4 und Katalog. *`typen.ts` steht; Katalog offen.*
+- [x] **1.2** `typen.ts` nach Abschnitt 4 und Katalog. *T-K01 bis T-K03 grün. Katalog vorläufig (27 Anforderungen, 6/5/4/3/3/6 je Thema, Nummern 1.1–6.6, vier Vorfragen); `KATALOG_ABGEGLICHEN = false` zeigt das in der Oberfläche an. Test hält `docs/katalog-abgleich.md` und `docs/katalog-texte.md` mit dem Code synchron.*
 - [ ] **1.3** `bewertung.ts`: Punkte, Statuswert, Themen, Relevanz (T-B01 bis T-B12).
 - [ ] **1.4** Operationen (T-O01 bis T-O06).
 - [ ] **1.5** Speicher: Prüffunktionen, Migrationsgerüst, IndexedDB-Adapter, Tab-Sperre (T-L01 bis T-L03).
@@ -67,4 +67,5 @@ Letzte Aktualisierung: 11.11.2026
 
 | Datum | Schritt | Commit |
 |---|---|---|
-| 11.11.2026 | 1.1 Gerüst | (dieser Commit) |
+| 11.11.2026 | 1.1 Gerüst | 2dd51a1 |
+| 11.11.2026 | 1.2 Katalog in eigenen Formulierungen | Katalog: 27 Anforderungen, Vorfragen, Abgleichblatt |
