@@ -9,7 +9,7 @@ Robin hat die offenen Fragen der Spezifikation noch nicht beantwortet. Damit die
 | F1 | Name „Sicherheitscheck“ oder „Sicherheitslotse“? | Der Vorschlag der Spezifikation ist „Sicherheitslotse“. Umgesetzt bleibt vorerst **„Sicherheitscheck“**: Auftrag, Ordner, Repo, Dateiendung `.sicherheitscheck` und Datenbankname heißen so, und eine Umbenennung sollte einmal und vor Version 0.1.0 geschehen, nicht nebenbei. Empfehlung: vor 0.1.0 entscheiden; bis dahin kostet die Umbenennung wenig. „CyberRisikoCheck“ wird nicht als Name verwendet. | Anzeigename an einer Stelle (`src/ui/marke.ts`) |
 | F2 | BSI-Schulung machen? Bis dahin „Check nach DIN SPEC 27076“? | ja und ja | Oberfläche und Bericht sagen sachlich „nach DIN SPEC 27076“, kein Logo |
 | F3 | Lizenz bei DIN Media anfragen oder eigene Formulierungen? | eigene Formulierungen | `src/katalog`, Abgleich in `docs/katalog-abgleich.md` |
-| F4 | DoH-Anbieter Cloudflare oder Google? | Cloudflare als Standard, Google wählbar | `Einstellungen.dohAnbieter` (ab Phase 3 wirksam) |
+| F4 | DoH-Anbieter Cloudflare oder Google? | Cloudflare als Standard, Google wählbar | `Einstellungen.dohAnbieter`, wirkt in der Außenprüfung (`src/netz/browser.ts`) |
 | F5 | Exportdatei standardmäßig verschlüsseln? | ja, abschaltbar | Exportdialog |
 | F6 | Fristen 14 / 90 / 180 Tage für Priorität 1 / 2 / 3? | ja | Phase 4.1 |
 | F7 | Reichen Unterschriftsfelder auf dem Ausdruck? | ja für 0.1 | Phase 4.4 |
@@ -20,7 +20,7 @@ Robin hat die offenen Fragen der Spezifikation noch nicht beantwortet. Damit die
 | F12 | Eigene Domains für Testläufe? | olbricht-digital und VPS-Domains, erst bei der Abnahme M-01 (Phase 5.7) | keine; Tests nutzen nur aufgezeichnete Antworten |
 | F13 | Probe-Kunde für einen echten Check? | nach Phase 6 | – |
 | F14 | Web-Version nur lokal oder öffentlich? | nur lokal (`npm run dev`, `vite preview`) | keine Bereitstellung |
-| F15 | Angebot nennt Außenprüfung mit Domain und Zeitraum? | ja, Mustersatz fürs Angebot folgt mit Phase 3 | – |
+| F15 | Angebot nennt Außenprüfung mit Domain und Zeitraum? | ja. Mustersatz fürs Angebot: „Zusätzlich prüft olbricht-digital von außen, wie die Domain ‹Domain› für E-Mail eingestellt ist (öffentliche DNS-Einträge wie MX, SPF, DMARC und DKIM; mit dem Windows-Programm außerdem die Startseite der Website und ihr Zertifikat). Die Prüfung ist passiv: Gelesen werden nur öffentlich abrufbare Informationen, ohne Portscans und ohne Anmeldeversuche. Sie findet einmalig im Zeitraum vom ‹Datum› bis ‹Datum› statt. Der Auftraggeber bestätigt, dass er über die Domain verfügen darf.“ | keine; der Bestätigungstext in der App (6.7) passt dazu |
 
 ## Eigene Entscheidungen bei der Umsetzung
 

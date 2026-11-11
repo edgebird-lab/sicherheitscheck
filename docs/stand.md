@@ -2,21 +2,21 @@
 
 Checkliste aller Phasen und Schritte aus [spezifikation.md](spezifikation.md), Abschnitt 11. `[x]` erledigt, `[ ]` offen, `[~]` teilweise. Nach jedem Schritt aktualisieren, damit ein Nachfolger hier weitermachen kann. Annahmen stehen in [entscheidungen.md](entscheidungen.md).
 
-Letzte Aktualisierung: 11.11.2026, nach Phase 2 (Stand: Phase 1 und 2 fertig, Phase 0 teilweise)
+Letzte Aktualisierung: 11.11.2026, nach Phase 4 (Stand 0.1.0-web: Phasen 1 bis 4 umgesetzt; offen sind Robins Durchsichten aus Phase 0 und 4, Phase 5 und 6 folgen später)
 
 ## Phase 0 – Klären und Katalog
 
 - [ ] **0.1** Robin lädt die DIN SPEC 27076 und legt sie unter `normen/` ab; entscheidet F1 bis F6. *Offen, nur Robin.*
 - [ ] **0.2** Katalog- und Berichtsabgleich mit der Norm. *Offen: braucht die Norm.*
 - [~] **0.3** Eigene Formulierungen für 27 Anforderungen und alle Vorfragen. *Geschrieben: `src/katalog`, alle Texte in `docs/katalog-texte.md` (aus dem Code erzeugt). Offen: Robins Prüfung gegen die Norm und Freigabe in `docs/katalog-abgleich.md`.*
-- [ ] **0.4** Regeln aus 6.5 und 6.6 gegen die nicht geöffneten Standards prüfen. *Offen.*
+- [~] **0.4** Regeln aus 6.5 und 6.6 gegen die nicht geöffneten Standards prüfen. *Prüfblatt `docs/rfc-abgleich.md` mit den Annahmen je Regel und den Fundstellen, aus Fachwissen vorbereitet (keine Webrecherche); bisher keine Abweichung bekannt. Offen: Abgleich mit den Originaltexten, Status von DMARCbis (betrifft DMARC-09), Argon2-Parameter mit einem Experten abstimmen.*
 
 ## Phase 1 – Gerüst, Datenmodell, Bewertung
 
 - [x] **1.1** Projekt wie den Prozesslotsen anlegen. *Vite 8, React 19, TypeScript 7, Vitest 5, oxlint, Playwright mit Edge auf Port 4181, CSP im Build, `normen/` in `.gitignore`. CI nur mit Lint, Test und Build (Vorgabe des Auftrags, siehe entscheidungen.md).*
 - [x] **1.2** `typen.ts` nach Abschnitt 4 und Katalog. *T-K01 bis T-K03 grün. Katalog vorläufig (27 Anforderungen, 6/5/4/3/3/6 je Thema, Nummern 1.1–6.6, vier Vorfragen); `KATALOG_ABGEGLICHEN = false` zeigt das in der Oberfläche an. Test hält `docs/katalog-abgleich.md` und `docs/katalog-texte.md` mit dem Code synchron.*
 - [x] **1.3** `bewertung.ts`: Punkte, Statuswert, Themen, Relevanz. *T-B01 bis T-B12 grün (T-B06 zusätzlich über eine Vorfrage). Prüfmeldung R1 für „nicht relevant“, wo die Regel es nicht erlaubt.*
-- [x] **1.4** Operationen: Betrieb und Prüfung anlegen, Antwort setzen, Vorfragen, abschließen, wieder öffnen, Wiederholungsprüfung. *T-O01 bis T-O06 grün. Der Maßnahmenabgleich beim Abschließen (6.8) fehlt noch und kommt mit 4.1 (Kommentar in `abschliessen`).*
+- [x] **1.4** Operationen: Betrieb und Prüfung anlegen, Antwort setzen, Vorfragen, abschließen, wieder öffnen, Wiederholungsprüfung. *T-O01 bis T-O06 grün. Den Maßnahmenabgleich beim Abschließen (6.8) hat Schritt 4.1 ergänzt.*
 - [x] **1.5** Speicher: Prüffunktionen, Migrationsgerüst, IndexedDB-Adapter, Tab-Sperre. *T-L01 bis T-L03 grün. `speicher/pruefen.ts`, `migration.ts`, `idb.ts` (Datenbank `sicherheitscheck` v1), `aenderungen.ts` (Differenz und Schreibpuffer, 400 ms, mit Tests), `sperre.ts` (Web Locks). Adapter und Sperre prüfen E-01 und E-12 (Schritt 2.1).*
 - [x] **1.6** Export und Import mit Argon2id und AES-GCM im Web Worker. *T-E01 bis T-E09 grün; Export mit 50 Prüfungen und Standardparametern (64 MiB, t = 3, p = 1) in Vitest rund 1 s. `speicher/krypto.ts` (ohne Worker testbar), `krypto.worker.ts` (Hülle), `krypto-auftrag.ts` (Browser), `datei.ts` (Export, Import in fester Reihenfolge, Zusammenführen). Den Worker im Browser prüft E-11.*
 
@@ -72,14 +72,24 @@ gh repo create edgebird-lab/sicherheitscheck --private --source . --remote origi
 git push -u origin main
 ```
 
-**Phase 3 ist fertig.** Für Phase 5.5 offen: In `pruefung/ablauf.ts` fehlen im Windows-Programm TLS (Schritt 3 aus 6.7) und die HTTP-Ketten mit den Website-Regeln aus 6.6 (Schritt 4); die Stelle ist im Code markiert. Die MTA-STS-Richtlinie ruft der Ablauf im Windows-Programm schon ab.
+**Stand 0.1.0-web:** Phasen 1 bis 4 sind umgesetzt, alle Tests grün (Zahlen in der README). Die Web-Version ist nutzbar (Schnittlinie R13).
 
-**Offene Haken für Phase 4:**
+**Offen für Robin (morgens):**
+- Repo anlegen und pushen (siehe oben); danach läuft die CI zum ersten Mal.
+- Phase 0: Norm besorgen, F1 bis F6 entscheiden (Annahmen in `entscheidungen.md`), Katalog abgleichen (`katalog-abgleich.md`), Regeln gegen die RFCs prüfen (`rfc-abgleich.md`).
+- 4.4: Beispielbericht durchsehen (`docs/bilder/beispielbericht.pdf`, neu erzeugen mit `npm run bilder`).
+- 4.5: Zuordnung der ISMS-Brücke und den Text „Methodik und Grenzen“ freigeben (`src/ui/berichtTexte.ts`); F10 anwaltlich prüfen lassen.
+- F15: Mustersatz fürs Angebot steht in `entscheidungen.md` (F15).
+
+**Nächste Schritte (Phase 5, später):** Tauri nach dem Prozesslotsen 0.2.0; `netz/desktop.ts` nur dynamisch laden. In `pruefung/ablauf.ts` fehlen im Windows-Programm TLS (6.7, Schritt 3), die HTTP-Ketten mit `folge()` und die Website-Regeln aus 6.6 (Schritt 4) samt Regeltexten (HDR-00, WEB, CERT, TLS, HSTS, Header, Cookies, security.txt) und T-A02 vollständig; die Stelle ist im Code markiert. Die MTA-STS-Richtlinie ruft der Ablauf im Windows-Programm schon ab (`holeRichtlinie`), und `Lauf.http`/`Lauf.tls` mit Abstand, Grenzen und Protokoll stehen bereit.
 
 **Fallstricke:**
 - Playwright nutzt einen schon laufenden Server auf Port 4181 wieder und baut dann nicht neu. Vor `npm run e2e` keinen eigenen `vite preview` laufen lassen oder vorher `npm run build`. `netstat` zeigt den Vorschau-Server in der Git Bash nicht zuverlässig an; prüfen mit `curl -s -o /dev/null -w '%{http_code}' http://localhost:4181/` oder `Get-NetTCPConnection -LocalPort 4181`.
 - Die Tests mit vollen Argon2-Parametern brauchen unter Last mehrere Sekunden (Zeitlimit 30 s).
 - Optionsfelder sind unsichtbar über die ganze Option gelegt; in Tests `getByRole('radio', { name, exact: true }).check()` nutzen, nicht den Text anklicken.
+- Ein von der Agentensitzung gestarteter `vite preview` auf Port 4181 (PID 54340) ließ sich wegen der Berechtigungen nicht beenden. Er liefert immer den aktuellen Inhalt von `dist` aus; vor Browsertests deshalb `npm run build`. Beenden mit `taskkill /PID 54340 /F` oder nach einem Neustart erledigt.
+- E-13 macht rund 25 axe-Durchläufe und hat deshalb ein Zeitlimit von 90 s (`test.slow()`); unter Last durch parallel testende Apps braucht es 30 bis 45 s.
+- Testdaten für DNS stehen in `testdaten/dns`; Unit-Tests laden sie mit `import.meta.glob`, Browsertests mit `readFileSync` (`e2e/hilfen.ts`, `dohNachbilden`).
 
 ## Protokoll
 
@@ -94,3 +104,14 @@ git push -u origin main
 | 11.11.2026 | 2.5, 2.6 Barrierefreiheit, Bilder, README | d1baea2 |
 | 11.11.2026 | Durchsicht: Kennung der Fragekarte | 2bb6b6e (Achtung: in diesem Commit lief ein Unit-Test wegen Last in sein Zeitlimit; behoben im nächsten) |
 | 11.11.2026 | Zeitlimit für Argon2-Tests | 45d7ece |
+| 11.11.2026 | 3.1 Netz-Schnittstelle, DoH, Lauf | 0f1a572 |
+| 11.11.2026 | 3.2 MX und SPF, Regeltexte | 163d1ea |
+| 11.11.2026 | 3.3 DMARC und DKIM | b1a2999 |
+| 11.11.2026 | 3.4 MTA-STS, TLS-RPT, DNSSEC, CAA | a326454 |
+| 11.11.2026 | 3.5 Ablauf und Schritt Außenprüfung | 7ae9c9e |
+| 11.11.2026 | 4.1 Maßnahmen ableiten und abgleichen | ecc12c8 |
+| 11.11.2026 | 4.2 Schritt Maßnahmen, Beispiel mit Außenprüfung | 371144b |
+| 11.11.2026 | 4.3 Vergleich | 9dfc141 |
+| 11.11.2026 | 4.4, 4.5 Bericht, ISMS-Brücke, Methodik | 31c7b76 |
+| 11.11.2026 | 4.6 README, Bilder, Beispielbericht, 0.1.0-web | 9f1a382 |
+| 11.11.2026 | Startseite: überfällige Frist | f9028fb |
