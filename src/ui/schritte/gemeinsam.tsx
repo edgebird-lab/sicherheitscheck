@@ -16,7 +16,7 @@ export function KeinePruefung({ titel }: { titel: string }) {
             Neue Prüfung
           </button>
           {kannWiederholen && (
-            <button type="button" className="knopf" onClick={wiederholung}>
+            <button type="button" className="knopf" onClick={() => void wiederholung()}>
               Wiederholungsprüfung
             </button>
           )}

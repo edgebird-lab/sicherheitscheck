@@ -722,7 +722,8 @@ fieldset:disabled .auswahl-option {
   padding: 0 10px;
   font-size: 0.88rem;
 }
-.knopf:disabled {
+.knopf:disabled,
+.knopf-icon:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }

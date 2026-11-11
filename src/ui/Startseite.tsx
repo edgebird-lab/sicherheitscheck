@@ -87,7 +87,7 @@ export function Startseite({ ladeMeldungen }: { ladeMeldungen: string[] }) {
           <div>
             <p>
               <strong>
-                {ladeMeldungen.length === 1 ? 'Ein Eintrag ließ sich nicht laden' : `${ladeMeldungen.length} Einträge ließen sich nicht laden`} und wird übersprungen.
+                {ladeMeldungen.length === 1 ? 'Ein Eintrag ließ sich nicht laden und wird übersprungen.' : `${ladeMeldungen.length} Einträge ließen sich nicht laden und werden übersprungen.`}
               </strong>{' '}
               Die Daten bleiben gespeichert und werden nicht gelöscht.
             </p>

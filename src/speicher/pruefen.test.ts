@@ -160,4 +160,38 @@ describe('Außenprüfung beim Laden prüfen', () => {
     const { meldungen } = pruefeDatenbestand(mitAussen({ ...kopie(aussen), protokoll: [{ ...aussen.protokoll[0], art: 'ftp' }] }), KATALOG)
     expect(meldungen).toEqual(['Betrieb 2, Prüfung 1: Abrufprotokoll ungültig.'])
   })
+
+  it('Regel ohne Text in dieser Version (Hauptregel oder weitere): übersprungen statt Absturz der Anzeige', () => {
+    for (const [befund, regel] of [
+      [{ ...aussen.befunde[0], regel: 'WEB-01' }, 'WEB-01'],
+      [{ ...aussen.befunde[0], weitere: [{ regel: 'DMARC-99', stufe: 'hinweis' }] }, 'DMARC-99'],
+    ] as const) {
+      const { bestand, meldungen } = pruefeDatenbestand(mitAussen({ ...kopie(aussen), befunde: [befund] }), KATALOG)
+      expect(meldungen).toEqual([`Betrieb 2, Prüfung 1: Befund mit unbekannter Regel „${regel}“ (Daten einer neueren Version?).`])
+      expect(bestand.betriebe).toHaveLength(1)
+      // Beim Import bricht derselbe Fehler ab
+      expect(() => pruefeDatenbestand(mitAussen({ ...kopie(aussen), befunde: [befund] }), KATALOG, { streng: true, quelle: 'datei' })).toThrow(`unbekannter Regel „${regel}“`)
+    }
+  })
+})
+
+describe('Ergebnis beim Laden prüfen', () => {
+  it('jeder Themenbereich braucht Punkte, Höchstwert und Anteil (Netzdiagramm und Tabelle lesen sie)', () => {
+    type JeThema = Record<string, unknown>
+    const faelle: ((j: JeThema) => void)[] = [
+      (j) => delete j.patch,
+      (j) => (j.systeme = { roh: 5, maximal: 6 }),
+      (j) => (j.organisation = { roh: '2', maximal: 10, anteil: 0.2 }),
+      (j) => (j.datensicherung = { roh: 4, maximal: 6, anteil: '67 %' }),
+    ]
+    for (const aendere of faelle) {
+      const daten = kopie(gueltig())
+      aendere(daten.betriebe[0].pruefungen[0].ergebnis!.jeThema as unknown as JeThema)
+      expect(pruefeDatenbestand(daten, KATALOG).meldungen).toEqual(['Betrieb 1, Prüfung 1: Ergebnis ungültig.'])
+    }
+    // Anteil null (Themenbereich ganz nicht relevant) ist gültig
+    const daten = kopie(gueltig())
+    daten.betriebe[0].pruefungen[0].ergebnis!.jeThema.systeme = { roh: 0, maximal: 0, anteil: null }
+    expect(pruefeDatenbestand(daten, KATALOG).meldungen).toEqual([])
+  })
 })

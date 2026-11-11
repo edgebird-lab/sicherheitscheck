@@ -4,7 +4,7 @@ IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäft
 
 ![Schritt „Auswertung“: Statuswert 18 von 37 Punkten, Netzdiagramm und Tabelle je Themenbereich](docs/bilder/auswertung.png)
 
-> **Stand 0.1.0-web.** Die Web-Version ist vollständig (Phasen 1 bis 4 der [Spezifikation](docs/spezifikation.md)). Es folgen das Windows-Programm mit der Prüfung der Website (Phase 5) und die Abnahme (Phase 6). Der Katalog ist noch nicht mit der Norm abgeglichen (Phase 0). Stand und nächste Schritte: [docs/stand.md](docs/stand.md), Annahmen: [docs/entscheidungen.md](docs/entscheidungen.md).
+> **Stand 0.1.0-web.** Die Web-Version ist vollständig (Phasen 1 bis 4 der [Spezifikation](docs/spezifikation.md)) und durchgesehen. Es folgen das Windows-Programm mit der Prüfung der Website (Phase 5) und die Abnahme (Phase 6). Der Katalog ist noch nicht mit der Norm abgeglichen (Phase 0). Das Repo liegt bisher nur lokal; das private GitHub-Repo und damit die CI fehlen noch. Stand und nächste Schritte: [docs/stand.md](docs/stand.md), Annahmen: [docs/entscheidungen.md](docs/entscheidungen.md).
 
 ## Was es kann
 
@@ -16,7 +16,7 @@ IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäft
 - **Maßnahmenplan:** abgeleitet aus nicht erfüllten Anforderungen und Befunden, Priorität und Frist nach festen Regeln (14, 90, 180 Tage), Status, Verantwortliche, Notizen, überfällige Fristen; Priorität von Hand nur mit Begründung. Maßnahmen aus der Außenprüfung verschwinden erst, wenn ein neuer Lauf die Ursache widerlegt.
 - **Bericht:** Vorschau im Druckbild, „Drucken / als PDF“ auf A4, immer hell: Teil A Ergebnis nach DIN SPEC 27076, Teil B Prüfung von außen (Zusatz), Teil C Maßnahmenplan, Vergleich, Anhang mit Fördermöglichkeiten, Bezug zum IT-Grundschutz, Methodik und Grenzen, Abrufprotokoll und Unterschriftsfeldern. [Beispielbericht als PDF](docs/bilder/beispielbericht.pdf).
 - **Abschluss und Wiederholung:** Beim Abschließen wird das Ergebnis eingefroren. Eine Wiederholungsprüfung übernimmt Teilnehmende, Vorfragen, Antworten und offene Maßnahmen; jede übernommene Antwort muss bestätigt oder geändert werden.
-- **Daten lokal:** IndexedDB im Browser, Speichern nach jeder Änderung, Schutz vor zwei gleichzeitig offenen Tabs. Sicherung als Datei `.sicherheitscheck`, standardmäßig verschlüsselt (Argon2id, AES-256-GCM, im Web Worker).
+- **Daten lokal:** IndexedDB im Browser, Speichern nach jeder Änderung, Schutz vor zwei gleichzeitig offenen Tabs. Beschädigte Einträge werden beim Laden übersprungen und gemeldet, nicht gelöscht; Daten einer neueren Version öffnet die App nicht und lässt sie unverändert. Schlägt das Speichern fehl, zeigt der Kopf das, und die App versucht es erneut. Sicherung als Datei `.sicherheitscheck`, standardmäßig verschlüsselt (Argon2id, AES-256-GCM, im Web Worker).
 - **Fiktiver Beispielbetrieb** „Tischlerei Beispiel GmbH“ mit abgeschlossener Prüfung, fiktiver Außenprüfung von `example.com` und Maßnahmenplan.
 
 ![Schritt „Außenprüfung“: Ergebnis mit Anzahl je Stufe und Befunden der Gruppe E-Mail](docs/bilder/aussenpruefung.png)
@@ -68,23 +68,33 @@ Die Fachlogik kennt kein React und ist vollständig getestet. **Technik:** React
 
 ## Qualität
 
-- 287 Unit-Tests mit von Hand nachgerechneten Werten, darunter alle Fälle der Spezifikation für Katalog, Statuswert, Abschluss, Wiederholung, Laden, Export und Import, Domain und DNS, alle E-Mail-Regeln, Ablauf der Außenprüfung, Maßnahmen, Vergleich und Netzdiagramm (T-K, T-B, T-O, T-L, T-E, T-D, T-N, T-MX, T-S, T-M, T-DK, T-T, T-RP, T-DS, T-CA, T-A, T-P, T-V, T-G). Kein Unit-Test fragt echte Domains ab; DKIM-Schlüssel entstehen zur Laufzeit.
-- 27 Browsertests: Betrieb anlegen und neu laden, Vorgespräch mit Vorfragen, Interview vollständig per Tastatur, Außenprüfung mit nachgebildeten DoH-Antworten (keine Anfrage verlässt den Test), Abbrechen, Maßnahme erledigen und neu laden, Priorität von Hand, Wiederholung mit Vergleich, Bericht als Druckansicht und PDF, verschlüsselter Export und Import, zweiter Tab.
-- Barrierefreiheit: axe meldet auf keiner Seite und in keinem Schritt schwere Befunde, weder hell noch dunkel; jedes Eingabefeld ist beschriftet; nach jedem Seitenwechsel steht der Fokus auf der Überschrift. Jede Stufe hat Symbol und Wort.
-- Bei jedem Push laufen Lint, Unit-Tests und Build; die Browsertests laufen vor jedem Commit lokal mit Edge.
+- 301 Unit-Tests in 30 Dateien mit von Hand nachgerechneten Werten, darunter alle Fälle der Spezifikation für Katalog, Statuswert, Abschluss, Wiederholung, Laden, Export und Import, Domain und DNS, alle E-Mail-Regeln, Ablauf der Außenprüfung, Maßnahmen, Vergleich und Netzdiagramm (T-K, T-B, T-O, T-L, T-E, T-D, T-N, T-MX, T-S, T-M, T-DK, T-T, T-RP, T-DS, T-CA, T-A, T-P, T-V, T-G), dazu Stichproben der Durchsicht (gemischte Relevanz, Fristen über Jahreswechsel und Schaltjahr, Prozentrundung für jeden möglichen Punktestand, SPF mit include und redirect). Kein Unit-Test fragt echte Domains ab; DKIM-Schlüssel entstehen zur Laufzeit.
+- 33 Browsertests: Betrieb anlegen und neu laden, Vorgespräch mit Vorfragen, Interview vollständig per Tastatur, Außenprüfung mit nachgebildeten DoH-Antworten (keine Anfrage verlässt den Test), Abbrechen, Maßnahme erledigen und neu laden, Priorität von Hand, Wiederholung mit Vergleich und Rückfrage bei weiterem Entwurf, Bericht als Druckansicht und PDF, verschlüsselter Export und Import, zweiter Tab, beschädigte oder zu neue Daten beim Laden, Arbeiten ohne IndexedDB, Speicherfehler mit erneutem Versuch.
+- Barrierefreiheit: axe meldet auf keiner Seite, in keinem Schritt, in keinem Dialog und während der Außenprüfung schwere Befunde, weder hell noch dunkel; jedes Eingabefeld ist beschriftet; nach jedem Seitenwechsel steht der Fokus auf der Überschrift. Jede Stufe hat Symbol und Wort.
+- Vor jedem Commit laufen Lint, Unit-Tests, Build und die Browsertests lokal mit Edge. Die CI (`.github/workflows/ci.yml`: Lint, Unit-Tests, Build) läuft, sobald das private GitHub-Repo angelegt ist.
+
+## Starten
+
+Voraussetzung ist Node 24. Die App läuft nur lokal im Browser (Edge oder Chrome); es gibt keinen Server und keine Bereitstellung.
+
+```bash
+npm install
+npm run build     # Typprüfung und Produktions-Build (mit Content-Security-Policy)
+npm run preview   # App unter http://localhost:4181 (Port fest; 4173 gehört dem Prozesslotsen)
+```
+
+Zum Ausprobieren auf der Startseite „Beispielbetrieb laden“ wählen. Die Daten liegen in der IndexedDB des Browsers für `localhost:4181`; eine verschlüsselte Sicherung entsteht über „Sicherung exportieren“.
 
 ## Entwickeln
 
 ```bash
-npm install
-npm run dev       # Entwicklungsserver
+npm run dev       # Entwicklungsserver (ohne Content-Security-Policy)
 npm test          # Unit-Tests (Vitest)
 npm run e2e       # Browsertests (lokal mit Edge auf Port 4181)
-npm run build     # Typprüfung und Produktions-Build
 npm run lint      # oxlint
 ```
 
-`npm run bilder` erzeugt die Bilder dieser README und den Beispielbericht neu (bei laufendem `npx vite preview`, Port 4181).
+`npm run e2e` startet die Vorschau selbst. Läuft auf Port 4181 schon eine, nutzt Playwright sie ohne neuen Build; dann vorher `npm run build`. `npm run bilder` erzeugt die Bilder dieser README und den Beispielbericht neu (bei laufender Vorschau auf Port 4181).
 
 ## Grenzen
 

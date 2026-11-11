@@ -566,7 +566,12 @@ export const REGELTEXTE: Regeltext[] = [
 
 const NACH_REGEL = new Map(REGELTEXTE.map((r, i) => [r.regel, { text: r, position: i }]))
 
-/** Text zu einer Regel; unbekannte Regeln sind ein Programmfehler. */
+/** Gibt es zu dieser Regel einen Text? Gespeicherte Befunde prüft das beim Laden und Import (speicher/pruefen.ts). */
+export function istRegel(regel: string): boolean {
+  return NACH_REGEL.has(regel)
+}
+
+/** Text zu einer Regel; unbekannte Regeln sind ein Programmfehler (gespeicherte Befunde sind beim Laden geprüft). */
 export function regeltext(regel: string): Regeltext {
   const r = NACH_REGEL.get(regel)
   if (!r) throw new Error(`Unbekannte Regel ${regel}`)

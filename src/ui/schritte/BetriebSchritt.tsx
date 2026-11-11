@@ -229,7 +229,7 @@ export function BetriebSchritt() {
             Neue Prüfung
           </button>
           {anlegen.kannWiederholen && (
-            <button type="button" className="knopf" onClick={anlegen.wiederholung}>
+            <button type="button" className="knopf" onClick={() => void anlegen.wiederholung()}>
               Wiederholungsprüfung
             </button>
           )}

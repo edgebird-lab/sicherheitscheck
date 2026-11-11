@@ -32,24 +32,36 @@ export function usePruefungAnlegen() {
   const bestaetigen = useBestaetigen()
   const berater = z.bestand.einstellungen.berater.name
 
+  /**
+   * Gibt es schon einen Entwurf, fragt jede weitere Prüfung nach. Sonst entstünden etwa per
+   * Doppelklick auf „Wiederholungsprüfung“ zwei Entwürfe mit doppelt übernommenen Maßnahmen.
+   */
+  const trotzEntwurf = useCallback(
+    async (art: string, knopf: string) => {
+      const entwurf = betrieb.pruefungen.find((p) => p.status === 'entwurf')
+      return !entwurf || bestaetigen('Weitere Prüfung anlegen?', `Prüfung ${entwurf.nr} ist noch ein Entwurf. Trotzdem ${art} anlegen?`, knopf, 'haupt')
+    },
+    [betrieb, bestaetigen],
+  )
+
   const neu = useCallback(async () => {
-    const entwurf = betrieb.pruefungen.find((p) => p.status === 'entwurf')
-    if (entwurf && !(await bestaetigen('Weitere Prüfung anlegen?', `Prüfung ${entwurf.nr} ist noch ein Entwurf. Trotzdem eine neue, leere Prüfung anlegen?`, 'Neue Prüfung anlegen', 'haupt'))) return
+    if (!(await trotzEntwurf('eine neue, leere Prüfung', 'Neue Prüfung anlegen'))) return
     const jetzt = new Date()
     const r = neuePruefung(betrieb, KATALOG, berater, heuteLokal(jetzt), jetzt)
     dispatch({ typ: 'betriebAendern', betriebId: betrieb.id, aendere: () => r.betrieb })
     dispatch({ typ: 'oeffneBetrieb', betriebId: betrieb.id, pruefungId: r.pruefung.id, schritt: 'vorgespraech' })
     melde(`Prüfung ${r.pruefung.nr} angelegt.`)
-  }, [betrieb, berater, bestaetigen, dispatch, melde])
+  }, [betrieb, berater, trotzEntwurf, dispatch, melde])
 
-  const wiederholung = useCallback(() => {
+  const wiederholung = useCallback(async () => {
+    if (!(await trotzEntwurf('eine Wiederholungsprüfung', 'Wiederholungsprüfung anlegen'))) return
     const jetzt = new Date()
     const r = wiederholungspruefung(betrieb, KATALOG, berater, heuteLokal(jetzt), jetzt)
     if (!r) return
     dispatch({ typ: 'betriebAendern', betriebId: betrieb.id, aendere: () => r.betrieb })
     dispatch({ typ: 'oeffneBetrieb', betriebId: betrieb.id, pruefungId: r.pruefung.id, schritt: 'vorgespraech' })
     melde(`Wiederholungsprüfung ${r.pruefung.nr} angelegt, Antworten vorbelegt.`)
-  }, [betrieb, berater, dispatch, melde])
+  }, [betrieb, berater, trotzEntwurf, dispatch, melde])
 
   return { neu, wiederholung, kannWiederholen: kannWiederholen(betrieb) }
 }

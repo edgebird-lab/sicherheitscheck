@@ -2,7 +2,7 @@
 
 Checkliste aller Phasen und Schritte aus [spezifikation.md](spezifikation.md), Abschnitt 11. `[x]` erledigt, `[ ]` offen, `[~]` teilweise. Nach jedem Schritt aktualisieren, damit ein Nachfolger hier weitermachen kann. Annahmen stehen in [entscheidungen.md](entscheidungen.md).
 
-Letzte Aktualisierung: 11.11.2026, nach Phase 4 (Stand 0.1.0-web: Phasen 1 bis 4 umgesetzt; offen sind Robins Durchsichten aus Phase 0 und 4, Phase 5 und 6 folgen später)
+Letzte Aktualisierung: 11.11.2026, nach der Durchsicht von Phase 1 bis 4 (Stand 0.1.0-web: Phasen 1 bis 4 umgesetzt und durchgesehen, siehe „Durchsicht“ unten; offen sind Robins Durchsichten aus Phase 0 und 4, Phase 5 und 6 folgen später)
 
 ## Phase 0 – Klären und Katalog
 
@@ -63,9 +63,30 @@ Letzte Aktualisierung: 11.11.2026, nach Phase 4 (Stand 0.1.0-web: Phasen 1 bis 4
 - [ ] **6.3** Doku: README, `docs/datenmodell.md`, `docs/regeln.md`, Lizenzliste.
 - [ ] **6.4** Version 0.1.0 taggen (Repo bleibt privat).
 
+## Durchsicht vom 11.11.2026 (Phasen 1 bis 4)
+
+Geprüft gegen die Spezifikation für den gebauten Umfang. Was angesehen wurde:
+
+- **Fachlogik nachgerechnet:** eigene Stichproben mit Rechnung im Kommentar in `src/modell/stichproben.test.ts` (gemischte Relevanz: 28 von 35 Punkten = 80 %, Anteile je Themenbereich, Punkte im Netzdiagramm, Fristen über Jahreswechsel, Schaltjahr und Sommerzeit, Maßnahmen beim Abschluss und nach geänderter Antwort, Vergleich bei geänderter Relevanz über Prozent) und `src/pruefung/stichproben.test.ts` (SPF mit include und redirect auf dasselbe Ziel: 4 Abfragen, Ziel einmal abgefragt; redirect-Kette; redirect zurück auf die Domain = Schleife; DMARC-Werte ohne Groß/klein; Reihenfolge gleich schwerer Regeln). Die Prozentrundung stimmt für jeden möglichen Punktestand (0 bis 37 Punkte, Höchstwert 1 bis 37) mit exakter Ganzzahlrechnung überein. Alle Rechenbeispiele der Spezifikation (Fristen, Prozentwerte, Diagrammpunkte) und die Zahlen des Beispielbetriebs (18 von 37, Themen 2/10, 3/5, 4/6, 5/5, −1/5, 5/6) von Hand bestätigt.
+- **Tests:** Jede Test-ID der Spezifikation (T-K bis T-G, E-01 bis E-13) kommt in den Tests vor. Lücken waren Fehlerfälle beim Laden und Speichern im Browser; sie sind jetzt abgedeckt (`e2e/laden.spec.ts`).
+- **Oberfläche:** alle sieben Schritte, Startseite und Einstellungen als Bildschirmfoto angesehen (hell, dunkel, Handybreite); axe zusätzlich auf Löschdialog, Rückfrage, Laufanzeige, abgebrochenem Lauf und offenem Prioritätsformular, hell und dunkel: keine Befunde (jetzt ein eigener Browsertest in `e2e/barrierefreiheit.spec.ts`).
+- **Druckbild und Export:** Beispielbericht (9 Seiten A4) Seite für Seite im PDF-Betrachter von Edge angesehen: Kopfzeile „Vertraulich · Betrieb · Datum“, Seitenzahlen, jeder Teil auf neuer Seite, nichts abgeschnitten. Export und Import (verschlüsselt, als Kopie, fremde Datei) durch die vorhandenen Browsertests belegt.
+
+Gefunden und behoben (jeweils mit Test):
+
+- **Absturz bei unbekannter Regel:** Ein gespeicherter oder importierter Befund mit einer Regel, die diese Version nicht kennt (etwa Website-Regeln aus einer späteren Version), ließ die Oberfläche beim Öffnen von Außenprüfung, Maßnahmen oder Bericht leer zurück („Unbekannte Regel …“, ohne Ausweg). Laden und Import prüfen jetzt Haupt- und weitere Regeln jedes Befunds: Beim Laden wird der Betrieb übersprungen und gemeldet (die Daten bleiben gespeichert), der Import wird abgelehnt. Tests in `src/speicher/pruefen.test.ts` und `e2e/laden.spec.ts`.
+- **Absturz bei unvollständigem Ergebnis:** Ein eingefrorenes Ergebnis ohne Werte für jeden Themenbereich ließ Auswertung und Bericht abstürzen (Tabelle zum Netzdiagramm). Jetzt beim Laden und Import geprüft.
+- **Zweiter Entwurf ohne Rückfrage:** „Wiederholungsprüfung“ legte auch dann sofort eine weitere Prüfung an, wenn schon ein Entwurf bestand (ein Doppelklick ergab zwei Entwürfe mit doppelt übernommenen Maßnahmen). Jetzt fragt sie nach wie „Neue Prüfung“ (E30).
+- Hinweis bei mehreren übersprungenen Einträgen hieß „… ließen sich nicht laden und wird übersprungen“; jetzt „werden“.
+- Gesperrte Entfernen-Knöpfe (✕) in abgeschlossenen Prüfungen sahen aus wie bedienbare.
+
+Neue Browsertests: beschädigte Einträge beim Laden (Hinweis, übriger Betrieb bleibt nutzbar, nichts wird gelöscht), Daten einer neueren Version, Arbeiten ohne IndexedDB, Speicherfehler mit Anzeige und erneutem Versuch, Rückfrage bei weiterer Wiederholungsprüfung, axe auf Dialogen und während der Außenprüfung. Stand danach: 301 Unit-Tests in 30 Dateien, 33 Browsertests, Lint und Build grün.
+
+Nicht geändert, aber notiert: Die Startseite zählt offene Maßnahmen nur der neuesten Prüfung; legt der Berater statt einer Wiederholung eine leere „Neue Prüfung“ an, zeigt sie bis zu deren Abschluss 0 offene Maßnahmen, obwohl die letzte abgeschlossene Prüfung noch offene hat. Eine Fehlergrenze (Error Boundary) für unerwartete Anzeigefehler fehlt; die bekannten Ursachen fängt jetzt die Prüfung beim Laden ab.
+
 ## Übergabe
 
-**Repo:** lokal unter `main`, nicht auf GitHub. Das Anlegen des privaten Repos (`gh repo create edgebird-lab/sicherheitscheck --private --source . --remote origin`) hat das Berechtigungssystem der Agentensitzung als Upload abgelehnt; deshalb gibt es weder Remote noch Push und noch keinen CI-Lauf. Robin kann es selbst nachholen:
+**Repo:** lokal unter `main`, nicht auf GitHub. Das Anlegen des privaten Repos (`gh repo create edgebird-lab/sicherheitscheck --private --source . --remote origin`) hat das Berechtigungssystem der Agentensitzung als Upload abgelehnt, zuletzt erneut bei der Durchsicht am 11.11.2026; deshalb gibt es weder Remote noch Push und noch keinen CI-Lauf. Robin kann es selbst nachholen:
 
 ```bash
 gh repo create edgebird-lab/sicherheitscheck --private --source . --remote origin

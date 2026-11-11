@@ -3,9 +3,10 @@
  * Absturz auslösen (Muster: src/modell/speicher.ts im Prozesslotsen). Fehlerhafte Betriebe
  * werden beim Laden übersprungen und gemeldet, nicht stillschweigend gelöscht (7.4).
  */
-import { LEERE_ANTWORT } from '../modell/bewertung'
+import { istRegel } from '../katalog/regeltexte'
+import { LEERE_ANTWORT, THEMA_IDS } from '../modell/bewertung'
 import { istDatum, istZeitpunkt } from '../modell/datum'
-import { FORMAT_VERSION, type Betrieb, type Datenbestand, type Einstellungen, type Katalog, type Pruefung } from '../modell/typen'
+import { FORMAT_VERSION, type Befund, type Betrieb, type Datenbestand, type Einstellungen, type Katalog, type Pruefung } from '../modell/typen'
 import { PRUEF_IDS, STUFEN } from '../pruefung/stufen'
 
 export class Formatfehler extends Error {}
@@ -95,6 +96,9 @@ function pruefeAussen(x: unknown, wo: string): void {
   fordere(istObj(b) && istText(b.name) && istText(b.text) && istZeitpunkt(b.zeit) && einerVon(b.rolle, ['verantwortlich', 'beauftragt'] as const), `${wo}: Bestätigung der Außenprüfung ungültig.`)
   fordere(istZeitpunkt(x.gestartet) && (x.beendet === null || istZeitpunkt(x.beendet)) && typeof x.abgebrochen === 'boolean', `${wo}: Zeiten der Außenprüfung ungültig.`)
   fordere(Array.isArray(x.befunde) && x.befunde.every(pruefeBefund), `${wo}: Befunde ungültig.`)
+  // Anzeige, Bericht und Maßnahmen lesen zu jeder Regel einen Text; ohne ihn bräche die Oberfläche ab
+  const unbekannt = (x.befunde as Befund[]).flatMap((f) => [f.regel, ...f.weitere.map((w) => w.regel)]).find((r) => !istRegel(r))
+  fordere(unbekannt === undefined, `${wo}: Befund mit unbekannter Regel „${unbekannt}“ (Daten einer neueren Version?).`)
   fordere(
     Array.isArray(x.protokoll) &&
       x.protokoll.every((a) => istObj(a) && istZeitpunkt(a.zeit) && einerVon(a.art, ['dns', 'http', 'tls'] as const) && istText(a.anfrage) && istText(a.ergebnis) && istZahl(a.dauerMs)),
@@ -107,6 +111,15 @@ function pruefeErgebnis(x: unknown, wo: string): void {
   fordere(istObj(x), `${wo}: Ergebnis ungültig.`)
   fordere(istZahl(x.rohpunkte) && istZahl(x.statuswert) && istZahl(x.maximal) && istZahl(x.prozent), `${wo}: Ergebnis ungültig.`)
   fordere(istObj(x.jeThema) && istTextliste(x.topNichtErfuellt) && istTextliste(x.nichtRelevant) && typeof x.ohneGeschaeftsfuehrung === 'boolean', `${wo}: Ergebnis ungültig.`)
+  // Netzdiagramm und Tabelle lesen jeden Themenbereich
+  const jeThema = x.jeThema
+  fordere(
+    THEMA_IDS.every((t) => {
+      const e = jeThema[t]
+      return istObj(e) && istZahl(e.roh) && istZahl(e.maximal) && (e.anteil === null || istZahl(e.anteil))
+    }),
+    `${wo}: Ergebnis ungültig.`,
+  )
 }
 
 function pruefePruefung(x: unknown, wo: string): asserts x is Pruefung {

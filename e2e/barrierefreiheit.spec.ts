@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test'
-import { expect, neuerBetrieb, pruefeBarrierefreiheit, schritt, test, zurStartseite } from './hilfen.ts'
+import { dohNachbilden, expect, neuerBetrieb, pruefeBarrierefreiheit, schritt, test, zurStartseite } from './hilfen.ts'
 
 const SCHRITTE = ['Betrieb', 'Vorgespräch', 'Interview', 'Außenprüfung', 'Auswertung', 'Maßnahmen', 'Bericht']
 
@@ -50,6 +50,58 @@ for (const schema of ['light', 'dark'] as const) {
     await pruefeBarrierefreiheit(page, 'Einstellungen')
   })
 }
+
+test('Dialoge, Laufanzeige und abgebrochener Lauf ohne schwere Barrieren (hell und dunkel)', async ({ page }) => {
+  test.slow()
+  const beide = async (wo: string) => {
+    for (const schema of ['light', 'dark'] as const) {
+      await page.emulateMedia({ colorScheme: schema })
+      await pruefeBarrierefreiheit(page, `${wo} (${schema})`)
+    }
+  }
+  // DMARC antwortet erst nach dem Abbruch, damit die Laufanzeige stehen bleibt
+  let weiter: () => void = () => {}
+  const haengt = new Promise<void>((r) => (weiter = r))
+  await dohNachbilden(page)
+  await page.route(
+    (url) => url.hostname === 'cloudflare-dns.com' && url.searchParams.get('name') === '_dmarc.example.com',
+    async (route) => {
+      await haengt
+      await route.abort().catch(() => {})
+    },
+  )
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Beispielbetrieb laden' }).click()
+
+  await page.getByRole('button', { name: 'Betrieb löschen' }).click()
+  await expect(page.getByRole('dialog', { name: 'Betrieb löschen?' })).toBeVisible()
+  await beide('Löschdialog')
+  await page.keyboard.press('Escape')
+
+  await page.getByRole('button', { name: 'Wiederholungsprüfung' }).click()
+  await schritt(page, /^Außenprüfung/)
+  await page.getByRole('radio', { name: /^Beauftragt/ }).check()
+  await page.getByLabel('Name', { exact: true }).fill('Robin Olbricht')
+  await page.getByRole('checkbox', { name: /Ich bestätige/ }).check()
+  await page.getByRole('button', { name: 'Prüfung starten' }).click()
+  await expect(page.getByRole('heading', { name: 'Prüfung läuft …' })).toBeVisible()
+  await beide('Laufanzeige')
+  await page.getByRole('button', { name: 'Abbrechen' }).click()
+  weiter()
+  await expect(page.getByText('Der Lauf wurde abgebrochen.')).toBeVisible()
+  await beide('abgebrochener Lauf')
+
+  await page.getByRole('button', { name: 'Neue Außenprüfung' }).click()
+  await expect(page.getByRole('dialog', { name: 'Neue Außenprüfung?' })).toBeVisible()
+  await beide('Rückfrage')
+  await page.keyboard.press('Escape')
+
+  await schritt(page, /^Maßnahmen/)
+  await page.getByText('Priorität ändern').first().click()
+  await page.getByLabel('Priorität', { exact: true }).first().selectOption('2')
+  await expect(page.getByLabel('Begründung (Pflicht)')).toBeVisible()
+  await beide('Priorität ändern')
+})
 
 test('Darstellung „Dunkel“ aus den Einstellungen besteht axe', async ({ page }) => {
   await page.goto('/')

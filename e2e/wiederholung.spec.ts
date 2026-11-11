@@ -73,6 +73,27 @@ test('Abschluss nennt fehlende Angaben mit Sprungmarke; wieder öffnen nach Rüc
   await expect(page.locator('#fragekarte-titel')).toHaveText('Geschäftsführung verantwortet die Informationssicherheit')
 })
 
+test('Eine weitere Wiederholungsprüfung neben einem Entwurf entsteht erst nach Rückfrage', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Beispielbetrieb laden' }).click()
+  await page.getByRole('button', { name: 'Wiederholungsprüfung' }).click()
+  await expect(page.getByText('Prüfung 2 · Entwurf')).toBeVisible()
+  await schritt(page, /^Betrieb/)
+  const pruefungen = page.getByRole('table', { name: 'Prüfungen dieses Betriebs' }).getByRole('row')
+  await expect(pruefungen).toHaveCount(3)
+
+  await page.getByRole('button', { name: 'Wiederholungsprüfung' }).click()
+  const frage = page.getByRole('dialog', { name: 'Weitere Prüfung anlegen?' })
+  await expect(frage).toContainText('Prüfung 2 ist noch ein Entwurf. Trotzdem eine Wiederholungsprüfung anlegen?')
+  await expect(frage.getByRole('button', { name: 'Abbrechen' })).toBeFocused()
+  await frage.getByRole('button', { name: 'Abbrechen' }).click()
+  await expect(pruefungen).toHaveCount(3)
+
+  await page.getByRole('button', { name: 'Wiederholungsprüfung' }).click()
+  await frage.getByRole('button', { name: 'Wiederholungsprüfung anlegen' }).click()
+  await expect(page.getByText('Prüfung 3 · Entwurf')).toBeVisible()
+})
+
 test('E-09: Wiederholung mit geänderten Antworten: der Vergleich zeigt Differenz und Listen', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Beispielbetrieb laden' }).click()
