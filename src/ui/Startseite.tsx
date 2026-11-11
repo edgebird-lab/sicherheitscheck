@@ -170,7 +170,9 @@ export function Startseite({ ladeMeldungen }: { ladeMeldungen: string[] }) {
                   <th scope="col">Betrieb</th>
                   <th scope="col">Branche</th>
                   <th scope="col">Letzte Prüfung</th>
-                  <th scope="col">Offene Maßnahmen</th>
+                  <th scope="col" className="zahl-zelle">
+                    Offene Maßnahmen
+                  </th>
                   <th scope="col">Nächste Frist</th>
                 </tr>
               </thead>
