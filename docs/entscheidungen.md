@@ -16,7 +16,7 @@ Robin hat die offenen Fragen der Spezifikation noch nicht beantwortet. Damit die
 | F8 | Fördermittel: eigene Liste oder Links und Freitext? | Links und Freitext | Feld `Pruefung.foerderhinweise`, Bericht in Phase 4.4 |
 | F9 | Datenschutz mit Kunden (Rechtsgrundlage, AV-Vertrag, Aufbewahrung)? | mit einer Datenschutzberatung klären; im Code nichts | – |
 | F10 | Haftungshinweis anwaltlich prüfen lassen? | vor dem ersten bezahlten Auftrag | Text „Methodik und Grenzen“ (Phase 4.5) |
-| F11 | Lizenz der App; Repo privat? | Lizenz offen, Repo privat bis zur Freigabe | README |
+| F11 | Lizenz der App; Repo privat? | **Entschieden von Robin (11.11.2026):** vorerst keine Lizenz, alle Rechte vorbehalten; Quelltext öffentlich sichtbar, die Programme dürfen alle kostenlos nutzen. Repo öffentlich ab Version 0.1.0 mit Release und Windows-Installer. | README (Abschnitt „Rechte“), `docs/lizenzen.md` |
 | F12 | Eigene Domains für Testläufe? | olbricht-digital und VPS-Domains, erst bei der Abnahme M-01 (Phase 5.7) | keine; Tests nutzen nur aufgezeichnete Antworten |
 | F13 | Probe-Kunde für einen echten Check? | nach Phase 6 | – |
 | F14 | Web-Version nur lokal oder öffentlich? | nur lokal (`npm run dev`, `vite preview`) | keine Bereitstellung |

@@ -2,7 +2,7 @@ name: Prüfung
 
 # Lint, Unit-Tests und Build bei jedem Push, dazu die Netztests der Crate netzpruefung
 # (ohne Tauri, deshalb unter Linux). Die Browsertests (Playwright mit axe) laufen lokal vor
-# jedem Commit mit Edge; so bleibt der Lauf im privaten Repo kurz.
+# jedem Commit mit Edge; so bleibt der Lauf kurz.
 on:
   push:
     branches: [main]

@@ -1,7 +1,10 @@
 name: Version vorbereiten
 
-# Bei einem Tag wie v0.1.0 entsteht ein Release-Entwurf mit Installer.
-# Veröffentlicht wird er nie automatisch; das Repo bleibt privat, bis Robin es freigibt.
+# Bei einem Tag wie v0.1.0 entsteht ein Release-Entwurf mit dem Installer
+# (Sicherheitscheck_<Version>_x64-setup.exe) und einer Kopie mit festem Namen
+# (Sicherheitscheck-Setup.exe). Über den festen Namen verlinkt die Website immer die neueste
+# Version: https://github.com/edgebird-lab/sicherheitscheck/releases/latest/download/Sicherheitscheck-Setup.exe
+# Veröffentlicht wird der Entwurf von Hand: gh release edit <Tag> --draft=false --latest
 on:
   push:
     tags: ['v*']
@@ -33,6 +36,29 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Sicherheitscheck ${{ github.ref_name }}
-          releaseBody: Installer für Windows (pro Benutzer, ohne Admin-Rechte). Noch nicht signiert; SmartScreen fragt beim ersten Start nach. Vor einer Deinstallation eine Sicherung exportieren.
+          releaseBody: |
+            IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäftigten: geführtes Interview zu 27 Anforderungen, Statuswert nach dem Punkteschema der Norm, passive Prüfung von E-Mail-Domain und Website, priorisierter Maßnahmenplan, Vergleich mit der letzten Prüfung und druckfertiger Bericht. Ohne KI und ohne Server; alle Daten bleiben auf dem Rechner.
+
+            **Herunterladen:** `Sicherheitscheck-Setup.exe` (dieselbe Datei wie `Sicherheitscheck_<Version>_x64-setup.exe`).
+
+            - Für Windows 10 und 11 mit WebView2 (meist schon vorhanden; sonst lädt der Installer sie nach).
+            - Installation pro Benutzer ohne Admin-Rechte nach `%LOCALAPPDATA%\Sicherheitscheck`, mit Startmenü-Eintrag und Desktop-Verknüpfung.
+            - Der Installer ist nicht signiert. Windows SmartScreen kann beim ersten Start nachfragen: „Weitere Informationen“, dann „Trotzdem ausführen“.
+            - Eine neue Version installiert sich über die vorige; die Daten bleiben. Vor einer Deinstallation eine Sicherung exportieren.
+
+            **Wichtig:** Fragen, Erläuterungen und Maßnahmen sind eigene Formulierungen, kein Normtext. Die App ist nicht vom BSI zertifiziert, und der Check ist keine Zertifizierung. Die Außenprüfung ist passiv und nur für eigene Domains oder Domains, mit deren Prüfung man beauftragt ist. Keine Gewähr für Vollständigkeit und Richtigkeit der Ergebnisse.
+
+            © 2026 Robin Olbricht – olbricht-digital. Alle Rechte vorbehalten; das Programm darf kostenlos genutzt werden. Mehr in der [README](https://github.com/edgebird-lab/sicherheitscheck#readme).
           releaseDraft: true
           prerelease: false
+      - name: Kopie mit festem Namen anhängen (Sicherheitscheck-Setup.exe)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          shopt -s nullglob
+          installer=(src-tauri/target/release/bundle/nsis/Sicherheitscheck_*_x64-setup.exe)
+          if [ "${#installer[@]}" -ne 1 ]; then echo "Erwartet genau einen Installer, gefunden: ${installer[*]}"; exit 1; fi
+          cp "${installer[0]}" Sicherheitscheck-Setup.exe
+          gh release upload "${{ github.ref_name }}" Sicherheitscheck-Setup.exe --clobber
+          gh release view "${{ github.ref_name }}" --json isDraft,assets --jq '{isDraft, assets: [.assets[] | {name, size}]}'

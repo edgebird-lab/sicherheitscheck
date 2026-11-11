@@ -62,8 +62,8 @@ Letzte Aktualisierung: 11.11.2026, nach Phase 5 (Stand 0.1.0-desktop: Windows-Pr
 
 - [ ] **6.1** Probe-Check mit dem fiktiven Betrieb.
 - [ ] **6.2** Mängel beheben, Tastatur, Barrierefreiheit, Druckbild.
-- [ ] **6.3** Doku: README, `docs/datenmodell.md`, `docs/regeln.md`, Lizenzliste.
-- [ ] **6.4** Version 0.1.0 taggen (Repo bleibt privat).
+- [~] **6.3** Doku: README, `docs/datenmodell.md`, `docs/regeln.md`, Lizenzliste. *README für Besucher (Download, Installation, Haftung, Rechte) und Lizenzliste [lizenzen.md](lizenzen.md) zur Version 0.1.0. Offen: `docs/datenmodell.md`, `docs/regeln.md`.*
+- [~] **6.4** Version 0.1.0 taggen. *Auf Robins Entscheidung vom 11.11.2026 abweichend von der Spezifikation: Das Repo wird öffentlich, das Release v0.1.0 wird veröffentlicht, vorerst ohne Lizenz (F11). Version einheitlich 0.1.0 in `package.json`, `tauri.conf.json`, `Cargo.toml` und in der App (vorher 0.1.0-desktop). `release.yml` hängt außer `Sicherheitscheck_<Version>_x64-setup.exe` eine Kopie mit festem Namen `Sicherheitscheck-Setup.exe` an; die Website verlinkt `releases/latest/download/Sicherheitscheck-Setup.exe`.*
 
 ## Durchsicht vom 11.11.2026 (Phasen 1 bis 4)
 

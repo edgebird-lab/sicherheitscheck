@@ -1,10 +1,23 @@
 # Sicherheitscheck
 
-IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäftigten: geführtes Interview zu 27 Anforderungen, Statuswert nach dem Punkteschema der Norm, passive Prüfung der E-Mail-Domain von außen, priorisierter Maßnahmenplan, Vergleich mit der letzten Prüfung und ein druckfertiger Bericht. Läuft als Windows-Programm oder im Browser, ohne KI und ohne Server; alle Kundendaten bleiben auf dem Rechner des Beraters.
+Werkzeug für IT-Berater: führt durch die IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäftigten. Geführtes Interview zu 27 Anforderungen, Statuswert nach dem Punkteschema der Norm, passive Prüfung von E-Mail-Domain und Website von außen, priorisierter Maßnahmenplan, Vergleich mit der letzten Prüfung und ein druckfertiger Bericht. Läuft als Windows-Programm oder im Browser, ohne KI und ohne Server; alle Kundendaten bleiben auf dem Rechner des Beraters.
+
+**[Sicherheitscheck für Windows herunterladen](https://github.com/edgebird-lab/sicherheitscheck/releases/latest/download/Sicherheitscheck-Setup.exe)** (neueste Version, alle Versionen unter [Releases](https://github.com/edgebird-lab/sicherheitscheck/releases))
 
 ![Schritt „Auswertung“: Statuswert 18 von 37 Punkten, Netzdiagramm und Tabelle je Themenbereich](docs/bilder/auswertung.png)
 
-> **Stand 0.1.0-desktop.** Die Web-Version ist vollständig (Phasen 1 bis 4 der [Spezifikation](docs/spezifikation.md)) und durchgesehen. Das Windows-Programm mit der Prüfung der Website (Phase 5) ist gebaut, getestet und auf Robins Rechner installiert; offen ist Robins Abnahme mit eigenen Domains (5.7), danach folgt Phase 6. Der Katalog ist noch nicht mit der Norm abgeglichen (Phase 0). Das Repo ist privat (`edgebird-lab/sicherheitscheck`). Stand und nächste Schritte: [docs/stand.md](docs/stand.md), Annahmen: [docs/entscheidungen.md](docs/entscheidungen.md).
+> **Gut zu wissen:** Der Check folgt der DIN SPEC 27076, alle Fragen, Erläuterungen und Maßnahmen sind aber eigene Formulierungen, kein Normtext. Die App ist nicht vom BSI zertifiziert oder mit ihm abgestimmt, und der Check ist keine Zertifizierung. Die Außenprüfung ist passiv und nur für eigene Domains oder Domains gedacht, mit deren Prüfung man beauftragt ist.
+
+## Herunterladen und installieren
+
+1. [Sicherheitscheck-Setup.exe](https://github.com/edgebird-lab/sicherheitscheck/releases/latest/download/Sicherheitscheck-Setup.exe) herunterladen (rund 2 MB).
+2. Doppelklick auf die Datei. Der Installer ist nicht signiert; Windows SmartScreen kann deshalb nachfragen. Dann „Weitere Informationen“ und „Trotzdem ausführen“ wählen.
+3. Der Sicherheitscheck installiert sich pro Benutzer ohne Admin-Rechte, mit Eintrag im Startmenü und Verknüpfung auf dem Desktop.
+4. Zum Ausprobieren auf der Startseite „Beispielbetrieb laden“ wählen.
+
+Voraussetzung ist Windows 10 oder 11 mit WebView2. Die Laufzeit ist dort meist schon vorhanden; sonst lädt der Installer sie von Microsoft nach. Eine neue Version installiert sich über die vorige, die Daten bleiben erhalten. Wer Node 24 hat, kann statt des Programms die [Web-Version](#starten-im-browser) selbst bauen und lokal im Browser nutzen, dort ohne Prüfung der Website.
+
+**Stand 0.1.0:** erste veröffentlichte Version. Der Katalog ist noch nicht Satz für Satz mit dem Normtext abgeglichen, und die Website-Prüfung ist bisher nur gegen Testserver geprüft (siehe [Grenzen](#grenzen)). Fortschritt und offene Punkte: [docs/stand.md](docs/stand.md), Annahmen: [docs/entscheidungen.md](docs/entscheidungen.md).
 
 ## Was es kann
 
@@ -30,9 +43,13 @@ IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäft
 
 Statuswert = Summe der Punkte, ausgewiesen mindestens 0; Höchstwert 37, wenn alles relevant ist. Der Beispielbetrieb erfüllt 3 TOP- und 15 Basis-Anforderungen: 3 × 3 − 2 × 3 + 15 = **18 von 37 Punkten (49 %)**. Je Themenbereich gilt dieselbe Rechnung; das Netzdiagramm zeigt den Anteil an den Höchstpunkten.
 
-**Kein Normtext:** Die Norm ist urheberrechtlich geschützt. Die App enthält nur Nummer, Themenbereich, TOP-Kennzeichen und Punkteschema; Fragen, Erläuterungen und Maßnahmen sind eigene Formulierungen. Die Leitfragen stellt der Berater aus der Norm. Der Katalog ist noch nicht mit der Norm abgeglichen ([Abgleichblatt](docs/katalog-abgleich.md), [alle Texte](docs/katalog-texte.md)). Der Check ist keine Zertifizierung.
+**Kein Normtext:** Die Norm ist urheberrechtlich geschützt. Die App enthält nur Nummer, Themenbereich, TOP-Kennzeichen und Punkteschema; Fragen, Erläuterungen und Maßnahmen sind eigene Formulierungen. Die Leitfragen stellt der Berater aus der Norm, die er selbst bei DIN Media bezieht. Der Katalog ist noch nicht mit der Norm abgeglichen ([Abgleichblatt](docs/katalog-abgleich.md), [alle Texte](docs/katalog-texte.md)). Die App ist kein Angebot des BSI und nicht von ihm zertifiziert; der Check ist keine Zertifizierung.
+
+![Schritt „Interview“: Fragekarte mit Verweis auf die Leitfragen der Norm, eigener Kurzfrage, Bewertung, Begründung und Nachweis](docs/bilder/interview.png)
 
 ## Prüfung von außen
+
+Die Außenprüfung liest nur, was jeder Besucher oder Mailserver auch abrufen kann: keine Portscans, keine Anmeldeversuche, keine Formulareingaben. Trotzdem ist sie nur für eigene Domains oder für Domains gedacht, mit deren Prüfung man beauftragt ist. Vor jedem Lauf bestätigt der Berater das mit Name und Rolle; die Bestätigung steht im Bericht und ersetzt keinen schriftlichen Auftrag.
 
 | Prüfung | Was gelesen wird | Beispiele für Regeln |
 | --- | --- | --- |
@@ -67,7 +84,7 @@ Die Regeln stehen mit Stufe in der Spezifikation (6.5, 6.6), die Texte für Laie
 | `src-tauri/netzpruefung` | Crate ohne Tauri: Freigabe, Zielprüfung mit Adresssperre, DNS über HTTPS, HTTP ohne Weiterleitung, TLS-Angaben (rustls mit ring, webpki-roots, x509-parser) |
 | `testdaten` | synthetische DoH-Antworten beider Anbieter, fiktive Zone des Beispielbetriebs |
 | `e2e` | Browsertests mit Playwright und axe |
-| `docs` | Spezifikation, Stand, Entscheidungen, Katalog-Abgleich, Bilder und Beispielbericht |
+| `docs` | Spezifikation, Stand, Entscheidungen, Katalog-Abgleich, Lizenzen, Bilder und Beispielbericht |
 
 Die Fachlogik kennt kein React und ist vollständig getestet. **Technik:** React 19, TypeScript 7, Vite 8, tldts, idb, @noble/hashes, Vitest, Playwright mit axe, oxlint, Tauri 2 (Rust, WebView2, NSIS), GitHub Actions.
 
@@ -80,7 +97,7 @@ Die Fachlogik kennt kein React und ist vollständig getestet. **Technik:** React
 - Barrierefreiheit: axe meldet auf keiner Seite, in keinem Schritt, in keinem Dialog und während der Außenprüfung schwere Befunde, weder hell noch dunkel; jedes Eingabefeld ist beschriftet; nach jedem Seitenwechsel steht der Fokus auf der Überschrift. Jede Stufe hat Symbol und Wort.
 - 36 Rust-Tests (`cargo test --workspace` in `src-tauri`), davon 32 in der Crate `netzpruefung` (T-R01 bis T-R14): Freigabe und Public Suffix List, Adresssperre für alle gesperrten Bereiche, HTTP gegen Testserver auf 127.0.0.1 (keine Weiterleitung, Größen- und Zeitgrenze, Kopfzeilenfilter, Cookie-Werte entfernt), TLS gegen einen rustls-Testserver mit zur Laufzeit erzeugter Test-CA (abgelaufen, fremder Name, unbekannte Stelle, nur TLS 1.2). Kein Rust-Test fragt einen fremden Rechner ab.
 - Desktop-Test (`npm run desktop:test`) gegen das echte Programm: sicherer Kontext, Beispielbetrieb, verschlüsselt exportieren, alles löschen, importieren (Daten gleich), zweiter Start mit einer Sicherung (Rückfrage), PDF in A4, Netzbefehle ohne Freigabe abgelehnt, Außenprüfung mit nachgebildeten DoH-Antworten (kein HTTP- oder TLS-Abruf), Speichern beim Schließen, keine CSP-Verstöße.
-- Vor jedem Commit laufen Lint, Unit-Tests, Build und die Browsertests lokal mit Edge. Die CI prüft Lint, Unit-Tests, Build und die Netztests der Crate bei jedem Push (`ci.yml`); bei Änderungen am Programmteil baut `windows.yml` Programm und Installer und testet die Installation; `release.yml` legt bei einem Tag nur einen Release-Entwurf an.
+- Vor jedem Commit laufen Lint, Unit-Tests, Build und die Browsertests lokal mit Edge. Die CI prüft Lint, Unit-Tests, Build und die Netztests der Crate bei jedem Push (`ci.yml`); bei Änderungen am Programmteil baut `windows.yml` Programm und Installer und testet die Installation; `release.yml` baut bei einem Tag `v*` den Installer und legt einen Release-Entwurf mit `Sicherheitscheck_<Version>_x64-setup.exe` und der gleichen Datei unter dem festen Namen `Sicherheitscheck-Setup.exe` an.
 
 ## Windows-Programm
 
@@ -98,11 +115,11 @@ npx tauri build --debug --no-bundle  # Debug-Build für den Desktop-Test
 npm run desktop:test                 # Desktop-Test gegen den Debug-Build (CDP-Port 9336)
 ```
 
-Rust 1.90 oder neuer. Der Desktop-Test legt die Programmdaten vorher beiseite und stellt sie danach wieder her; er bricht ab, solange der Sicherheitscheck läuft. Der Installer ist noch nicht signiert; SmartScreen fragt beim ersten Start nach.
+Zum Selbstbauen braucht es Rust 1.90 oder neuer und Node 24. Der Desktop-Test legt die Programmdaten vorher beiseite und stellt sie danach wieder her; er bricht ab, solange der Sicherheitscheck läuft. Der Installer ist noch nicht signiert; SmartScreen kann beim ersten Start nachfragen.
 
 ## Starten im Browser
 
-Voraussetzung ist Node 24. Die Web-Version läuft nur lokal im Browser (Edge oder Chrome); es gibt keinen Server und keine Bereitstellung.
+Voraussetzung ist Node 24. Die Web-Version läuft nur lokal im Browser (Edge oder Chrome); eine gehostete Fassung gibt es nicht, die Daten bleiben im Browser.
 
 ```bash
 npm install
@@ -127,9 +144,15 @@ npm run lint      # oxlint
 
 - Der Katalog ist vorläufig: Nummern, Verteilung der Basis-Anforderungen und Relevanzregeln sind Annahmen bis zum Abgleich mit der Norm.
 - Netzdiagramm, Dringlichkeit und Aufbau des Berichts sind Annahmen der Spezifikation (6.12, 6.13); „Methodik und Grenzen“ soll vor dem ersten bezahlten Auftrag anwaltlich geprüft werden.
-- Die Außenprüfung ist passiv und findet nicht alle Schwachstellen. Nicht geprüft: Mailserver per SMTP, alte TLS-Versionen im Einzelnen, Sperrstatus von Zertifikaten, Unterseiten der Website; im Browser außerdem die Website. Einige Regeln stützen sich auf noch nicht geöffnete RFCs ([Prüfblatt für Phase 0.4](docs/rfc-abgleich.md)). Die Website-Prüfung ist nur gegen Testserver und nachgebildete Antworten getestet; die Abnahme mit Robins eigenen Domains (M-01) steht aus.
+- Die Außenprüfung ist passiv und findet nicht alle Schwachstellen. Nicht geprüft: Mailserver per SMTP, alte TLS-Versionen im Einzelnen, Sperrstatus von Zertifikaten, Unterseiten der Website; im Browser außerdem die Website. Einige Regeln stützen sich auf noch nicht geöffnete RFCs ([Prüfblatt für Phase 0.4](docs/rfc-abgleich.md)). Die Website-Prüfung ist nur gegen Testserver und nachgebildete Antworten getestet; die Abnahme mit echten eigenen Domains (M-01) steht aus.
 - Die Daten liegen unverschlüsselt in der IndexedDB des Browsers bzw. der WebView2. Für den Rechner des Beraters gelten BitLocker und Bildschirmsperre; regelmäßig eine verschlüsselte Sicherung exportieren.
 
-## Lizenz
+## Haftung
 
-Noch nicht festgelegt. Das Repo ist privat.
+Der Sicherheitscheck ist ein Hilfsmittel für die Beratung und ersetzt nicht das Urteil des Beraters. Das Ergebnis beruht auf den Auskünften der Teilnehmenden am Tag des Interviews und beschreibt den Stand zu diesem Zeitpunkt. Der Check ist keine Zertifizierung und kein Audit und bewertet keine Rechtslage, etwa nach DSGVO, NIS2 oder TDDDG. Die passive Prüfung von außen findet nicht alle Schwachstellen; ein Virenschutz oder Proxy auf dem Rechner des Beraters kann Angaben zu Zertifikaten verfälschen. Für Vollständigkeit und Richtigkeit der Ergebnisse wird keine Gewähr übernommen. Den vollständigen Text „Methodik und Grenzen“ druckt die App im Anhang jedes Berichts.
+
+## Rechte
+
+© 2026 Robin Olbricht – olbricht-digital. Alle Rechte vorbehalten. Die Programme dürfen kostenlos genutzt werden; eine offene Lizenz ist noch nicht gewählt. Fremdbestandteile stehen unter ihren eigenen Lizenzen, siehe [docs/lizenzen.md](docs/lizenzen.md).
+
+„DIN SPEC 27076“ bezeichnet die Norm, nach der der Check vorgeht. Die Norm selbst ist nicht Teil dieses Repos.

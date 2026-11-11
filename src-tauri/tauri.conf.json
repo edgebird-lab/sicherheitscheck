@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Sicherheitscheck",
   "mainBinaryName": "sicherheitscheck",
-  "version": "../package.json",
+  "version": "0.1.0",
   "identifier": "de.olbricht-digital.sicherheitscheck",
   "build": {
     "frontendDist": "../dist",
