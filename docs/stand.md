@@ -15,8 +15,8 @@ Letzte Aktualisierung: 11.11.2026
 
 - [x] **1.1** Projekt wie den Prozesslotsen anlegen. *Vite 8, React 19, TypeScript 7, Vitest 5, oxlint, Playwright mit Edge auf Port 4181, CSP im Build, `normen/` in `.gitignore`. CI nur mit Lint, Test und Build (Vorgabe des Auftrags, siehe entscheidungen.md).*
 - [x] **1.2** `typen.ts` nach Abschnitt 4 und Katalog. *T-K01 bis T-K03 grün. Katalog vorläufig (27 Anforderungen, 6/5/4/3/3/6 je Thema, Nummern 1.1–6.6, vier Vorfragen); `KATALOG_ABGEGLICHEN = false` zeigt das in der Oberfläche an. Test hält `docs/katalog-abgleich.md` und `docs/katalog-texte.md` mit dem Code synchron.*
-- [ ] **1.3** `bewertung.ts`: Punkte, Statuswert, Themen, Relevanz (T-B01 bis T-B12).
-- [ ] **1.4** Operationen (T-O01 bis T-O06).
+- [x] **1.3** `bewertung.ts`: Punkte, Statuswert, Themen, Relevanz. *T-B01 bis T-B12 grün (T-B06 zusätzlich über eine Vorfrage). Prüfmeldung R1 für „nicht relevant“, wo die Regel es nicht erlaubt.*
+- [x] **1.4** Operationen: Betrieb und Prüfung anlegen, Antwort setzen, Vorfragen, abschließen, wieder öffnen, Wiederholungsprüfung. *T-O01 bis T-O06 grün. Der Maßnahmenabgleich beim Abschließen (6.8) fehlt noch und kommt mit 4.1 (Kommentar in `abschliessen`).*
 - [ ] **1.5** Speicher: Prüffunktionen, Migrationsgerüst, IndexedDB-Adapter, Tab-Sperre (T-L01 bis T-L03).
 - [ ] **1.6** Export und Import mit Argon2id und AES-GCM im Web Worker (T-E01 bis T-E09).
 
@@ -68,4 +68,5 @@ Letzte Aktualisierung: 11.11.2026
 | Datum | Schritt | Commit |
 |---|---|---|
 | 11.11.2026 | 1.1 Gerüst | 2dd51a1 |
-| 11.11.2026 | 1.2 Katalog in eigenen Formulierungen | Katalog: 27 Anforderungen, Vorfragen, Abgleichblatt |
+| 11.11.2026 | 1.2 Katalog in eigenen Formulierungen | 7e21f2a |
+| 11.11.2026 | 1.3, 1.4 Bewertung und Operationen | Bewertung nach dem Punkteschema, Operationen für Prüfungen |
