@@ -1,10 +1,10 @@
 # Sicherheitscheck
 
-IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäftigten: geführtes Interview zu 27 Anforderungen, Statuswert nach dem Punkteschema der Norm, passive Prüfung der E-Mail-Domain von außen, priorisierter Maßnahmenplan, Vergleich mit der letzten Prüfung und ein druckfertiger Bericht. Läuft im Browser, ohne KI und ohne Server; alle Kundendaten bleiben auf dem Rechner des Beraters.
+IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäftigten: geführtes Interview zu 27 Anforderungen, Statuswert nach dem Punkteschema der Norm, passive Prüfung der E-Mail-Domain von außen, priorisierter Maßnahmenplan, Vergleich mit der letzten Prüfung und ein druckfertiger Bericht. Läuft als Windows-Programm oder im Browser, ohne KI und ohne Server; alle Kundendaten bleiben auf dem Rechner des Beraters.
 
 ![Schritt „Auswertung“: Statuswert 18 von 37 Punkten, Netzdiagramm und Tabelle je Themenbereich](docs/bilder/auswertung.png)
 
-> **Stand 0.1.0-web.** Die Web-Version ist vollständig (Phasen 1 bis 4 der [Spezifikation](docs/spezifikation.md)) und durchgesehen. Es folgen das Windows-Programm mit der Prüfung der Website (Phase 5) und die Abnahme (Phase 6). Der Katalog ist noch nicht mit der Norm abgeglichen (Phase 0). Das Repo liegt bisher nur lokal; das private GitHub-Repo und damit die CI fehlen noch. Stand und nächste Schritte: [docs/stand.md](docs/stand.md), Annahmen: [docs/entscheidungen.md](docs/entscheidungen.md).
+> **Stand 0.1.0-desktop.** Die Web-Version ist vollständig (Phasen 1 bis 4 der [Spezifikation](docs/spezifikation.md)) und durchgesehen. Das Windows-Programm (Phase 5) läuft und ist auf Robins Rechner installiert; die Prüfung der Website im Programm ist in Arbeit, danach folgt die Abnahme (Phase 6). Der Katalog ist noch nicht mit der Norm abgeglichen (Phase 0). Das Repo ist privat (`edgebird-lab/sicherheitscheck`). Stand und nächste Schritte: [docs/stand.md](docs/stand.md), Annahmen: [docs/entscheidungen.md](docs/entscheidungen.md).
 
 ## Was es kann
 
@@ -57,12 +57,14 @@ Die Regeln stehen mit Stufe in der Spezifikation (6.5), die Texte für Laien in 
 | `src/netz` | Netz-Schnittstelle, DNS über HTTPS im Browser, Testnetz mit nachgebildeten Antworten |
 | `src/pruefung` | Domainprüfung (Public Suffix List), Lauf mit Grenzen und Protokoll, Regeln je Prüfung, Ablauf |
 | `src/speicher` | Prüfung beim Laden, Migration, IndexedDB, Schreibpuffer, Tab-Sperre, Export und Import, Verschlüsselung |
+| `src/plattform` | Browser oder Windows-Programm: Export, Import, PDF, Fenstertitel, Speichern vor dem Schließen, Netz der Außenprüfung |
 | `src/ui` | React-Oberfläche, Bericht mit Druck-CSS |
+| `src-tauri` | Windows-Programm: Rust-Befehle für Dateien und PDF, Rechte, CSP, Installer, Symbol |
 | `testdaten` | synthetische DoH-Antworten beider Anbieter, fiktive Zone des Beispielbetriebs |
 | `e2e` | Browsertests mit Playwright und axe |
 | `docs` | Spezifikation, Stand, Entscheidungen, Katalog-Abgleich, Bilder und Beispielbericht |
 
-Die Fachlogik kennt kein React und ist vollständig getestet. **Technik:** React 19, TypeScript 7, Vite 8, tldts, idb, @noble/hashes, Vitest, Playwright mit axe, oxlint, GitHub Actions.
+Die Fachlogik kennt kein React und ist vollständig getestet. **Technik:** React 19, TypeScript 7, Vite 8, tldts, idb, @noble/hashes, Vitest, Playwright mit axe, oxlint, Tauri 2 (Rust, WebView2, NSIS), GitHub Actions.
 
 ![Schritt „Bericht“: Vorschau im Druckbild mit Teil A, Statuswert und Netzdiagramm](docs/bilder/bericht.png)
 
@@ -71,11 +73,30 @@ Die Fachlogik kennt kein React und ist vollständig getestet. **Technik:** React
 - 301 Unit-Tests in 30 Dateien mit von Hand nachgerechneten Werten, darunter alle Fälle der Spezifikation für Katalog, Statuswert, Abschluss, Wiederholung, Laden, Export und Import, Domain und DNS, alle E-Mail-Regeln, Ablauf der Außenprüfung, Maßnahmen, Vergleich und Netzdiagramm (T-K, T-B, T-O, T-L, T-E, T-D, T-N, T-MX, T-S, T-M, T-DK, T-T, T-RP, T-DS, T-CA, T-A, T-P, T-V, T-G), dazu Stichproben der Durchsicht (gemischte Relevanz, Fristen über Jahreswechsel und Schaltjahr, Prozentrundung für jeden möglichen Punktestand, SPF mit include und redirect). Kein Unit-Test fragt echte Domains ab; DKIM-Schlüssel entstehen zur Laufzeit.
 - 33 Browsertests: Betrieb anlegen und neu laden, Vorgespräch mit Vorfragen, Interview vollständig per Tastatur, Außenprüfung mit nachgebildeten DoH-Antworten (keine Anfrage verlässt den Test), Abbrechen, Maßnahme erledigen und neu laden, Priorität von Hand, Wiederholung mit Vergleich und Rückfrage bei weiterem Entwurf, Bericht als Druckansicht und PDF, verschlüsselter Export und Import, zweiter Tab, beschädigte oder zu neue Daten beim Laden, Arbeiten ohne IndexedDB, Speicherfehler mit erneutem Versuch.
 - Barrierefreiheit: axe meldet auf keiner Seite, in keinem Schritt, in keinem Dialog und während der Außenprüfung schwere Befunde, weder hell noch dunkel; jedes Eingabefeld ist beschriftet; nach jedem Seitenwechsel steht der Fokus auf der Überschrift. Jede Stufe hat Symbol und Wort.
-- Vor jedem Commit laufen Lint, Unit-Tests, Build und die Browsertests lokal mit Edge. Die CI (`.github/workflows/ci.yml`: Lint, Unit-Tests, Build) läuft, sobald das private GitHub-Repo angelegt ist.
+- Desktop-Test (`npm run desktop:test`) gegen das echte Programm: sicherer Kontext, Beispielbetrieb, verschlüsselt exportieren, alles löschen, importieren (Daten gleich), zweiter Start mit einer Sicherung (Rückfrage), PDF in A4, Außenprüfung mit nachgebildeten DoH-Antworten, Speichern beim Schließen, keine CSP-Verstöße. Rust-Tests mit `cargo test`.
+- Vor jedem Commit laufen Lint, Unit-Tests, Build und die Browsertests lokal mit Edge. Die CI prüft Lint, Unit-Tests und Build bei jedem Push (`ci.yml`); bei Änderungen am Programmteil baut `windows.yml` Programm und Installer und testet die Installation; `release.yml` legt bei einem Tag nur einen Release-Entwurf an.
 
-## Starten
+## Windows-Programm
 
-Voraussetzung ist Node 24. Die App läuft nur lokal im Browser (Edge oder Chrome); es gibt keinen Server und keine Bereitstellung.
+Das Programm (Tauri 2 mit WebView2) installiert sich pro Benutzer ohne Admin-Rechte nach `%LOCALAPPDATA%\Sicherheitscheck`, mit Eintrag im Startmenü, Verknüpfung auf dem Desktop und der Dateizuordnung `.sicherheitscheck` (Doppelklick auf eine Sicherung importiert sie nach einer Rückfrage). Gegenüber dem Browser kann es:
+
+- Sicherungen mit „Speichern unter“ an einen gewählten Ort schreiben und über einen Öffnen-Dialog importieren; geschrieben wird nur dorthin, wo der Benutzer es im Dialog wählt, und immer über eine Hilfsdatei mit Umbenennen.
+- den Bericht ohne Druckdialog als PDF auf A4 speichern.
+- beim Schließen des Fensters zuerst speichern.
+
+Die Daten liegen wie im Browser in einer IndexedDB, hier im Profil der WebView2 unter `%LOCALAPPDATA%\de.olbricht-digital.sicherheitscheck`. Eine Deinstallation lässt sie stehen; trotzdem vorher eine Sicherung exportieren. Die Oberfläche hat keine allgemeinen Datei-, HTTP- oder Shell-Rechte, nur die eigenen Befehle des Rust-Teils; die CSP erlaubt Verbindungen nur zur Brücke zu Rust und zu den beiden DoH-Anbietern.
+
+```bash
+npx tauri build                      # Installer: <Ziel>/release/bundle/nsis/Sicherheitscheck_<Version>_x64-setup.exe
+npx tauri build --debug --no-bundle  # Debug-Build für den Desktop-Test
+npm run desktop:test                 # Desktop-Test gegen den Debug-Build (CDP-Port 9336)
+```
+
+Rust 1.90 oder neuer. Der Desktop-Test legt die Programmdaten vorher beiseite und stellt sie danach wieder her; er bricht ab, solange der Sicherheitscheck läuft. Der Installer ist noch nicht signiert; SmartScreen fragt beim ersten Start nach.
+
+## Starten im Browser
+
+Voraussetzung ist Node 24. Die Web-Version läuft nur lokal im Browser (Edge oder Chrome); es gibt keinen Server und keine Bereitstellung.
 
 ```bash
 npm install
@@ -101,7 +122,7 @@ npm run lint      # oxlint
 - Der Katalog ist vorläufig: Nummern, Verteilung der Basis-Anforderungen und Relevanzregeln sind Annahmen bis zum Abgleich mit der Norm.
 - Netzdiagramm, Dringlichkeit und Aufbau des Berichts sind Annahmen der Spezifikation (6.12, 6.13); „Methodik und Grenzen“ soll vor dem ersten bezahlten Auftrag anwaltlich geprüft werden.
 - Die Außenprüfung ist passiv und findet nicht alle Schwachstellen. Nicht geprüft: Mailserver per SMTP, alte TLS-Versionen, Sperrstatus von Zertifikaten; im Browser außerdem die Website. Einige Regeln stützen sich auf noch nicht geöffnete RFCs ([Prüfblatt für Phase 0.4](docs/rfc-abgleich.md)).
-- Die Daten liegen unverschlüsselt in der IndexedDB des Browsers. Für den Rechner des Beraters gelten BitLocker und Bildschirmsperre; regelmäßig eine verschlüsselte Sicherung exportieren.
+- Die Daten liegen unverschlüsselt in der IndexedDB des Browsers bzw. der WebView2. Für den Rechner des Beraters gelten BitLocker und Bildschirmsperre; regelmäßig eine verschlüsselte Sicherung exportieren.
 
 ## Lizenz
 

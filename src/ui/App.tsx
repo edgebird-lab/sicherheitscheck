@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { KATALOG } from '../katalog'
 import { schrittVollstaendig } from '../modell/fortschritt'
 import type { Darstellung } from '../modell/typen'
+import { plattform } from '../plattform'
 import type { Speicherstatus } from '../speicher/aenderungen'
 import { BetriebAnsicht } from './BetriebAnsicht'
 import { useDaten } from './daten'
@@ -43,14 +44,14 @@ function Anwendung() {
     meldungsZeit.current = window.setTimeout(() => setMeldung(''), 8000)
   }, [])
 
-  const datei = useDatei(z.bestand, dispatch, melde)
+  const datei = useDatei(z.bestand, dispatch, melde, lade.art === 'bereit')
 
   useEffect(() => setzeDarstellung(z.bestand.einstellungen.darstellung), [z.bestand.einstellungen.darstellung])
 
   // Fenstertitel: Betrieb und App
   const betriebName = z.ansicht.art === 'betrieb' ? z.bestand.betriebe.find((b) => b.id === (z.ansicht as { betriebId: string }).betriebId)?.name : undefined
   useEffect(() => {
-    document.title = betriebName ? `${betriebName} – ${APP_NAME}` : APP_NAME
+    plattform.setzeTitel(betriebName ? `${betriebName} – ${APP_NAME}` : APP_NAME)
   }, [betriebName])
 
   // Seiten- oder Schrittwechsel: nach oben und Fokus auf die Hauptüberschrift, damit Tastatur und

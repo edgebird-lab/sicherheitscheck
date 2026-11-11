@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { plattform } from '../plattform'
 import { zeitpunktDeutsch } from '../modell/datum'
 import type { Darstellung, DohAnbieter, Einstellungen } from '../modell/typen'
 import { Auswahl, Feld } from './Eingaben'
@@ -63,15 +64,26 @@ export function EinstellungenSeite() {
         <h2 id="einst-daten">Daten</h2>
         <dl className="angaben">
           <dt>Speicherort</dt>
-          <dd>{speicher.aktiv ? 'IndexedDB dieses Browsers, nur auf diesem Rechner' : 'nicht verfügbar: Änderungen gehen beim Schließen verloren'}</dd>
-          <dt>Dauerhafte Speicherung</dt>
           <dd>
-            {speicher.dauerhaft === true
-              ? 'zugesagt: Der Browser löscht die Daten nicht bei Platzmangel.'
-              : speicher.dauerhaft === false
-                ? 'nicht zugesagt: Bei Platzmangel könnte der Browser die Daten löschen. Regelmäßig sichern.'
-                : 'unbekannt'}
+            {!speicher.aktiv
+              ? 'nicht verfügbar: Änderungen gehen beim Schließen verloren'
+              : plattform.desktop
+                ? 'Programmdaten dieses Benutzers (IndexedDB der WebView2), nur auf diesem Rechner'
+                : 'IndexedDB dieses Browsers, nur auf diesem Rechner'}
           </dd>
+          {/* Nur im Browser: Im Programm löscht kein Browser die Daten bei Platzmangel */}
+          {!plattform.desktop && (
+            <>
+              <dt>Dauerhafte Speicherung</dt>
+              <dd>
+                {speicher.dauerhaft === true
+                  ? 'zugesagt: Der Browser löscht die Daten nicht bei Platzmangel.'
+                  : speicher.dauerhaft === false
+                    ? 'nicht zugesagt: Bei Platzmangel könnte der Browser die Daten löschen. Regelmäßig sichern.'
+                    : 'unbekannt'}
+              </dd>
+            </>
+          )}
           <dt>Letzte Sicherung</dt>
           <dd>{e.letzteSicherung ? zeitpunktDeutsch(e.letzteSicherung) : 'noch keine'}</dd>
         </dl>
@@ -86,7 +98,7 @@ export function EinstellungenSeite() {
 
         <div className="gefahrenzone">
           <h3>Alle Daten löschen</h3>
-          <p className="leise klein">Löscht alle Betriebe, Prüfungen und Einstellungen in diesem Browser. Das lässt sich nicht rückgängig machen; exportierte Dateien bleiben erhalten.</p>
+          <p className="leise klein">Löscht alle Betriebe, Prüfungen und Einstellungen {plattform.ort}. Das lässt sich nicht rückgängig machen; exportierte Dateien bleiben erhalten.</p>
           <div className="inline-anlegen">
             <Feld label={`Zur Bestätigung „${BESTAETIGUNG}“ eingeben`}>
               {(id) => <input id={id} type="text" autoComplete="off" value={loeschen} onChange={(x) => setLoeschen(x.target.value)} />}

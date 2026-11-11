@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Programmsymbol des Sicherheitschecks: Schild mit Haken auf dem Blau der App (#1c5cab).
+       Quelle für `npx tauri icon src-tauri/icons/symbol.svg`. -->
+  <defs>
+    <linearGradient id="flaeche" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2468ba"/>
+      <stop offset="1" stop-color="#184f95"/>
+    </linearGradient>
+  </defs>
+  <rect x="40" y="40" width="944" height="944" rx="210" fill="url(#flaeche)"/>
+  <path d="M512 176 L792 282 V500 C792 672 673 803 512 852 C351 803 232 672 232 500 V282 Z" fill="#ffffff"/>
+  <path d="M376 520 L470 614 L654 412" fill="none" stroke="#1c5cab" stroke-width="84" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

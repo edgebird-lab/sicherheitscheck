@@ -4,6 +4,7 @@ import { BEISPIEL_BETRIEB_ID, beispielBetrieb } from '../modell/beispiel'
 import { datumDeutsch, heuteLokal, tageZwischen } from '../modell/datum'
 import { letzteAbgeschlossene, neuerBetrieb } from '../modell/operationen'
 import type { Betrieb } from '../modell/typen'
+import { plattform } from '../plattform'
 import { Feld } from './Eingaben'
 import { useApp } from './kontext'
 import { APP_NAME } from './marke'
@@ -105,7 +106,7 @@ export function Startseite({ ladeMeldungen }: { ladeMeldungen: string[] }) {
           <h1 id="willkommen-titel">{APP_NAME}</h1>
           <p>
             Der {APP_NAME} führt Schritt für Schritt durch die IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäftigten. Aus dem Interview zu 27 Anforderungen entstehen
-            der Statuswert, eine Auswertung je Themenbereich, ein Maßnahmenplan und ein druckfertiger Bericht; dazu kommt eine passive Prüfung der E-Mail-Domain von außen. Alle Daten bleiben in diesem Browser auf diesem Rechner.
+            der Statuswert, eine Auswertung je Themenbereich, ein Maßnahmenplan und ein druckfertiger Bericht; dazu kommt eine passive Prüfung der E-Mail-Domain von außen. Alle Daten bleiben {plattform.ort} auf diesem Rechner.
           </p>
           {neuFormular ?? (
             <div className="knopfreihe">
@@ -148,7 +149,7 @@ export function Startseite({ ladeMeldungen }: { ladeMeldungen: string[] }) {
                 {einstellungen.letzteSicherung === null
                   ? 'Noch keine Sicherung exportiert. '
                   : `Die letzte Sicherung ist vom ${datumDeutsch(einstellungen.letzteSicherung.slice(0, 10))}. `}
-                Die Daten liegen nur in diesem Browser; eine verschlüsselte Sicherung schützt vor Verlust.
+                Die Daten liegen nur {plattform.ort}; eine verschlüsselte Sicherung schützt vor Verlust.
               </p>
               <button type="button" className="knopf knopf-klein" onClick={() => datei.exportieren('alles')}>
                 Jetzt sichern

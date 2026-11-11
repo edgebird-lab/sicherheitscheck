@@ -1,8 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { KATALOG } from '../../katalog'
-import { zeitpunktDeutsch } from '../../modell/datum'
+import { heuteLokal, zeitpunktDeutsch } from '../../modell/datum'
 import { gleicheMassnahmenAb } from '../../modell/massnahmen'
 import { abschliessen, aenderePruefung, pruefeAbschluss, wiederOeffnen, type Meldung } from '../../modell/operationen'
+import { plattform } from '../../plattform'
+import { sichererName } from '../../speicher/datei'
 import { Bericht } from '../Bericht'
 import { Feld } from '../Eingaben'
 import { useBestaetigen } from '../frage'
@@ -27,6 +29,7 @@ export function BerichtSchritt() {
   const aenderePruefungFn = aendern.pruefung
   const bestaetigen = useBestaetigen()
   const entwurf = pruefung?.status === 'entwurf'
+  const [pdfLaeuft, setPdfLaeuft] = useState(false)
 
   // Maßnahmen im Entwurf abgleichen, damit die Vorschau aktuell ist (6.8)
   useEffect(() => {
@@ -36,6 +39,19 @@ export function BerichtSchritt() {
   if (!pruefung) return null
   const p = pruefung
   const { fehler, warnungen } = pruefeAbschluss(KATALOG, p)
+
+  // Nur im Programm: PDF direkt über WebView2 (Befehl als_pdf), mit derselben Druck-CSS
+  const alsPdf = async () => {
+    setPdfLaeuft(true)
+    try {
+      const name = await plattform.alsPdf(`Sicherheitscheck-Bericht-${sichererName(betrieb.name)}-${p.datum || heuteLokal(new Date())}.pdf`)
+      if (name) melde(`Bericht gespeichert als „${name}“.`)
+    } catch (e) {
+      melde(e instanceof Error ? e.message : 'Das PDF ließ sich nicht speichern.')
+    } finally {
+      setPdfLaeuft(false)
+    }
+  }
 
   const springe = (m: Meldung) => {
     if (m.anforderungId) dispatch({ typ: 'anforderung', anforderungId: m.anforderungId })
@@ -127,7 +143,8 @@ export function BerichtSchritt() {
       <div className="karte nur-bildschirm" role="group" aria-labelledby="druck-titel">
         <h2 id="druck-titel">Drucken</h2>
         <p className="leise">
-          Gedruckt wird nur der Bericht, immer hell auf A4, jeder Teil auf einer neuen Seite. Als PDF: im Druckdialog „Als PDF speichern“ wählen.
+          Gedruckt wird nur der Bericht, immer hell auf A4, jeder Teil auf einer neuen Seite.
+          {plattform.desktop ? ' „Als PDF speichern“ legt ihn ohne Druckdialog als PDF ab.' : ' Als PDF: im Druckdialog „Als PDF speichern“ wählen.'}
           {p.status === 'entwurf' && ' Solange die Prüfung ein Entwurf ist, trägt der Bericht den Vermerk „Entwurf“.'}
         </p>
         <Feld label="Förderhinweise für den Bericht (Anhang)" hilfe="Freitext, z. B. passende Förderprogramme des Landes. Bleibt auch nach dem Abschluss änderbar.">
@@ -142,9 +159,20 @@ export function BerichtSchritt() {
           )}
         </Feld>
         <div className="knopfreihe">
-          <button type="button" className="knopf knopf-haupt" onClick={() => window.print()}>
-            Drucken / als PDF
-          </button>
+          {plattform.desktop ? (
+            <>
+              <button type="button" className="knopf knopf-haupt" disabled={pdfLaeuft} onClick={() => void alsPdf()}>
+                {pdfLaeuft ? 'PDF wird erstellt …' : 'Als PDF speichern'}
+              </button>
+              <button type="button" className="knopf" onClick={() => window.print()}>
+                Drucken
+              </button>
+            </>
+          ) : (
+            <button type="button" className="knopf knopf-haupt" onClick={() => window.print()}>
+              Drucken / als PDF
+            </button>
+          )}
         </div>
       </div>
 

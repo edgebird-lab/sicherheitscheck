@@ -46,14 +46,14 @@ Letzte Aktualisierung: 11.11.2026, nach der Durchsicht von Phase 1 bis 4 (Stand 
 - [~] **4.5** ISMS-Brücke und „Methodik und Grenzen“. *Umgesetzt im Anhang des Berichts: Tabelle Themenbereich → Bausteine (IT-Grundschutz-Kompendium, Edition 2023) plus Zeile Außenprüfung, Text „Methodik und Grenzen“ (`ui/berichtTexte.ts`, eigene Formulierungen). Offen: Robin prüft die Zuordnung und gibt den Text frei (F10: Haftungshinweis vor dem ersten bezahlten Auftrag anwaltlich prüfen lassen).*
 - [x] **4.6** Beispielbetrieb, README mit Bildern, Stand „0.1.0-web“. *Beispielbetrieb mit abgeschlossener Prüfung (18 von 37, durch Test gesichert), fiktiver Außenprüfung von example.com (gegen den Ablauf über `testdaten/dns/beispiel-zone.json` getestet) und 13 Maßnahmen. README mit Bildern zu Auswertung, Außenprüfung, Maßnahmen, Bericht und Interview sowie Beispielbericht als PDF (`npm run bilder`), Grenzen ergänzt. Version in `package.json`: 0.1.0-web.*
 
-## Phase 5 – Windows-Programm und Website-Prüfung (später)
+## Phase 5 – Windows-Programm und Website-Prüfung
 
-- [ ] **5.1** Tauri 2 nach dem Prozesslotsen 0.2.0.
+- [~] **5.1** Tauri 2 nach dem Prozesslotsen 0.2.0. *`src-tauri` mit Kennung `de.olbricht-digital.sicherheitscheck`, Produktname „Sicherheitscheck“, NSIS pro Benutzer (Deutsch), eigenes Symbol (`src-tauri/icons/symbol.svg`, mit `npx tauri icon` erzeugt), Einzelinstanz, Dateizuordnung `.sicherheitscheck` (Rolle Editor), Dialoge in Rust (`oeffnen`, `speichern_unter`, `start_datei`, `als_pdf`), atomares Schreiben, Testantworten für Dialoge nur im Debug-Build, eigene Befehle nur über Rechte (`build.rs`, `capabilities/default.json`), CSP mit DoH zu den beiden Anbietern (E32). Plattformschicht `src/plattform` (Browser: Download und Dateifeld; Programm: Rust-Befehle, Fenstertitel, Speichern vor dem Schließen). IndexedDB bleibt der Speicher. Debug-Build mit `isSecureContext = true` (D-01). CI: `windows.yml` (Rust-Tests, Prüfung auf aws-lc, Installer bauen, Installer-Test), `release.yml` als Entwurf. Offen: die Netz-Crates aus 7.2 kommen mit 5.2 bis 5.4.*
 - [ ] **5.2** Crate `netzpruefung`: Freigabe, Zielprüfung, Adresssperre.
 - [ ] **5.3** `doh_abfrage` und `http_abruf`.
 - [ ] **5.4** `tls_info`.
 - [ ] **5.5** TypeScript-Regeln Website und Desktop-Netz.
-- [ ] **5.6** Desktop-Test.
+- [~] **5.6** Desktop-Test. *`npm run desktop:test` (Port 9336): D-01 bis D-03 grün, dazu D-05 (Außenprüfung example.com mit nachgebildeten DoH-Antworten, CSP lässt DoH zu, keine fremde Anfrage), zweiter Start mit Sicherung (Rückfrage), Speichern beim Schließen, keine CSP-Verstöße. Legt die Programmdaten vorher beiseite und stellt sie danach wieder her; bricht ab, solange der Sicherheitscheck läuft. Offen: D-04 braucht `http_abruf` (5.3).*
 - [ ] **5.7** Abnahme im Debug-Build.
 
 ## Phase 6 – Abnahme und Portfolio (später)

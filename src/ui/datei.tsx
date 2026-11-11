@@ -1,20 +1,27 @@
 /**
  * Export und Import in der Oberfläche (6.11): Exportdialog mit Verschlüsselung (Standard)
  * und Passwort, Import mit Passwortabfrage, Rückfrage bei bekannten Betrieben und
- * ausdrücklicher Wahl für die Einstellungen.
+ * ausdrücklicher Wahl für die Einstellungen. Im Windows-Programm wählt der Benutzer die
+ * Datei im Dialog des Rust-Teils; ein Doppelklick auf eine Sicherung (auch bei laufendem
+ * Programm) oder eine ins Fenster gezogene Sicherung startet den Import nach einer Rückfrage.
  */
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type Dispatch, type ReactNode } from 'react'
 import { KATALOG } from '../katalog'
 import type { Datenbestand, Id, Umfang } from '../modell/typen'
+import { plattform, type Datei } from '../plattform'
 import { bekannteBetriebe, fuehreZusammen, ImportFehler, leseInhalt, leseKopf, MAX_DATEIGROESSE, type Konfliktwahl, type Kopf } from '../speicher/datei'
 import { Entschluesselungsfehler } from '../speicher/krypto-grundlagen'
 import { browserKrypto } from '../speicher/krypto-auftrag'
 import { ExportDialog, PasswortDialog, type ExportAuftrag } from './DateiDialoge'
 import { useFrage } from './frage'
+import { APP_NAME } from './marke'
 import type { Aktion } from './zustand'
 
-/** Export- und Importabläufe; `element` enthält Dialoge und das versteckte Dateifeld. */
-export function useDatei(bestand: Datenbestand, dispatch: Dispatch<Aktion>, melde: (text: string) => void) {
+/**
+ * Export- und Importabläufe; `element` enthält Dialoge und das versteckte Dateifeld.
+ * `bereit`: Die Daten sind geladen; erst dann darf eine Startdatei importiert werden.
+ */
+export function useDatei(bestand: Datenbestand, dispatch: Dispatch<Aktion>, melde: (text: string) => void, bereit: boolean) {
   const [exportAuftrag, setExportAuftrag] = useState<ExportAuftrag | null>(null)
   const [verschluesselt, setVerschluesselt] = useState<{ kopf: Kopf; name: string } | null>(null)
   const feld = useRef<HTMLInputElement>(null)
@@ -72,16 +79,13 @@ export function useDatei(bestand: Datenbestand, dispatch: Dispatch<Aktion>, meld
     [dispatch, frage, melde],
   )
 
-  const dateiGewaehlt = useCallback(
-    async (e: ChangeEvent<HTMLInputElement>) => {
-      const f = e.target.files?.[0]
-      e.target.value = ''
-      if (!f) return
-      if (f.size > MAX_DATEIGROESSE) return void zeigeFehler('Die Datei ist größer als 50 MB.')
+  /** Gelesene Datei: Kopf prüfen, bei Verschlüsselung nach dem Passwort fragen, sonst übernehmen */
+  const verarbeite = useCallback(
+    async (name: string, text: string) => {
       try {
-        const kopf = leseKopf(await f.text())
+        const kopf = leseKopf(text)
         if (kopf.verschluesselung) {
-          setVerschluesselt({ kopf, name: f.name })
+          setVerschluesselt({ kopf, name })
           return
         }
         await uebernehmen(kopf, await leseInhalt(kopf, null, browserKrypto, KATALOG))
@@ -91,6 +95,65 @@ export function useDatei(bestand: Datenbestand, dispatch: Dispatch<Aktion>, meld
     },
     [uebernehmen, zeigeFehler],
   )
+
+  const dateiGewaehlt = useCallback(
+    async (e: ChangeEvent<HTMLInputElement>) => {
+      const f = e.target.files?.[0]
+      e.target.value = ''
+      if (!f) return
+      if (f.size > MAX_DATEIGROESSE) return void zeigeFehler('Die Datei ist größer als 50 MB.')
+      let text: string
+      try {
+        text = await f.text()
+      } catch {
+        return void zeigeFehler('Die Datei ließ sich nicht lesen.')
+      }
+      await verarbeite(f.name, text)
+    },
+    [verarbeite, zeigeFehler],
+  )
+
+  /** Im Programm: Datei aus dem Dialog des Rust-Teils (der prüft Größe und Textformat) */
+  const ausDialog = useCallback(async () => {
+    let d: Datei | null
+    try {
+      d = await plattform.oeffnen()
+    } catch (err) {
+      return void zeigeFehler(err instanceof Error ? err.message : 'Die Datei ließ sich nicht lesen.')
+    }
+    if (d) await verarbeite(d.name, d.inhalt)
+  }, [verarbeite, zeigeFehler])
+
+  /** Doppelklick oder ins Fenster gezogen: erst fragen, dann importieren */
+  const mitRueckfrage = useCallback(
+    async (d: Datei) => {
+      const wahl = await frage({
+        titel: 'Sicherung importieren?',
+        text: `„${d.name}“ importieren? Vorhandene Betriebe bleiben erhalten; ist ein Betrieb schon da, fragt der ${APP_NAME} nach.`,
+        knoepfe: [
+          { wert: 'nein', text: 'Abbrechen' },
+          { wert: 'ja', text: 'Importieren', art: 'haupt' },
+        ],
+        abbrechen: 'nein',
+      })
+      if (wahl === 'ja') await verarbeite(d.name, d.inhalt)
+    },
+    [frage, verarbeite],
+  )
+
+  // Programm: Startdatei einmal nach dem Laden, weitere Dateien während des Laufs
+  const startGeprueft = useRef(false)
+  useEffect(() => {
+    if (!bereit || !plattform.desktop) return
+    if (!startGeprueft.current) {
+      startGeprueft.current = true
+      plattform.startDatei().then(
+        (d) => d && void mitRueckfrage(d),
+        (err: unknown) => void zeigeFehler(err instanceof Error ? err.message : 'Die Datei ließ sich nicht lesen.'),
+      )
+    }
+    return plattform.beiDatei((d) => void mitRueckfrage(d))
+  }, [bereit, mitRueckfrage, zeigeFehler])
 
   const entschluesseln = useCallback(
     async (passwort: string): Promise<string | null> => {
@@ -112,7 +175,7 @@ export function useDatei(bestand: Datenbestand, dispatch: Dispatch<Aktion>, meld
   )
 
   const exportieren = useCallback((umfang: Umfang, betriebId?: Id) => setExportAuftrag({ umfang, betriebId }), [])
-  const importieren = useCallback(() => feld.current?.click(), [])
+  const importieren = useCallback(() => (plattform.desktop ? void ausDialog() : feld.current?.click()), [ausDialog])
 
   const element: ReactNode = (
     <>

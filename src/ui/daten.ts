@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { KATALOG } from '../katalog'
 import type { Datenbestand } from '../modell/typen'
+import { plattform } from '../plattform'
 import { aenderungenZwischen, Schreibpuffer, type Speicherstatus } from '../speicher/aenderungen'
 import { dauerhaftAnfordern, oeffneSpeicher, type Speicher } from '../speicher/idb'
 import { migriere } from '../speicher/migration'
@@ -76,7 +77,8 @@ export function useDaten() {
     puffer.current.merke(a)
   }, [z.bestand])
 
-  // Vor dem Schließen oder Verlassen des Tabs sofort schreiben
+  // Vor dem Schließen oder Verlassen des Tabs sofort schreiben; im Programm wartet das Fenster
+  // darauf (onCloseRequested → speichern → destroy, 7.4)
   useEffect(() => {
     const jetzt = () => void puffer.current?.schreibeJetzt()
     const sichtbarkeit = () => {
@@ -84,9 +86,13 @@ export function useDaten() {
     }
     window.addEventListener('pagehide', jetzt)
     document.addEventListener('visibilitychange', sichtbarkeit)
+    const abmelden = plattform.beimSchliessen(async () => {
+      await puffer.current?.schreibeJetzt()
+    })
     return () => {
       window.removeEventListener('pagehide', jetzt)
       document.removeEventListener('visibilitychange', sichtbarkeit)
+      abmelden()
     }
   }, [])
 

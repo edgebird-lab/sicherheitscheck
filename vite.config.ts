@@ -6,8 +6,10 @@ import { defineConfig, type Plugin } from 'vite'
 const paket = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as { version: string }
 
 /**
- * Content-Security-Policy als Meta-Tag, nur im Produktions-Build (Spezifikation 7.8).
- * Im Entwicklungsserver würde sie das Nachladen von Vite blockieren.
+ * Content-Security-Policy als Meta-Tag, nur im Produktions-Build für den Browser (Spezifikation 7.8).
+ * Im Entwicklungsserver würde sie das Nachladen von Vite blockieren. Im Windows-Programm gilt die
+ * CSP aus src-tauri/tauri.conf.json (7.6); ein zusätzlicher Meta-Tag sperrte dort die Brücke zu
+ * Rust (ipc:). Die Tauri-CLI setzt TAURI_ENV_PLATFORM für ihren Build.
  */
 const CSP = [
   "default-src 'self'",
@@ -23,7 +25,7 @@ const CSP = [
 function csp(): Plugin {
   return {
     name: 'sicherheitscheck-csp',
-    apply: 'build',
+    apply: (_, { command }) => command === 'build' && !process.env.TAURI_ENV_PLATFORM,
     transformIndexHtml: (html) => html.replace('<head>', `<head>\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />`),
   }
 }

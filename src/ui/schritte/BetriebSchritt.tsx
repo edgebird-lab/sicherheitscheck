@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { datumDeutsch } from '../../modell/datum'
 import type { Person } from '../../modell/typen'
+import { plattform } from '../../plattform'
 import { pruefeSelektoren } from '../../pruefung/selektoren'
 import { Dialog } from '../Dialog'
 import { Feld } from '../Eingaben'
@@ -271,7 +272,7 @@ function LoeschDialog({ name, onSchliessen, onLoeschen }: { name: string; onSchl
   return (
     <Dialog titel="Betrieb löschen?" onSchliessen={onSchliessen}>
       <form className="formular" onSubmit={absenden}>
-        <p>„{name}“ wird mit allen Prüfungen aus diesem Browser gelöscht. Das lässt sich nicht rückgängig machen; exportierte Dateien bleiben erhalten.</p>
+        <p>„{name}“ wird mit allen Prüfungen {plattform.desktop ? 'aus diesem Programm' : 'aus diesem Browser'} gelöscht. Das lässt sich nicht rückgängig machen; exportierte Dateien bleiben erhalten.</p>
         <Feld label="Zur Bestätigung den Namen des Betriebs eingeben">{(id) => <input id={id} type="text" autoComplete="off" value={eingabe} onChange={(e) => setEingabe(e.target.value)} />}</Feld>
         <div className="knopfreihe dialog-knoepfe">
           <button type="button" className="knopf" onClick={onSchliessen}>

@@ -1,22 +1,12 @@
 /** Dialoge für Export (mit Verschlüsselung und Passwort) und für das Passwort beim Import */
 import { useState, type FormEvent } from 'react'
 import type { Datenbestand, Id, Umfang } from '../modell/typen'
+import { plattform } from '../plattform'
 import { erzeugeExport, MIN_PASSWORT } from '../speicher/datei'
 import { browserKrypto } from '../speicher/krypto-auftrag'
 import { Dialog } from './Dialog'
 import { Feld, Kontrollkaestchen } from './Eingaben'
 import { APP_NAME, VERSION } from './marke'
-
-function herunterladen(text: string, name: string) {
-  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }))
-  const a = document.createElement('a')
-  a.href = url
-  a.download = name
-  document.body.append(a)
-  a.click()
-  a.remove()
-  setTimeout(() => URL.revokeObjectURL(url), 10_000)
-}
 
 export interface ExportAuftrag {
   umfang: Umfang
@@ -50,8 +40,13 @@ export function ExportDialog({ auftrag, bestand, onFertig, onSchliessen }: { auf
         programm: `${APP_NAME} ${VERSION}`,
         krypto: browserKrypto,
       })
-      herunterladen(ex.text, ex.dateiname)
-      onFertig(ex.dateiname)
+      // Browser: Download; Programm: Speichern-Dialog. Bei Abbruch bleibt der Dialog offen.
+      const name = await plattform.speichernUnter(ex.dateiname, ex.text)
+      if (name === null) {
+        setArbeitet(false)
+        return
+      }
+      onFertig(name)
     } catch (err) {
       setFehler(err instanceof Error ? err.message : 'Der Export ist fehlgeschlagen.')
       setArbeitet(false)

@@ -1,0 +1,57 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Sicherheitscheck",
+  "mainBinaryName": "sicherheitscheck",
+  "version": "../package.json",
+  "identifier": "de.olbricht-digital.sicherheitscheck",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5181",
+    "beforeDevCommand": "npx vite --port 5181 --strictPort",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Sicherheitscheck",
+        "width": 1320,
+        "height": 860,
+        "minWidth": 900,
+        "minHeight": 600,
+        "center": true,
+        "dragDropEnabled": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src ipc: http://ipc.localhost https://cloudflare-dns.com https://dns.google; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+      "freezePrototype": false
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "Robin Olbricht",
+    "category": "Business",
+    "shortDescription": "IT-Sicherheitsberatung nach DIN SPEC 27076 für kleine Betriebe",
+    "copyright": "© 2026 Robin Olbricht",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "fileAssociations": [
+      {
+        "ext": ["sicherheitscheck"],
+        "name": "Sicherheitscheck.Sicherung",
+        "description": "Sicherheitscheck-Sicherung",
+        "mimeType": "application/vnd.sicherheitscheck+json",
+        "role": "Editor"
+      }
+    ],
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper", "silent": true },
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["German"],
+        "compression": "lzma"
+      }
+    }
+  }
+}

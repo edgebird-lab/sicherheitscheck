@@ -3,7 +3,8 @@ import { KATALOG } from '../../katalog'
 import { zeitpunktDeutsch } from '../../modell/datum'
 import { setzeAussenpruefung } from '../../modell/operationen'
 import type { Aussenpruefung, Bestaetigung, PruefId } from '../../modell/typen'
-import { ANBIETER_NAME, browserNetz } from '../../netz/browser'
+import { ANBIETER_NAME } from '../../netz/browser'
+import { plattform } from '../../plattform'
 import { bestaetigungsText } from '../../pruefung/bestaetigung'
 import type { DomainErgebnis } from '../../pruefung/domain'
 import { STANDARD_GRENZEN } from '../../pruefung/lauf'
@@ -86,7 +87,7 @@ export function AussenSchritt() {
     setFertig([])
     try {
       const { aussenpruefung } = await import('../../pruefung/ablauf')
-      const netz = browserNetz({ anbieter, signal: steuerung.signal })
+      const netz = plattform.netz({ anbieter, signal: steuerung.signal })
       const r = await aussenpruefung(
         { domain: D, dkimSelektoren: betrieb.dkimSelektoren, dohAnbieter: anbieter, bestaetigung: { name, rolle, zugestimmt } },
         netz,
