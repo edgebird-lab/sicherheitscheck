@@ -11,6 +11,8 @@ import { leererBestand, standardEinstellungen } from './pruefen'
 /** Kleine Parameter für schnelle Tests; KDF_STANDARD prüfen eigene Fälle */
 const KDF_TEST: KdfParameter = { speicherKiB: 64, durchlaeufe: 1, parallelitaet: 1 }
 const PASSWORT = 'korrekt Pferd Batterie'
+/** Zeitlimit für Tests mit den vollen Argon2-Parametern (je Ableitung rund 0,7 s, unter Last mehr) */
+const LANGSAM = 30_000
 const PROGRAMM = 'Sicherheitscheck 0.1.0'
 
 function bestand(): Datenbestand {
@@ -55,7 +57,7 @@ describe('Export und Import (Spezifikation 9.2)', () => {
     expect(v1.ivB64).not.toBe(v2.ivB64)
     expect(eins.datei.inhalt).not.toBe(zwei.datei.inhalt)
     expect(await importiere(eins.text, PASSWORT)).toEqual(daten)
-  })
+  }, LANGSAM)
 
   it('T-E03: falsches Passwort → „Passwort falsch oder Datei beschädigt.“', async () => {
     const { text } = await erzeugeExport({ bestand: bestand(), umfang: 'alles', passwort: PASSWORT, jetzt: JETZT, programm: PROGRAMM, krypto: direkteKrypto, kdf: KDF_TEST })
@@ -151,7 +153,7 @@ describe('Export und Import (Spezifikation 9.2)', () => {
     const dauer = performance.now() - start
     expect(dauer).toBeLessThan(5000)
     expect(text.length).toBeGreaterThan(100_000)
-  })
+  }, LANGSAM)
 })
 
 describe('Import: Fehler lassen den Bestand unverändert', () => {
