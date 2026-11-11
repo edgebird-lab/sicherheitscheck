@@ -53,10 +53,21 @@ function Anwendung() {
     document.title = betriebName ? `${betriebName} – ${APP_NAME}` : APP_NAME
   }, [betriebName])
 
-  // Seitenwechsel: nach oben
+  // Seiten- oder Schrittwechsel: nach oben und Fokus auf die Hauptüberschrift, damit Tastatur und
+  // Screenreader auf der neuen Seite beginnen (nicht beim ersten Laden)
   const ansichtSchluessel = z.ansicht.art === 'betrieb' ? `${z.ansicht.betriebId}/${z.ansicht.schritt}` : z.ansicht.art
+  const ersteAnsicht = useRef(true)
   useEffect(() => {
     window.scrollTo({ top: 0 })
+    if (ersteAnsicht.current) {
+      ersteAnsicht.current = false
+      return
+    }
+    const h1 = document.querySelector<HTMLElement>('#inhalt h1')
+    if (h1 && !h1.contains(document.activeElement)) {
+      h1.tabIndex = -1
+      h1.focus({ preventScroll: true })
+    }
   }, [ansichtSchluessel])
 
   const api = useMemo<AppApi>(

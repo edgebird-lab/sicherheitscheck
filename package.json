@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "lint": "oxlint",
     "preview": "vite preview",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "bilder": "node scripts/readme-bilder.mjs"
   },
   "dependencies": {
     "@noble/hashes": "^2.4.0",
