@@ -109,7 +109,7 @@ git push -u origin main
 - Die Tests mit vollen Argon2-Parametern brauchen unter Last mehrere Sekunden (Zeitlimit 30 s).
 - Optionsfelder sind unsichtbar über die ganze Option gelegt; in Tests `getByRole('radio', { name, exact: true }).check()` nutzen, nicht den Text anklicken.
 - Ein von der Agentensitzung gestarteter `vite preview` auf Port 4181 (PID 54340) ließ sich wegen der Berechtigungen nicht beenden. Er liefert immer den aktuellen Inhalt von `dist` aus; vor Browsertests deshalb `npm run build`. Beenden mit `taskkill /PID 54340 /F` oder nach einem Neustart erledigt.
-- E-13 macht rund 25 axe-Durchläufe und hat deshalb ein Zeitlimit von 90 s (`test.slow()`); unter Last durch parallel testende Apps braucht es 30 bis 45 s.
+- E-13 macht rund 25 axe-Durchläufe und hat deshalb ein Zeitlimit von 90 s (`test.slow()`); unter Last durch parallel testende Apps braucht es 30 bis 45 s. Dasselbe Zeitlimit haben seit der Durchsicht E-04 (26 Karten per Tastatur), E-05 (26 Bestätigungen), E-10 (PDF), E-11 (dreimal Argon2id) und der axe-Test für Dialoge: Bei rund 140 Edge-Prozessen anderer Apps auf diesem Rechner überschritten E-04, E-10 und E-11 die üblichen 30 s, mit 11 Arbeitern sogar E-13 die 90 s. Deshalb startet Playwright lokal höchstens 4 Browser gleichzeitig (`workers` in `playwright.config.ts`, änderbar mit `SC_WORKERS`); der ganze Lauf dauert damit gut eine Minute.
 - Testdaten für DNS stehen in `testdaten/dns`; Unit-Tests laden sie mit `import.meta.glob`, Browsertests mit `readFileSync` (`e2e/hilfen.ts`, `dohNachbilden`).
 
 ## Protokoll
@@ -137,3 +137,5 @@ git push -u origin main
 | 11.11.2026 | 4.6 README, Bilder, Beispielbericht, 0.1.0-web | 9f1a382 |
 | 11.11.2026 | Startseite: überfällige Frist | f9028fb |
 | 11.11.2026 | Durchsicht Phase 1 bis 4: Prüfung beim Laden, Rückfrage bei Wiederholung, Tests für Lade- und Speicherfehler | de085c5 |
+| 11.11.2026 | Doku: Durchsicht im Protokoll | 641dc6e (Achtung: vor diesem Commit liefen E-04, E-10 und E-11 wegen Last in ihr Zeitlimit; derselbe Code war im Lauf davor vollständig grün; behoben im nächsten) |
+| 11.11.2026 | Browsertests unter Last: Zeitlimit 90 s für die schweren, lokal 4 Arbeiter | Commit nach 641dc6e |

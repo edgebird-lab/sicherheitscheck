@@ -1,6 +1,8 @@
 import { expect, pruefeBarrierefreiheit, schritt, test } from './hilfen.ts'
 
 test('E-10: Bericht als Druckansicht und PDF mit den Pflichtteilen', async ({ page }) => {
+  // axe und ein PDF mit 9 Seiten; unter Last (mehrere Apps testen parallel) reichen 30 s nicht
+  test.slow()
   await page.goto('/')
   await page.getByRole('button', { name: 'Beispielbetrieb laden' }).click()
   await schritt(page, /^Bericht/)

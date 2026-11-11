@@ -10,6 +10,8 @@ async function beantworte(page: Page, erfuellt: boolean) {
 }
 
 test('E-04: Interview vollständig per Tastatur, danach zeigt die Auswertung den erwarteten Statuswert', async ({ page }) => {
+  // 26 Fragekarten, jede Begründung Taste für Taste; unter Last (mehrere Apps testen parallel) reichen 30 s nicht
+  test.slow()
   await page.goto('/')
   await neuerBetrieb(page, 'Bäckerei Probe')
   await page.getByRole('button', { name: 'Neue Prüfung' }).click()

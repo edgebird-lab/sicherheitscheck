@@ -8,6 +8,9 @@ const PORT = Number(process.env.SC_PORT ?? 4181)
 export default defineConfig({
   testDir: 'e2e',
   fullyParallel: true,
+  // Lokal höchstens 4 Browser gleichzeitig (SC_WORKERS ändert das): Oft testen mehrere Apps parallel,
+  // und mit 11 Arbeitern liefen schwere Tests (Argon2, PDF, axe) unter dieser Last in ihr Zeitlimit.
+  workers: CI ? undefined : Number(process.env.SC_WORKERS ?? 4),
   retries: CI ? 1 : 0,
   reporter: CI ? 'github' : 'list',
   use: {

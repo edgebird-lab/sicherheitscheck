@@ -1,6 +1,8 @@
 import { expect, pruefeBarrierefreiheit, schritt, test } from './hilfen.ts'
 
 test('E-05: Wiederholungsprüfung mit vorbelegten Antworten; Abschluss erst nach Bestätigung aller', async ({ page }) => {
+  // 26 Antworten einzeln bestätigen; unter Last (mehrere Apps testen parallel) reichen 30 s nicht
+  test.slow()
   await page.goto('/')
   await page.getByRole('button', { name: 'Beispielbetrieb laden' }).click()
   await page.getByRole('button', { name: 'Wiederholungsprüfung' }).click()

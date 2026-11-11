@@ -4,6 +4,8 @@ import { expect, leeresProfil, schritt, test, zurStartseite } from './hilfen.ts'
 const PASSWORT = 'korrekt Pferd Batterie'
 
 test('E-11: verschlüsselt exportieren und in ein leeres Profil importieren', async ({ page, browser, baseURL }, testInfo) => {
+  // dreimal Argon2id mit 64 MiB (Export, falsches und richtiges Passwort); unter Last reichen 30 s nicht
+  test.slow()
   await page.goto('/')
   await page.getByRole('button', { name: 'Beispielbetrieb laden' }).click()
   await zurStartseite(page)
