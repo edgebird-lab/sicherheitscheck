@@ -22,7 +22,7 @@ test('E-04: Interview vollständig per Tastatur, danach zeigt die Auswertung den
   // Erste Karte: Fokus auf die Bewertung, danach nur Tastatur
   await page.getByRole('radio', { name: 'Erfüllt', exact: true }).focus()
   // 26 Anforderungen (6.2 WLAN entfällt); nicht erfüllt: 1.2 (TOP) und 2.4 (Basis)
-  const titel = page.locator('#frage-titel')
+  const titel = page.locator('#fragekarte-titel')
   for (let i = 0; i < 26; i++) {
     const t = (await titel.textContent()) ?? ''
     const nichtErfuellt = t.startsWith('Beschäftigte erkennen Phishing') || t.startsWith('Rechte nur so weit wie nötig')
@@ -69,7 +69,7 @@ test('Interview: Pflichtbegründung, „Nächste offene“ und „nicht relevant
   await page.getByLabel('Begründung in Stichpunkten (Pflicht)').fill('GF kümmert sich')
   await expect(page.getByText('Bitte kurz begründen (mindestens drei Zeichen).')).toHaveCount(0)
   await page.getByRole('button', { name: 'Nächste offene' }).click()
-  await expect(page.locator('#frage-titel')).toHaveText('Beschäftigte erkennen Phishing und Betrugsversuche')
+  await expect(page.locator('#fragekarte-titel')).toHaveText('Beschäftigte erkennen Phishing und Betrugsversuche')
 
   // 2.5 erlaubt „nicht relevant“ mit Begründung
   await page.getByRole('button', { name: /2 Identitäts/ }).click()

@@ -69,5 +69,5 @@ test('Abschluss nennt fehlende Angaben mit Sprungmarke; wieder öffnen nach Rüc
   await expect(page.getByText('Begründung fehlt bei Anforderung 1.1.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Prüfung abschließen' })).toBeDisabled()
   await page.getByRole('button', { name: 'Zum Schritt Interview' }).click()
-  await expect(page.locator('#frage-titel')).toHaveText('Geschäftsführung verantwortet die Informationssicherheit')
+  await expect(page.locator('#fragekarte-titel')).toHaveText('Geschäftsführung verantwortet die Informationssicherheit')
 })

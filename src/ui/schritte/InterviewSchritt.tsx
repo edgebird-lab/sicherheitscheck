@@ -138,7 +138,7 @@ export function InterviewSchritt() {
           {!KATALOG_ABGEGLICHEN && <p className="leise klein">Nummern vorläufig, noch nicht mit der Norm abgeglichen.</p>}
         </nav>
 
-        <article className="karte fragekarte" aria-labelledby="frage-titel" onKeyDown={tasten}>
+        <article className="karte fragekarte" aria-labelledby="fragekarte-titel" onKeyDown={tasten}>
           <p className="fragekarte-kopf">
             <span>
               Anforderung {aktuell.normNr} · {thema.name}
@@ -148,7 +148,7 @@ export function InterviewSchritt() {
           <p className="leitfragen">
             <Symbol art="info" /> Zuerst die Leitfragen stellen: DIN SPEC 27076, Anforderung {aktuell.normNr}
           </p>
-          <h2 id="frage-titel" ref={ueberschrift} tabIndex={-1}>
+          <h2 id="fragekarte-titel" ref={ueberschrift} tabIndex={-1}>
             {aktuell.titel}
           </h2>
           <p className="kurzfrage">
