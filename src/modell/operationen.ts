@@ -5,11 +5,11 @@
  */
 import { antwortVon, begruendungReicht, berechneErgebnis, durchVorfrageAusgeblendet, istRelevant, LEERE_ANTWORT, nichtRelevantWaehlbar, relevanzMeldungen, wirksameBewertung } from './bewertung'
 import { datumDeutsch, istDatum, tageZwischen } from './datum'
+import { neueId, type NeueId } from './kennung'
+import { gleicheMassnahmenAb } from './massnahmen'
 import type { Antwort, Aussenpruefung, Betrieb, Datum, Id, Katalog, Massnahme, Pruefung, Teilnahme } from './typen'
 
-export type NeueId = () => Id
-
-export const neueId: NeueId = () => crypto.randomUUID()
+export { neueId, type NeueId } from './kennung'
 
 const zeit = (jetzt: Date) => jetzt.toISOString()
 
@@ -239,16 +239,17 @@ export function pruefeAbschluss(k: Katalog, p: Pruefung): { fehler: Meldung[]; w
 export type AbschlussErgebnis = { ok: true; pruefung: Pruefung } | { ok: false; fehler: Meldung[] }
 
 /**
- * Berechnet das Ergebnis, friert es ein und setzt den Status (6.2). Danach sind Antworten,
- * Vorfragen und Außenprüfung schreibgeschützt. Den Maßnahmenabgleich (6.8) ergänzt Phase 4.1.
+ * Gleicht die Maßnahmen ab (6.8), berechnet das Ergebnis, friert es ein und setzt den Status (6.2).
+ * Danach sind Antworten, Vorfragen und Außenprüfung schreibgeschützt; Maßnahmen bleiben bearbeitbar.
  */
-export function abschliessen(k: Katalog, p: Pruefung, jetzt: Date): AbschlussErgebnis {
+export function abschliessen(k: Katalog, p: Pruefung, jetzt: Date, id: NeueId = neueId): AbschlussErgebnis {
   if (p.status === 'abgeschlossen') return { ok: true, pruefung: p }
   const { fehler } = pruefeAbschluss(k, p)
   if (fehler.length > 0) return { ok: false, fehler }
+  const mitMassnahmen = gleicheMassnahmenAb(k, p, jetzt, id)
   return {
     ok: true,
-    pruefung: { ...p, status: 'abgeschlossen', ergebnis: berechneErgebnis(k, p), abgeschlossenAm: zeit(jetzt), geaendert: zeit(jetzt) },
+    pruefung: { ...mitMassnahmen, status: 'abgeschlossen', ergebnis: berechneErgebnis(k, mitMassnahmen), abgeschlossenAm: zeit(jetzt), geaendert: zeit(jetzt) },
   }
 }
 
@@ -259,10 +260,13 @@ export function wiederOeffnen(p: Pruefung, jetzt: Date): Pruefung {
 
 /* ---------- Außenprüfung (6.7) ---------- */
 
-/** Speichert das Ergebnis einer Außenprüfung und ersetzt ein früheres. Nach dem Abschluss schreibgeschützt (6.2). */
-export function setzeAussenpruefung(p: Pruefung, aussen: Aussenpruefung, jetzt: Date): Pruefung {
+/**
+ * Speichert das Ergebnis einer Außenprüfung, ersetzt ein früheres und gleicht die Maßnahmen ab
+ * (6.7, Schritt 5). Nach dem Abschluss schreibgeschützt (6.2).
+ */
+export function setzeAussenpruefung(k: Katalog, p: Pruefung, aussen: Aussenpruefung, jetzt: Date, id: NeueId = neueId): Pruefung {
   if (p.status === 'abgeschlossen') return p
-  return { ...p, aussen, geaendert: zeit(jetzt) }
+  return gleicheMassnahmenAb(k, { ...p, aussen, geaendert: zeit(jetzt) }, jetzt, id)
 }
 
 /* ---------- Wiederholungsprüfung (6.10) ---------- */

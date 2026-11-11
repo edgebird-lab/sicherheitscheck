@@ -25,7 +25,7 @@ function massnahme(id: string, status: Massnahme['status']): Massnahme {
   return {
     id,
     quelle: { art: 'anforderung', anforderungId: 'A04' },
-    titel: 'Notfallplan',
+    titel: 'Notfallplan für IT-Ausfälle und Angriffe',
     prioritaet: 2,
     prioritaetManuell: null,
     begruendungManuell: '',
@@ -193,12 +193,14 @@ describe('Abschließen (Spezifikation 6.2, 9.2)', () => {
 
 describe('Wiederholungsprüfung (Spezifikation 6.10)', () => {
   it('T-O06: nr + 1, Vorgänger gesetzt, Antworten übernommen, offene Maßnahmen mit neuen Kennungen, keine Außenprüfung', () => {
+    // Nur A04 ist nicht erfüllt: Der Abgleich beim Abschließen lässt die vier Maßnahmen zu A04 stehen
     const erste = abgeschlossen(
-      pruefungMit(K, (a) => (a.top ? 'erfuellt' : 'nicht_erfuellt'), {
+      pruefungMit(K, (a) => (a.id === 'A04' ? 'nicht_erfuellt' : 'erfuellt'), {
         massnahmen: [massnahme('m-1', 'offen'), massnahme('m-2', 'in_arbeit'), massnahme('m-3', 'erledigt'), massnahme('m-4', 'verworfen')],
         foerderhinweise: 'Digital Jetzt prüfen',
       }),
     )
+    expect(erste.massnahmen.map((m) => m.id)).toEqual(['m-1', 'm-2', 'm-3', 'm-4'])
     erste.vorbereitung.notfallplan = true
     const b = betriebMit(erste)
     expect(kannWiederholen(b)).toBe(true)
@@ -221,7 +223,7 @@ describe('Wiederholungsprüfung (Spezifikation 6.10)', () => {
     expect(p.vorfragen).toEqual(erste.vorfragen)
     expect(p.vorbereitung.notfallplan).toBe(true)
     expect(p.antworten.A01).toEqual({ bewertung: 'erfuellt', begruendung: 'Test', nachweis: '', uebernommen: true })
-    expect(p.antworten.A03).toEqual({ bewertung: 'nicht_erfuellt', begruendung: 'Test', nachweis: '', uebernommen: true })
+    expect(p.antworten.A04).toEqual({ bewertung: 'nicht_erfuellt', begruendung: 'Test', nachweis: '', uebernommen: true })
     // nur offene und laufende Maßnahmen, mit neuen Kennungen, sonst unverändert
     expect(p.massnahmen.map((m) => [m.id, m.status])).toEqual([
       ['neu-1', 'offen'],

@@ -14,6 +14,8 @@ async function alleSchritte(page: Page, wo: string) {
 for (const schema of ['light', 'dark'] as const) {
   const name = schema === 'light' ? 'hell' : 'dunkel'
   test(`E-13: alle Seiten und Schritte ohne schwere Barrieren (${name})`, async ({ page }) => {
+    // rund 25 axe-Durchläufe; unter Last (mehrere Apps testen parallel) reichen 30 s nicht
+    test.slow()
     await page.emulateMedia({ colorScheme: schema })
     await page.goto('/')
     await pruefeBarrierefreiheit(page, 'Startseite leer')

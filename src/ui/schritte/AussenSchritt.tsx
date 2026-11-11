@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from 'react'
+import { KATALOG } from '../../katalog'
 import { zeitpunktDeutsch } from '../../modell/datum'
 import { setzeAussenpruefung } from '../../modell/operationen'
 import type { Aussenpruefung, Bestaetigung, PruefId } from '../../modell/typen'
@@ -95,7 +96,7 @@ export function AussenSchritt() {
         melde(r.fehler)
         return
       }
-      aendern.pruefung((alt, jetzt) => setzeAussenpruefung(alt, r.aussen, jetzt))
+      aendern.pruefung((alt, jetzt) => setzeAussenpruefung(KATALOG, alt, r.aussen, jetzt))
       setZugestimmt(false)
       setNeuerLauf(false)
       melde(r.aussen.abgebrochen ? 'Außenprüfung abgebrochen; die bis dahin geprüften Ergebnisse sind gespeichert.' : `Außenprüfung von ${r.aussen.domain} abgeschlossen.`)

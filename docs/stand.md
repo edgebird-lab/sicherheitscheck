@@ -39,7 +39,7 @@ Letzte Aktualisierung: 11.11.2026, nach Phase 2 (Stand: Phase 1 und 2 fertig, Ph
 
 ## Phase 4 – Maßnahmen, Vergleich, Bericht
 
-- [ ] **4.1** Maßnahmen ableiten, priorisieren, sortieren, abgleichen (T-P01 bis T-P08).
+- [x] **4.1** Maßnahmen ableiten, priorisieren, sortieren, abgleichen (T-P01 bis T-P08). *`modell/massnahmen.ts`: Soll-Menge, Fristen 14/90/180 Tage ab Interview, Sortierung nach 6.8, idempotenter Abgleich mit der Ausnahme für Befund-Maßnahmen, Priorität von Hand nur mit Begründung, Bearbeiten auch nach dem Abschluss. Der Abgleich läuft beim Abschließen (`abschliessen`) und nach jeder Außenprüfung (`setzeAussenpruefung`); T-O06 an den Abgleich beim Abschluss angepasst.*
 - [ ] **4.2** Schritt Maßnahmen (E-08).
 - [ ] **4.3** Vergleich mit der Vorgängerprüfung (T-V01 bis T-V05, E-09).
 - [ ] **4.4** Bericht als Druckansicht (E-10).
@@ -75,7 +75,6 @@ git push -u origin main
 **Phase 3 ist fertig.** Für Phase 5.5 offen: In `pruefung/ablauf.ts` fehlen im Windows-Programm TLS (Schritt 3 aus 6.7) und die HTTP-Ketten mit den Website-Regeln aus 6.6 (Schritt 4); die Stelle ist im Code markiert. Die MTA-STS-Richtlinie ruft der Ablauf im Windows-Programm schon ab.
 
 **Offene Haken für Phase 4:**
-- `abschliessen` in `src/modell/operationen.ts` gleicht die Maßnahmen noch nicht ab (6.8); der Abgleich gehört dorthin, nach jeder Außenprüfung und beim Öffnen des Schritts Maßnahmen.
 - `ui/schritte/MassnahmenSchritt.tsx` und die Druckansicht in `BerichtSchritt.tsx` sind Platzhalter; der Abschluss mit Fehlerliste steht schon.
 - Die Auswertung zeigt statt des Vergleichs (6.9) nur den Statuswert der Vorgängerprüfung.
 - `schrittVollstaendig` in `src/modell/fortschritt.ts` hat für „massnahmen“ und „aussen“ vorläufige Regeln.
