@@ -2,7 +2,7 @@
 
 Checkliste aller Phasen und Schritte aus [spezifikation.md](spezifikation.md), Abschnitt 11. `[x]` erledigt, `[ ]` offen, `[~]` teilweise. Nach jedem Schritt aktualisieren, damit ein Nachfolger hier weitermachen kann. Annahmen stehen in [entscheidungen.md](entscheidungen.md).
 
-Letzte Aktualisierung: 11.11.2026, nach der Durchsicht von Phase 1 bis 4 (Stand 0.1.0-web: Phasen 1 bis 4 umgesetzt und durchgesehen, siehe „Durchsicht“ unten; offen sind Robins Durchsichten aus Phase 0 und 4, Phase 5 und 6 folgen später)
+Letzte Aktualisierung: 11.11.2026, nach Phase 5 (Stand 0.1.0-desktop: Windows-Programm mit Website-Prüfung gebaut, getestet und auf Robins Rechner installiert; offen sind Robins Abnahmen M-01 und M-02 sowie die Durchsichten aus Phase 0 und 4; Phase 6 folgt)
 
 ## Phase 0 – Klären und Katalog
 
@@ -48,13 +48,15 @@ Letzte Aktualisierung: 11.11.2026, nach der Durchsicht von Phase 1 bis 4 (Stand 
 
 ## Phase 5 – Windows-Programm und Website-Prüfung
 
-- [~] **5.1** Tauri 2 nach dem Prozesslotsen 0.2.0. *`src-tauri` mit Kennung `de.olbricht-digital.sicherheitscheck`, Produktname „Sicherheitscheck“, NSIS pro Benutzer (Deutsch), eigenes Symbol (`src-tauri/icons/symbol.svg`, mit `npx tauri icon` erzeugt), Einzelinstanz, Dateizuordnung `.sicherheitscheck` (Rolle Editor), Dialoge in Rust (`oeffnen`, `speichern_unter`, `start_datei`, `als_pdf`), atomares Schreiben, Testantworten für Dialoge nur im Debug-Build, eigene Befehle nur über Rechte (`build.rs`, `capabilities/default.json`), CSP mit DoH zu den beiden Anbietern (E32). Plattformschicht `src/plattform` (Browser: Download und Dateifeld; Programm: Rust-Befehle, Fenstertitel, Speichern vor dem Schließen). IndexedDB bleibt der Speicher. Debug-Build mit `isSecureContext = true` (D-01). CI: `windows.yml` (Rust-Tests, Prüfung auf aws-lc, Installer bauen, Installer-Test), `release.yml` als Entwurf. Offen: die Netz-Crates aus 7.2 kommen mit 5.2 bis 5.4.*
-- [ ] **5.2** Crate `netzpruefung`: Freigabe, Zielprüfung, Adresssperre.
-- [ ] **5.3** `doh_abfrage` und `http_abruf`.
-- [ ] **5.4** `tls_info`.
-- [ ] **5.5** TypeScript-Regeln Website und Desktop-Netz.
-- [~] **5.6** Desktop-Test. *`npm run desktop:test` (Port 9336): D-01 bis D-03 grün, dazu D-05 (Außenprüfung example.com mit nachgebildeten DoH-Antworten, CSP lässt DoH zu, keine fremde Anfrage), zweiter Start mit Sicherung (Rückfrage), Speichern beim Schließen, keine CSP-Verstöße. Legt die Programmdaten vorher beiseite und stellt sie danach wieder her; bricht ab, solange der Sicherheitscheck läuft. Offen: D-04 braucht `http_abruf` (5.3).*
-- [ ] **5.7** Abnahme im Debug-Build.
+- [x] **5.1** Tauri 2 nach dem Prozesslotsen 0.2.0. *`src-tauri` mit Kennung `de.olbricht-digital.sicherheitscheck`, Produktname „Sicherheitscheck“, NSIS pro Benutzer (Deutsch), eigenes Symbol (`src-tauri/icons/symbol.svg`, mit `npx tauri icon` erzeugt), Einzelinstanz, Dateizuordnung `.sicherheitscheck` (Rolle Editor), Dialoge in Rust (`oeffnen`, `speichern_unter`, `start_datei`, `als_pdf`), atomares Schreiben, Testantworten für Dialoge nur im Debug-Build, eigene Befehle nur über Rechte (`build.rs`, `capabilities/default.json`), CSP mit DoH zu den beiden Anbietern (E32). Plattformschicht `src/plattform` (Browser: Download und Dateifeld; Programm: Rust-Befehle, Fenstertitel, Speichern vor dem Schließen; das Desktop-Netz wird nur im Programm geladen). IndexedDB bleibt der Speicher. Alle Crates aus 7.2 eingebunden; `cargo tree -i aws-lc-sys` findet nichts (prüft auch `windows.yml`). Debug-Build mit `isSecureContext = true` (D-01). CI: `windows.yml` (Rust-Tests, Prüfung auf aws-lc, Installer bauen, Installer-Test grün), `release.yml` als Entwurf. Auf Robins Wunsch am 11.11.2026 installiert (siehe unten).*
+- [x] **5.2** Crate `netzpruefung`: Freigabe, Zielprüfung, Adresssperre. *`src-tauri/netzpruefung` (Workspace-Mitglied, ohne Tauri): `freigabe.rs` (Syntax, PSL mit `psl`, 15 Minuten, eine Freigabe), `ziel.rs` (Schema, Port, Anmeldedaten, Länge, Freigabe; alle IPv4-Bereiche und IPv6 nur 2000::/3 ohne Teredo, Benchmarking, Dokumentation, 6to4; IPv4-gemappt nach IPv4), `umgebung.rs` (Auflösung über das System, alle Adressen müssen öffentlich sein, Verbindung nur zu diesen über `resolve_to_addrs`). T-R01 bis T-R03 und T-R13 grün.*
+- [x] **5.3** `doh_abfrage` und `http_abruf`. *reqwest 0.13 ohne Standard-Features mit `rustls-no-provider` und vorkonfigurierter rustls-`ClientConfig` (ring, webpki-roots): nur GET, keine Weiterleitung, kein Proxy, keine Cookies, Verbindung 5 s, gesamt 10 s, Körper nur unter `/.well-known/` bis 64 KiB, nur die zwölf Kopfzeilen aus 7.7, Cookie-Werte durch „…“ ersetzt, Fehlerzuordnung nach 7.7. `doh_abfrage` mit festen Adressen, Typ- und Namensprüfung, 64 KiB, HTTP-Status im Fehler. T-R04 bis T-R08 grün, alle gegen Testserver auf 127.0.0.1. DoH nutzt das Programm vorerst weiter über `fetch` (E34).*
+- [x] **5.4** `tls_info`. *rustls mit TLS 1.3 und 1.2, aufzeichnender Prüfer um den `WebPkiServerVerifier`, Handshake läuft immer zu Ende, danach nur `close_notify`; Felder mit x509-parser (Inhaber, Aussteller, SAN, Gültigkeit als ISO-Zeit, Schlüssel, Signatur), `namePasst` mit Platzhalterregel, Fehlercodes nach 7.7, `tls_version` bei Alert protocol_version oder unverträglicher Gegenstelle. T-R09 bis T-R12 und T-R14 grün (Test-CA mit rcgen zur Laufzeit), dazu unbekannte Stelle, noch nicht gültig, Klartext statt TLS, Adresssperre.*
+- [x] **5.5** TypeScript-Regeln Website und Desktop-Netz. *`pruefung/web.ts` (Vorprüfung A/AAAA, `folge` mit höchstens 6 Abrufen und ohne fremde Domains, WEB-00 bis WEB-14), `hsts.ts`, `header.ts` (CSP, XCTO, FRAME, REF, XXSS, SRV, COOKIE), `zertifikat.ts` (CERT, TLS), `sectxt.ts`, `website.ts` (Reihenfolge DNS → TLS → HTTP → security.txt → MTA-STS-Richtlinie, Grenzen und Abbruch mit WEB-15), Regeltexte für alle Website-Regeln, `netz/desktop.ts` (HTTP und TLS über Rust, Freigabe vor dem Lauf). Ein Lauf ruft dieselbe Adresse nur einmal ab (E33). T-W01 bis T-W18, T-Z01 bis T-Z07 und T-A02 vollständig grün.*
+- [x] **5.6** Desktop-Test. *`npm run desktop:test` (Port 9336): D-01 bis D-04 grün, dazu D-05 (Außenprüfung example.com mit nachgebildeten DoH-Antworten: CSP lässt DoH zu, Vorprüfung ohne Adressen, kein HTTP- oder TLS-Abruf, keine fremde Anfrage), zweiter Start mit Sicherung (Rückfrage), Speichern beim Schließen, keine CSP-Verstöße. Legt die Programmdaten vorher beiseite und stellt sie danach wieder her; bricht ab, solange der Sicherheitscheck läuft.*
+- [~] **5.7** Abnahme im Debug-Build. *Gemessen: Installer 2,16 MiB (Release mit LTO, lokal gebaut; vor der Website-Prüfung 1,31 MiB; die CI legt ihn als Artefakt `sicherheitscheck-windows` ab), Programm 5,5 MB. Start über die Desktop-Verknüpfung bis zur Startseite 2,0 s beim allerersten Start (WebView2 legt ihr Profil an) und 2,7 s beim zweiten (gemessen mit Debug-Port, inklusive Start über PowerShell). Offen, nur Robin: M-01 (Lauf gegen eigene Domains nach F12, Stichprobe mit `curl -I` und Zertifikatsanzeige) und M-02 (`doh_abfrage` für `dnssec-failed.org` SOA über beide Anbieter, z. B. in den Entwicklerwerkzeugen des Debug-Builds: `__TAURI_INTERNALS__.invoke('doh_abfrage', { anbieter: 'google', name: 'dnssec-failed.org', typ: 'SOA', ohnePruefung: false })`). Danach DoH im Programm auf `doh_abfrage` umstellen (E34).*
+
+**Installation auf Robins Rechner (11.11.2026, auf seinen ausdrücklichen Wunsch):** `npx tauri build`, Installer `Sicherheitscheck_0.1.0-desktop_x64-setup.exe` still (`/S`) pro Benutzer ausgeführt. Programm unter `%LOCALAPPDATA%\Sicherheitscheck\sicherheitscheck.exe`, Startmenü-Eintrag `Sicherheitscheck` und Verknüpfung `Sicherheitscheck` auf dem Desktop legt der Installer selbst an, `.sicherheitscheck` ist zugeordnet. Startprobe nach beiden Installationen (nach 5.1 und nach 5.5): Start über die Desktop-Verknüpfung, Fenster „Sicherheitscheck“ mit der Startseite, danach geschlossen, kein Prozess übrig. Die zweite Installation lief still über die erste; Verknüpfungen und Daten blieben. Daten des Programms: `%LOCALAPPDATA%\de.olbricht-digital.sicherheitscheck` (WebView2-Profil mit IndexedDB). Neu installieren: Installer erneut still ausführen; die Daten bleiben.
 
 ## Phase 6 – Abnahme und Portfolio (später)
 
@@ -86,25 +88,24 @@ Nicht geändert, aber notiert: Die Startseite zählt offene Maßnahmen nur der n
 
 ## Übergabe
 
-**Repo:** lokal unter `main`, nicht auf GitHub. Das Anlegen des privaten Repos (`gh repo create edgebird-lab/sicherheitscheck --private --source . --remote origin`) hat das Berechtigungssystem der Agentensitzung als Upload abgelehnt, zuletzt erneut bei der Durchsicht am 11.11.2026; deshalb gibt es weder Remote noch Push und noch keinen CI-Lauf. Robin kann es selbst nachholen:
-
-```bash
-gh repo create edgebird-lab/sicherheitscheck --private --source . --remote origin
-git push -u origin main
-```
+**Repo:** privat auf GitHub (`edgebird-lab/sicherheitscheck`, Zweig `main`). CI: `ci.yml` bei jedem Push, `windows.yml` bei Änderungen an `src-tauri`, `src/plattform`, `package*.json` oder von Hand, `release.yml` nur bei Tags (Entwurf).
 
 **Stand 0.1.0-web:** Phasen 1 bis 4 sind umgesetzt, alle Tests grün (Zahlen in der README). Die Web-Version ist nutzbar (Schnittlinie R13).
 
 **Offen für Robin (morgens):**
-- Repo anlegen und pushen (siehe oben); danach läuft die CI zum ersten Mal.
+- 5.7: M-01 und M-02 im installierten Programm oder im Debug-Build (Anleitung bei 5.7 oben).
 - Phase 0: Norm besorgen, F1 bis F6 entscheiden (Annahmen in `entscheidungen.md`), Katalog abgleichen (`katalog-abgleich.md`), Regeln gegen die RFCs prüfen (`rfc-abgleich.md`).
 - 4.4: Beispielbericht durchsehen (`docs/bilder/beispielbericht.pdf`, neu erzeugen mit `npm run bilder`).
 - 4.5: Zuordnung der ISMS-Brücke und den Text „Methodik und Grenzen“ freigeben (`src/ui/berichtTexte.ts`); F10 anwaltlich prüfen lassen.
 - F15: Mustersatz fürs Angebot steht in `entscheidungen.md` (F15).
 
-**Nächste Schritte (Phase 5, später):** Tauri nach dem Prozesslotsen 0.2.0; `netz/desktop.ts` nur dynamisch laden. In `pruefung/ablauf.ts` fehlen im Windows-Programm TLS (6.7, Schritt 3), die HTTP-Ketten mit `folge()` und die Website-Regeln aus 6.6 (Schritt 4) samt Regeltexten (HDR-00, WEB, CERT, TLS, HSTS, Header, Cookies, security.txt) und T-A02 vollständig; die Stelle ist im Code markiert. Die MTA-STS-Richtlinie ruft der Ablauf im Windows-Programm schon ab (`holeRichtlinie`), und `Lauf.http`/`Lauf.tls` mit Abstand, Grenzen und Protokoll stehen bereit.
+**Nächste Schritte:** Robins Abnahme 5.7 (M-01 mit eigenen Domains, M-02 für DoH über Rust), danach DoH im Programm auf `doh_abfrage` umstellen und die CSP auf die Brücke zu Rust beschränken (E34). Dann Phase 6 (Probe-Check, Doku, Lizenzliste mit CDLA-Permissive-2.0 für webpki-roots).
 
 **Fallstricke:**
+- `npx tauri build` baut `dist` ohne den CSP-Meta-Tag (die Tauri-CLI setzt `TAURI_ENV_PLATFORM`). Vor Browsertests mit einem schon laufenden Vorschau-Server deshalb `npm run build`.
+- Der gemeinsame Zielordner `C:/Users/Robin/AppData/Local/cargo-ziel` enthält unter `release/bundle/nsis` auch Installer anderer Apps; den richtigen über den Namen `Sicherheitscheck_*-setup.exe` wählen. `installer-test.ps1` deinstalliert am Ende und läuft nur in der CI.
+- `npm run desktop:test` nutzt dieselben Programmdaten wie das installierte Programm (gleiche Kennung). Er benennt sie vorher in `…sicherheitscheck.desktop-test-sicherung` um und danach zurück; läuft das Programm, bricht er ab. Bleibt nach einem harten Abbruch die Sicherung liegen, meldet der nächste Lauf das; dann von Hand zurückbenennen.
+- Windows wiederholt Verbindungsversuche zu einem geschlossenen Port rund 2 s lang; Rust-Tests für „keine Verbindung“ brauchen deshalb mehr als 2 s Zeitlimit.
 - Playwright nutzt einen schon laufenden Server auf Port 4181 wieder und baut dann nicht neu. Vor `npm run e2e` keinen eigenen `vite preview` laufen lassen oder vorher `npm run build`. `netstat` zeigt den Vorschau-Server in der Git Bash nicht zuverlässig an; prüfen mit `curl -s -o /dev/null -w '%{http_code}' http://localhost:4181/` oder `Get-NetTCPConnection -LocalPort 4181`.
 - Die Tests mit vollen Argon2-Parametern brauchen unter Last mehrere Sekunden (Zeitlimit 30 s).
 - Optionsfelder sind unsichtbar über die ganze Option gelegt; in Tests `getByRole('radio', { name, exact: true }).check()` nutzen, nicht den Text anklicken.
@@ -139,3 +140,7 @@ git push -u origin main
 | 11.11.2026 | Durchsicht Phase 1 bis 4: Prüfung beim Laden, Rückfrage bei Wiederholung, Tests für Lade- und Speicherfehler | de085c5 |
 | 11.11.2026 | Doku: Durchsicht im Protokoll | 641dc6e (Achtung: vor diesem Commit liefen E-04, E-10 und E-11 wegen Last in ihr Zeitlimit; derselbe Code war im Lauf davor vollständig grün; behoben im nächsten) |
 | 11.11.2026 | Browsertests unter Last: Zeitlimit 90 s für die schweren, lokal 4 Arbeiter | Commit nach 641dc6e |
+| 11.11.2026 | 5.1, 5.6 Windows-Programm: Tauri 2, Plattformschicht, Desktop-Test, CI | bfb64b0 |
+| 11.11.2026 | CI: Prüfung auf aws-lc in bash | 47d4fbf |
+| 11.11.2026 | 5.2 bis 5.5 Netzprüfung in Rust, Website-Regeln, Desktop-Netz | b38b1c4 |
+| 11.11.2026 | Doku Phase 5, Installation auf Robins Rechner | Commit nach b38b1c4 |

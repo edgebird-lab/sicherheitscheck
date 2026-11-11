@@ -4,7 +4,7 @@ IT-Sicherheitsberatung nach DIN SPEC 27076 für Betriebe mit bis zu 50 Beschäft
 
 ![Schritt „Auswertung“: Statuswert 18 von 37 Punkten, Netzdiagramm und Tabelle je Themenbereich](docs/bilder/auswertung.png)
 
-> **Stand 0.1.0-desktop.** Die Web-Version ist vollständig (Phasen 1 bis 4 der [Spezifikation](docs/spezifikation.md)) und durchgesehen. Das Windows-Programm (Phase 5) läuft und ist auf Robins Rechner installiert; die Prüfung der Website im Programm ist in Arbeit, danach folgt die Abnahme (Phase 6). Der Katalog ist noch nicht mit der Norm abgeglichen (Phase 0). Das Repo ist privat (`edgebird-lab/sicherheitscheck`). Stand und nächste Schritte: [docs/stand.md](docs/stand.md), Annahmen: [docs/entscheidungen.md](docs/entscheidungen.md).
+> **Stand 0.1.0-desktop.** Die Web-Version ist vollständig (Phasen 1 bis 4 der [Spezifikation](docs/spezifikation.md)) und durchgesehen. Das Windows-Programm mit der Prüfung der Website (Phase 5) ist gebaut, getestet und auf Robins Rechner installiert; offen ist Robins Abnahme mit eigenen Domains (5.7), danach folgt Phase 6. Der Katalog ist noch nicht mit der Norm abgeglichen (Phase 0). Das Repo ist privat (`edgebird-lab/sicherheitscheck`). Stand und nächste Schritte: [docs/stand.md](docs/stand.md), Annahmen: [docs/entscheidungen.md](docs/entscheidungen.md).
 
 ## Was es kann
 
