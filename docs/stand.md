@@ -2,7 +2,7 @@
 
 Checkliste aller Phasen und Schritte aus [spezifikation.md](spezifikation.md), Abschnitt 11. `[x]` erledigt, `[ ]` offen, `[~]` teilweise. Nach jedem Schritt aktualisieren, damit ein Nachfolger hier weitermachen kann. Annahmen stehen in [entscheidungen.md](entscheidungen.md).
 
-Letzte Aktualisierung: 11.11.2026, nach Phase 5 (Stand 0.1.0-desktop: Windows-Programm mit Website-Prüfung gebaut, getestet und auf Robins Rechner installiert; offen sind Robins Abnahmen M-01 und M-02 sowie die Durchsichten aus Phase 0 und 4; Phase 6 folgt)
+Letzte Aktualisierung: 12.11.2026, Version 0.1.0 veröffentlicht (Repo öffentlich, Release v0.1.0 mit Installer; offen sind Robins Abnahmen M-01 und M-02, die Durchsichten aus Phase 0 und 4 sowie Phase 6)
 
 ## Phase 0 – Klären und Katalog
 
@@ -63,7 +63,7 @@ Letzte Aktualisierung: 11.11.2026, nach Phase 5 (Stand 0.1.0-desktop: Windows-Pr
 - [ ] **6.1** Probe-Check mit dem fiktiven Betrieb.
 - [ ] **6.2** Mängel beheben, Tastatur, Barrierefreiheit, Druckbild.
 - [~] **6.3** Doku: README, `docs/datenmodell.md`, `docs/regeln.md`, Lizenzliste. *README für Besucher (Download, Installation, Haftung, Rechte) und Lizenzliste [lizenzen.md](lizenzen.md) zur Version 0.1.0. Offen: `docs/datenmodell.md`, `docs/regeln.md`.*
-- [~] **6.4** Version 0.1.0 taggen. *Auf Robins Entscheidung vom 11.11.2026 abweichend von der Spezifikation: Das Repo wird öffentlich, das Release v0.1.0 wird veröffentlicht, vorerst ohne Lizenz (F11). Version einheitlich 0.1.0 in `package.json`, `tauri.conf.json`, `Cargo.toml` und in der App (vorher 0.1.0-desktop). `release.yml` hängt außer `Sicherheitscheck_<Version>_x64-setup.exe` eine Kopie mit festem Namen `Sicherheitscheck-Setup.exe` an; die Website verlinkt `releases/latest/download/Sicherheitscheck-Setup.exe`.*
+- [x] **6.4** Version 0.1.0 getaggt und veröffentlicht (12.11.2026, Release https://github.com/edgebird-lab/sicherheitscheck/releases/tag/v0.1.0, Installer 2.265.917 Bytes, anonymer Download geprüft). *Auf Robins Entscheidung vom 11.11.2026 abweichend von der Spezifikation: Das Repo wird öffentlich, das Release v0.1.0 wird veröffentlicht, vorerst ohne Lizenz (F11). Version einheitlich 0.1.0 in `package.json`, `tauri.conf.json`, `Cargo.toml` und in der App (vorher 0.1.0-desktop). `release.yml` hängt außer `Sicherheitscheck_<Version>_x64-setup.exe` eine Kopie mit festem Namen `Sicherheitscheck-Setup.exe` an; die Website verlinkt `releases/latest/download/Sicherheitscheck-Setup.exe`.*
 
 ## Durchsicht vom 11.11.2026 (Phasen 1 bis 4)
 
@@ -88,7 +88,7 @@ Nicht geändert, aber notiert: Die Startseite zählt offene Maßnahmen nur der n
 
 ## Übergabe
 
-**Repo:** privat auf GitHub (`edgebird-lab/sicherheitscheck`, Zweig `main`). CI: `ci.yml` bei jedem Push, `windows.yml` bei Änderungen an `src-tauri`, `src/plattform`, `package*.json` oder von Hand, `release.yml` nur bei Tags (Entwurf).
+**Repo:** öffentlich auf GitHub seit 12.11.2026 (`edgebird-lab/sicherheitscheck`, Zweig `main`). CI: `ci.yml` bei jedem Push, `windows.yml` bei Änderungen an `src-tauri`, `src/plattform`, `package*.json` oder von Hand, `release.yml` nur bei Tags (Entwurf).
 
 **Stand 0.1.0-web:** Phasen 1 bis 4 sind umgesetzt, alle Tests grün (Zahlen in der README). Die Web-Version ist nutzbar (Schnittlinie R13).
 

@@ -1,6 +1,6 @@
 # Sicherheitscheck – Hinweise für die Arbeit am Projekt
 
-- Portfolio-Projekt von Robin (Wirtschaftsinformatik, olbricht-digital). Repo `edgebird-lab/sicherheitscheck` ist **privat**; öffentlich erst nach Robins ausdrücklicher Freigabe. Keine GitHub Pages, keine Releases, nichts bereitstellen.
+- Portfolio-Projekt von Robin (Wirtschaftsinformatik, olbricht-digital). Repo `edgebird-lab/sicherheitscheck` ist seit 12.11.2026 **öffentlich** (Robins Entscheidung, vorerst ohne Lizenz): keine Geheimnisse, keine privaten Notizen committen. Neue Versionen: Version in package.json, tauri.conf.json und Cargo.toml anheben, Tag `v*` pushen, `release.yml` baut einen Entwurf mit `Sicherheitscheck-Setup.exe` (Name nie ändern, die Website verlinkt ihn), Entwurf von Hand veröffentlichen. Keine GitHub Pages.
 - Gebaut wird nach `docs/spezifikation.md`. Fortschritt mit Häkchen in `docs/stand.md` (nach jedem Schritt aktualisieren), Annahmen bis zu Robins Entscheidung in `docs/entscheidungen.md`, Abgleich des Katalogs mit der Norm in `docs/katalog-abgleich.md`.
 - Sprache: Oberfläche, Fachbegriffe im Code, Doku und Commit-Nachrichten auf Deutsch. Keine KI-Funktionen; Kundendaten bleiben auf dem Rechner.
 - Fachlogik in `src/katalog`, `src/modell`, `src/netz`, `src/pruefung`, `src/speicher` ohne React und vollständig getestet; Oberfläche in `src/ui`.
