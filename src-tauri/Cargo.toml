@@ -1,6 +1,6 @@
 [package]
 name = "sicherheitscheck"
-version = "0.1.0"
+version = "0.2.0"
 description = "Sicherheitscheck: IT-Sicherheitsberatung nach DIN SPEC 27076 für kleine Betriebe"
 authors = ["Robin Olbricht"]
 edition = "2024"

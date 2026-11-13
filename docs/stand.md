@@ -2,7 +2,7 @@
 
 Checkliste aller Phasen und Schritte aus [spezifikation.md](spezifikation.md), Abschnitt 11. `[x]` erledigt, `[ ]` offen, `[~]` teilweise. Nach jedem Schritt aktualisieren, damit ein Nachfolger hier weitermachen kann. Annahmen stehen in [entscheidungen.md](entscheidungen.md).
 
-Letzte Aktualisierung: 12.11.2026, Version 0.1.0 veröffentlicht (Repo öffentlich, Release v0.1.0 mit Installer; offen sind Robins Abnahmen M-01 und M-02, die Durchsichten aus Phase 0 und 4 sowie Phase 6)
+Letzte Aktualisierung: 13.11.2026, Version 0.2.0 mit dem Export Beratungsakte (6.5); davor 12.11.2026 Version 0.1.0 veröffentlicht (Repo öffentlich, Release v0.1.0 mit Installer; offen sind Robins Abnahmen M-01 und M-02, die Durchsichten aus Phase 0 und 4 sowie Phase 6)
 
 ## Phase 0 – Klären und Katalog
 
@@ -69,6 +69,7 @@ Letzte Aktualisierung: 12.11.2026, Version 0.1.0 veröffentlicht (Repo öffentli
 - [ ] **6.2** Mängel beheben, Tastatur, Barrierefreiheit, Druckbild.
 - [~] **6.3** Doku: README, `docs/datenmodell.md`, `docs/regeln.md`, Lizenzliste. *README für Besucher (Download, Installation, Haftung, Rechte) und Lizenzliste [lizenzen.md](lizenzen.md) zur Version 0.1.0. Offen: `docs/datenmodell.md`, `docs/regeln.md`.*
 - [x] **6.4** Version 0.1.0 getaggt und veröffentlicht (12.11.2026, Release https://github.com/edgebird-lab/sicherheitscheck/releases/tag/v0.1.0, Installer 2.265.917 Bytes, anonymer Download geprüft). *Auf Robins Entscheidung vom 11.11.2026 abweichend von der Spezifikation: Das Repo wird öffentlich, das Release v0.1.0 wird veröffentlicht, vorerst ohne Lizenz (F11). Version einheitlich 0.1.0 in `package.json`, `tauri.conf.json`, `Cargo.toml` und in der App (vorher 0.1.0-desktop). `release.yml` hängt außer `Sicherheitscheck_<Version>_x64-setup.exe` eine Kopie mit festem Namen `Sicherheitscheck-Setup.exe` an; die Website verlinkt `releases/latest/download/Sicherheitscheck-Setup.exe`.*
+- [x] **6.5** Version 0.2.0 (13.11.2026): Export „Für die Beratungsakte speichern“ samt Nacharbeit (siehe „Weitere Funktionen“). Version in `package.json`, `tauri.conf.json` und `Cargo.toml`. Geprüft: Lint, Unit-Tests, Build, Browsertests (`--workers=2`), `cargo test --workspace`. `npm run desktop:test` nicht gelaufen, weil Robins Sicherheitscheck lief (der Test bricht dann ab). Tag `v0.2.0`, Release-Entwurf von `release.yml`, nach Prüfung veröffentlicht.
 
 ## Durchsicht vom 11.11.2026 (Phasen 1 bis 4)
 

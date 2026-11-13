@@ -17,7 +17,7 @@ Werkzeug für IT-Berater: führt durch die IT-Sicherheitsberatung nach DIN SPEC 
 
 Voraussetzung ist Windows 10 oder 11 mit WebView2. Die Laufzeit ist dort meist schon vorhanden; sonst lädt der Installer sie von Microsoft nach. Eine neue Version installiert sich über die vorige, die Daten bleiben erhalten. Wer Node 24 hat, kann statt des Programms die [Web-Version](#starten-im-browser) selbst bauen und lokal im Browser nutzen, dort ohne Prüfung der Website.
 
-**Stand 0.1.0:** erste veröffentlichte Version. Der Katalog ist noch nicht Satz für Satz mit dem Normtext abgeglichen, und die Website-Prüfung ist bisher nur gegen Testserver geprüft (siehe [Grenzen](#grenzen)). Fortschritt und offene Punkte: [docs/stand.md](docs/stand.md), Annahmen: [docs/entscheidungen.md](docs/entscheidungen.md).
+**Stand 0.2.0:** neu ist der Export „Für die Beratungsakte speichern“ im offenen Format Beratungsakte v1 (siehe unten); 0.1.0 war die erste veröffentlichte Version. Der Katalog ist noch nicht Satz für Satz mit dem Normtext abgeglichen, und die Website-Prüfung ist bisher nur gegen Testserver geprüft (siehe [Grenzen](#grenzen)). Fortschritt und offene Punkte: [docs/stand.md](docs/stand.md), Annahmen: [docs/entscheidungen.md](docs/entscheidungen.md).
 
 ## Was es kann
 
