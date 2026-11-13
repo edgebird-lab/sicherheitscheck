@@ -32,3 +32,7 @@ node scripts/fixtures-aufnehmen.mjs
 ```
 
 Das Skript ist im Projekt bisher nicht ausgeführt worden (keine Live-Abfragen durch Agenten).
+
+## `beratungsakte/` – Beispiele des Formats Beratungsakte v1
+
+Kopie aus der Bibliothek des Formats (`gueltig/` und `ungueltig/`, je eine Fehlerart), eingebunden zusammen mit `src/beratungsakte/`. Nicht von Hand ändern; `src/modell/beratungsakte.test.ts` prüft, dass die Kopie alle gültigen liest und alle ungültigen ablehnt.

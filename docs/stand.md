@@ -58,6 +58,10 @@ Letzte Aktualisierung: 12.11.2026, Version 0.1.0 veröffentlicht (Repo öffentli
 
 **Installation auf Robins Rechner (11.11.2026, auf seinen ausdrücklichen Wunsch):** `npx tauri build`, Installer `Sicherheitscheck_0.1.0-desktop_x64-setup.exe` still (`/S`) pro Benutzer ausgeführt. Programm unter `%LOCALAPPDATA%\Sicherheitscheck\sicherheitscheck.exe`, Startmenü-Eintrag `Sicherheitscheck` und Verknüpfung `Sicherheitscheck` auf dem Desktop legt der Installer selbst an, `.sicherheitscheck` ist zugeordnet. Startprobe nach beiden Installationen (nach 5.1 und nach 5.5): Start über die Desktop-Verknüpfung, Fenster „Sicherheitscheck“ mit der Startseite, danach geschlossen, kein Prozess übrig. Die zweite Installation lief still über die erste; Verknüpfungen und Daten blieben. Daten des Programms: `%LOCALAPPDATA%\de.olbricht-digital.sicherheitscheck` (WebView2-Profil mit IndexedDB). Neu installieren: Installer erneut still ausführen; die Daten bleiben.
 
+## Weitere Funktionen
+
+- [x] **Export im offenen Format Beratungsakte v1** (13.11.2026). *Knopf „Für die Beratungsakte speichern“ im Schritt Bericht mit Dialog (Mandant vorbelegt, Mandantennummer, Inhalt, Dateiname); Browser: Download, Programm: `speichern_unter` mit Dateiart `beratungsakte`. Abbildung in `src/modell/beratungsakte.ts` (E35), Kopie der Bibliothek 1.0.1 in `src/beratungsakte/`, Beispiele in `testdaten/beratungsakte/`. Tests: Unit (Beispielbetrieb mit den README-Werten, alle Stufen, Grenzfälle, Kopie der Bibliothek), Browsertests mit axe hell und dunkel, Rust-Test für Dateiart und Endung, Schritt im Desktop-Test.*
+
 ## Phase 6 – Abnahme und Portfolio (später)
 
 - [ ] **6.1** Probe-Check mit dem fiktiven Betrieb.

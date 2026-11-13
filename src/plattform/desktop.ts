@@ -40,7 +40,7 @@ export const desktopPlattform: Plattform = {
   ort: 'in diesem Programm',
   oeffnen: () => rufe<Datei | null>('oeffnen'),
   startDatei: () => rufe<Datei | null>('start_datei'),
-  speichernUnter: (vorschlag, inhalt) => rufe<string | null>('speichern_unter', { vorschlag, inhalt }),
+  speichernUnter: (vorschlag, inhalt, art = 'sicherung') => rufe<string | null>('speichern_unter', { vorschlag, inhalt, art }),
   alsPdf: (vorschlag) => rufe<string | null>('als_pdf', { vorschlag }),
   setzeTitel: (titel) => {
     document.title = titel

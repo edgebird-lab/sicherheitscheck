@@ -30,6 +30,7 @@ Voraussetzung ist Windows 10 oder 11 mit WebView2. Die Laufzeit ist dort meist s
 - **Bericht:** Vorschau im Druckbild, „Drucken / als PDF“ auf A4, immer hell: Teil A Ergebnis nach DIN SPEC 27076, Teil B Prüfung von außen (Zusatz), Teil C Maßnahmenplan, Vergleich, Anhang mit Fördermöglichkeiten, Bezug zum IT-Grundschutz, Methodik und Grenzen, Abrufprotokoll und Unterschriftsfeldern. [Beispielbericht als PDF](docs/bilder/beispielbericht.pdf).
 - **Abschluss und Wiederholung:** Beim Abschließen wird das Ergebnis eingefroren. Eine Wiederholungsprüfung übernimmt Teilnehmende, Vorfragen, Antworten und offene Maßnahmen; jede übernommene Antwort muss bestätigt oder geändert werden.
 - **Daten lokal:** IndexedDB im Browser, Speichern nach jeder Änderung, Schutz vor zwei gleichzeitig offenen Tabs. Beschädigte Einträge werden beim Laden übersprungen und gemeldet, nicht gelöscht; Daten einer neueren Version öffnet die App nicht und lässt sie unverändert. Schlägt das Speichern fehl, zeigt der Kopf das, und die App versucht es erneut. Sicherung als Datei `.sicherheitscheck`, standardmäßig verschlüsselt (Argon2id, AES-256-GCM, im Web Worker).
+- **Export im offenen Format Beratungsakte v1:** „Für die Beratungsakte speichern“ im Schritt Bericht legt Kennzahlen, Befunde und Maßnahmen einer Prüfung als JSON-Datei ab (siehe [unten](#export-im-offenen-format-beratungsakte-v1)).
 - **Fiktiver Beispielbetrieb** „Tischlerei Beispiel GmbH“ mit abgeschlossener Prüfung, fiktiver Außenprüfung von `example.com` und Maßnahmenplan.
 
 ![Schritt „Außenprüfung“: Ergebnis mit Anzahl je Stufe und Befunden der Gruppe E-Mail](docs/bilder/aussenpruefung.png)
@@ -69,12 +70,25 @@ Die Regeln stehen mit Stufe in der Spezifikation (6.5, 6.6), die Texte für Laie
 
 ![Schritt „Maßnahmen“: Gruppen Sofort, Zeitnah, Geplant mit Ursache, Frist, Status und Verantwortlichem](docs/bilder/massnahmen.png)
 
+## Export im offenen Format Beratungsakte v1
+
+Im Schritt Bericht speichert „Für die Beratungsakte speichern“ das Ergebnis einer Prüfung als Datei im offenen Format Beratungsakte v1 (JSON, UTF-8). Der Dialog fragt nach dem Mandanten (vorbelegt mit dem Namen des Betriebs) und optional nach einer Mandantennummer und zeigt Inhalt und Dateinamen. Im Browser entsteht ein Download, im Windows-Programm öffnet sich der Speichern-Dialog mit dem Filter „Beratungsakte (*.beratungsakte.json)“. Die Datei ist nicht verschlüsselt.
+
+- **Dateiname:** `<Mandant>-sicherheitscheck-<Datum>.beratungsakte.json`, z. B. `Tischlerei-Beispiel-GmbH-(fiktiv)-sicherheitscheck-2026-11-13.beratungsakte.json`.
+- **Kennzahlen:** Statuswert, Höchstwert und Prozent, Anteil je Themenbereich (wie die Tabelle zum Netzdiagramm), Anzahl nicht erfüllter Anforderungen (davon TOP) und nicht relevanter Anforderungen, Anzahl der Befunde der Außenprüfung je Stufe, Maßnahmen offen, erledigt und überfällig.
+- **Befunde:** jede relevante Anforderung mit „nicht erfüllt“ (TOP `hoch`, Basis `mittel`) und jeder Befund der Außenprüfung mit Handlungsbedarf (`kritisch` → `kritisch`, Warnung → `mittel`, Hinweis → `niedrig`, nicht prüfbar → `hinweis`).
+- **Maßnahmen:** der Maßnahmenplan in seiner Reihenfolge mit Frist; Priorität 1/2/3 → `hoch`/`mittel`/`niedrig`, Aufwand „nicht geschätzt“, Bezug auf den Befund der Ursache.
+- **Namensraum `sicherheitscheck`:** Anforderungsnummer, Themenbereich und TOP-Kennzeichen, Prüfung, Ziel, Stufe und Regel der Außenprüfung, Status, Verantwortliche und Priorität der App, Rohpunkte, Prüfungsnummer und Katalogversion.
+
+Die Abbildung steht in `src/modell/beratungsakte.ts`. Bibliothek und Schema des Formats liegen als Kopie in `src/beratungsakte/` (Version in `src/beratungsakte/VERSION`, derzeit 1.0.1), Beispieldateien in `testdaten/beratungsakte/`; die Kopie wird nicht von Hand geändert.
+
 ## Aufbau
 
 | Ordner | Inhalt |
 | --- | --- |
 | `src/katalog` | 6 Themenbereiche, 27 Anforderungen, Vorfragen, Bezug zum IT-Grundschutz, Regeltexte der Außenprüfung |
-| `src/modell` | Datenmodell, Bewertung, Operationen, Maßnahmen, Vergleich, Fortschritt, Netzdiagramm, Beispielbetrieb |
+| `src/modell` | Datenmodell, Bewertung, Operationen, Maßnahmen, Vergleich, Fortschritt, Netzdiagramm, Beispielbetrieb, Export als Beratungsakte |
+| `src/beratungsakte` | Kopie der Bibliothek und des Schemas für das Format Beratungsakte v1 (ohne Abhängigkeiten) |
 | `src/netz` | Netz-Schnittstelle, DNS über HTTPS im Browser, Netz des Windows-Programms (Rust-Befehle), Testnetz mit nachgebildeten Antworten |
 | `src/pruefung` | Domainprüfung (Public Suffix List), Lauf mit Grenzen und Protokoll, Regeln je Prüfung (E-Mail, DNS, Website, Zertifikat, Header, security.txt), Ablauf |
 | `src/speicher` | Prüfung beim Laden, Migration, IndexedDB, Schreibpuffer, Tab-Sperre, Export und Import, Verschlüsselung |
@@ -82,7 +96,7 @@ Die Regeln stehen mit Stufe in der Spezifikation (6.5, 6.6), die Texte für Laie
 | `src/ui` | React-Oberfläche, Bericht mit Druck-CSS |
 | `src-tauri` | Windows-Programm: Rust-Befehle für Dateien, PDF und Netz, Rechte, CSP, Installer, Symbol |
 | `src-tauri/netzpruefung` | Crate ohne Tauri: Freigabe, Zielprüfung mit Adresssperre, DNS über HTTPS, HTTP ohne Weiterleitung, TLS-Angaben (rustls mit ring, webpki-roots, x509-parser) |
-| `testdaten` | synthetische DoH-Antworten beider Anbieter, fiktive Zone des Beispielbetriebs |
+| `testdaten` | synthetische DoH-Antworten beider Anbieter, fiktive Zone des Beispielbetriebs, gültige und ungültige Beratungsakten |
 | `e2e` | Browsertests mit Playwright und axe |
 | `docs` | Spezifikation, Stand, Entscheidungen, Katalog-Abgleich, Lizenzen, Bilder und Beispielbericht |
 
@@ -92,11 +106,11 @@ Die Fachlogik kennt kein React und ist vollständig getestet. **Technik:** React
 
 ## Qualität
 
-- 341 Unit-Tests in 33 Dateien mit von Hand nachgerechneten Werten, darunter alle Fälle der Spezifikation für Katalog, Statuswert, Abschluss, Wiederholung, Laden, Export und Import, Domain und DNS, alle E-Mail- und Website-Regeln, Zertifikat und TLS, Ablauf der Außenprüfung im Browser und im Windows-Programm, Maßnahmen, Vergleich und Netzdiagramm (T-K, T-B, T-O, T-L, T-E, T-D, T-N, T-MX, T-S, T-M, T-DK, T-T, T-RP, T-DS, T-CA, T-W, T-Z, T-A, T-P, T-V, T-G), dazu Stichproben der Durchsicht (gemischte Relevanz, Fristen über Jahreswechsel und Schaltjahr, Prozentrundung für jeden möglichen Punktestand, SPF mit include und redirect). Kein Unit-Test fragt echte Domains ab; DKIM-Schlüssel entstehen zur Laufzeit.
-- 33 Browsertests: Betrieb anlegen und neu laden, Vorgespräch mit Vorfragen, Interview vollständig per Tastatur, Außenprüfung mit nachgebildeten DoH-Antworten (keine Anfrage verlässt den Test), Abbrechen, Maßnahme erledigen und neu laden, Priorität von Hand, Wiederholung mit Vergleich und Rückfrage bei weiterem Entwurf, Bericht als Druckansicht und PDF, verschlüsselter Export und Import, zweiter Tab, beschädigte oder zu neue Daten beim Laden, Arbeiten ohne IndexedDB, Speicherfehler mit erneutem Versuch.
+- 360 Unit-Tests in 34 Dateien mit von Hand nachgerechneten Werten, darunter alle Fälle der Spezifikation für Katalog, Statuswert, Abschluss, Wiederholung, Laden, Export und Import, Domain und DNS, alle E-Mail- und Website-Regeln, Zertifikat und TLS, Ablauf der Außenprüfung im Browser und im Windows-Programm, Maßnahmen, Vergleich, Netzdiagramm und Export als Beratungsakte (T-K, T-B, T-O, T-L, T-E, T-D, T-N, T-MX, T-S, T-M, T-DK, T-T, T-RP, T-DS, T-CA, T-W, T-Z, T-A, T-P, T-V, T-G), dazu Stichproben der Durchsicht (gemischte Relevanz, Fristen über Jahreswechsel und Schaltjahr, Prozentrundung für jeden möglichen Punktestand, SPF mit include und redirect). Kein Unit-Test fragt echte Domains ab; DKIM-Schlüssel entstehen zur Laufzeit.
+- 37 Browsertests: Betrieb anlegen und neu laden, Vorgespräch mit Vorfragen, Interview vollständig per Tastatur, Außenprüfung mit nachgebildeten DoH-Antworten (keine Anfrage verlässt den Test), Abbrechen, Maßnahme erledigen und neu laden, Priorität von Hand, Wiederholung mit Vergleich und Rückfrage bei weiterem Entwurf, Bericht als Druckansicht und PDF, verschlüsselter Export und Import, Export als Beratungsakte (Dialog, Download, Inhalt), zweiter Tab, beschädigte oder zu neue Daten beim Laden, Arbeiten ohne IndexedDB, Speicherfehler mit erneutem Versuch.
 - Barrierefreiheit: axe meldet auf keiner Seite, in keinem Schritt, in keinem Dialog und während der Außenprüfung schwere Befunde, weder hell noch dunkel; jedes Eingabefeld ist beschriftet; nach jedem Seitenwechsel steht der Fokus auf der Überschrift. Jede Stufe hat Symbol und Wort.
-- 36 Rust-Tests (`cargo test --workspace` in `src-tauri`), davon 32 in der Crate `netzpruefung` (T-R01 bis T-R14): Freigabe und Public Suffix List, Adresssperre für alle gesperrten Bereiche, HTTP gegen Testserver auf 127.0.0.1 (keine Weiterleitung, Größen- und Zeitgrenze, Kopfzeilenfilter, Cookie-Werte entfernt), TLS gegen einen rustls-Testserver mit zur Laufzeit erzeugter Test-CA (abgelaufen, fremder Name, unbekannte Stelle, nur TLS 1.2). Kein Rust-Test fragt einen fremden Rechner ab.
-- Desktop-Test (`npm run desktop:test`) gegen das echte Programm: sicherer Kontext, Beispielbetrieb, verschlüsselt exportieren, alles löschen, importieren (Daten gleich), zweiter Start mit einer Sicherung (Rückfrage), PDF in A4, Netzbefehle ohne Freigabe abgelehnt, Außenprüfung mit nachgebildeten DoH-Antworten (kein HTTP- oder TLS-Abruf), Speichern beim Schließen, keine CSP-Verstöße.
+- 37 Rust-Tests (`cargo test --workspace` in `src-tauri`), davon 32 in der Crate `netzpruefung` (T-R01 bis T-R14): Freigabe und Public Suffix List, Adresssperre für alle gesperrten Bereiche, HTTP gegen Testserver auf 127.0.0.1 (keine Weiterleitung, Größen- und Zeitgrenze, Kopfzeilenfilter, Cookie-Werte entfernt), TLS gegen einen rustls-Testserver mit zur Laufzeit erzeugter Test-CA (abgelaufen, fremder Name, unbekannte Stelle, nur TLS 1.2). Kein Rust-Test fragt einen fremden Rechner ab.
+- Desktop-Test (`npm run desktop:test`) gegen das echte Programm: sicherer Kontext, Beispielbetrieb, verschlüsselt exportieren, alles löschen, importieren (Daten gleich), zweiter Start mit einer Sicherung (Rückfrage), PDF in A4, Beratungsakte über den Speichern-Dialog, Netzbefehle ohne Freigabe abgelehnt, Außenprüfung mit nachgebildeten DoH-Antworten (kein HTTP- oder TLS-Abruf), Speichern beim Schließen, keine CSP-Verstöße.
 - Vor jedem Commit laufen Lint, Unit-Tests, Build und die Browsertests lokal mit Edge. Die CI prüft Lint, Unit-Tests, Build und die Netztests der Crate bei jedem Push (`ci.yml`); bei Änderungen am Programmteil baut `windows.yml` Programm und Installer und testet die Installation; `release.yml` baut bei einem Tag `v*` den Installer und legt einen Release-Entwurf mit `Sicherheitscheck_<Version>_x64-setup.exe` und der gleichen Datei unter dem festen Namen `Sicherheitscheck-Setup.exe` an.
 
 ## Windows-Programm

@@ -63,6 +63,31 @@ fn mit_endung(mut p: PathBuf, endung: &str) -> PathBuf {
     p
 }
 
+/// Endung der Beratungsakte (Export im offenen Format Beratungsakte v1); sie hat zwei Teile.
+const ENDUNG_AKTE: &str = "beratungsakte.json";
+
+/// Dateiarten für `speichern_unter`: Filtername, Endung, Titel des Dialogs, Testvariable (nur Debug-Build).
+type Ziel = (&'static str, &'static str, &'static str, &'static str);
+
+fn speicher_ziel(art: &str) -> Option<Ziel> {
+    match art {
+        "sicherung" => Some(("Sicherheitscheck-Sicherung", ENDUNG, "Sicherung exportieren", "SICHERHEITSCHECK_TEST_SPEICHERN")),
+        "beratungsakte" => Some(("Beratungsakte (*.beratungsakte.json)", ENDUNG_AKTE, "Für die Beratungsakte speichern", "SICHERHEITSCHECK_TEST_SPEICHERN_BERATUNGSAKTE")),
+        _ => None,
+    }
+}
+
+/// Wie `mit_endung`, für Endungen aus mehreren Teilen: ergänzt sie, wenn der Name nicht auf `.json` endet.
+fn mit_endung_akte(p: PathBuf) -> PathBuf {
+    if dateiname(&p).to_lowercase().ends_with(".json") {
+        return p;
+    }
+    let mut s = p.into_os_string();
+    s.push(".");
+    s.push(ENDUNG_AKTE);
+    PathBuf::from(s)
+}
+
 fn ist_sicherung(p: &Path) -> bool {
     p.extension().is_some_and(|e| e.eq_ignore_ascii_case(ENDUNG))
 }
@@ -108,19 +133,22 @@ async fn oeffnen(app: AppHandle) -> Result<Option<Datei>, String> {
 }
 
 /// Speichert eine Exportdatei an den Ort, den der Benutzer im Dialog wählt. Rückgabe: Dateiname.
+/// `art`: „sicherung“ (Standard) oder „beratungsakte“; andere Arten lehnt der Befehl ab.
 #[tauri::command]
-async fn speichern_unter(app: AppHandle, vorschlag: String, inhalt: String) -> Result<Option<String>, String> {
-    let wahl = testantwort("SICHERHEITSCHECK_TEST_SPEICHERN").unwrap_or_else(|| {
+async fn speichern_unter(app: AppHandle, vorschlag: String, inhalt: String, art: Option<String>) -> Result<Option<String>, String> {
+    let art = art.unwrap_or_else(|| "sicherung".into());
+    let Some((filter, endung, titel, testvariable)) = speicher_ziel(&art) else { return Err(format!("Unbekannte Dateiart: {art}")) };
+    let wahl = testantwort(testvariable).unwrap_or_else(|| {
         app.dialog()
             .file()
-            .set_title("Sicherung exportieren")
+            .set_title(titel)
             .set_file_name(&vorschlag)
-            .add_filter("Sicherheitscheck-Sicherung", &[ENDUNG])
+            .add_filter(filter, &[endung])
             .blocking_save_file()
             .and_then(|w| w.into_path().ok())
     });
     let Some(p) = wahl else { return Ok(None) };
-    let p = mit_endung(p, ENDUNG);
+    let p = if endung == ENDUNG_AKTE { mit_endung_akte(p) } else { mit_endung(p, endung) };
     schreibe(&p, inhalt.as_bytes())?;
     Ok(Some(dateiname(&p)))
 }
@@ -326,5 +354,17 @@ mod tests {
         assert_eq!(mit_endung(PathBuf::from("C:/x/bericht.pdf"), "pdf"), PathBuf::from("C:/x/bericht.pdf"));
         assert!(ist_sicherung(Path::new("a.SicherheitsCheck")));
         assert!(!ist_sicherung(Path::new("a.json")));
+    }
+
+    #[test]
+    fn kennt_die_dateiarten_und_ergaenzt_die_endung_der_beratungsakte() {
+        assert_eq!(speicher_ziel("sicherung").map(|z| (z.1, z.3)), Some((ENDUNG, "SICHERHEITSCHECK_TEST_SPEICHERN")));
+        assert_eq!(speicher_ziel("beratungsakte").map(|z| (z.0, z.1)), Some(("Beratungsakte (*.beratungsakte.json)", "beratungsakte.json")));
+        assert_eq!(speicher_ziel("exe"), None);
+        assert_eq!(mit_endung_akte(PathBuf::from("C:/x/akte")), PathBuf::from("C:/x/akte.beratungsakte.json"));
+        // Punkt im Namen (z. B. „Co. KG“): die Endung wird trotzdem ergänzt
+        assert_eq!(mit_endung_akte(PathBuf::from("C:/x/Muster-Co.-KG-sicherheitscheck-2026-11-13")), PathBuf::from("C:/x/Muster-Co.-KG-sicherheitscheck-2026-11-13.beratungsakte.json"));
+        assert_eq!(mit_endung_akte(PathBuf::from("C:/x/a.beratungsakte.json")), PathBuf::from("C:/x/a.beratungsakte.json"));
+        assert_eq!(mit_endung_akte(PathBuf::from("C:/x/a.JSON")), PathBuf::from("C:/x/a.JSON"));
     }
 }

@@ -793,6 +793,20 @@ fieldset:disabled .auswahl-option {
   justify-content: flex-end;
   margin-top: 1.2rem;
 }
+/* Für die Beratungsakte speichern: Inhalt und Dateiname */
+.akte-inhalt {
+  padding: 10px 12px;
+  border: 1px solid var(--linie);
+  border-radius: 8px;
+  background: var(--karte-2);
+}
+.akte-datei {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-2);
+  font-size: 0.93em;
+  overflow-wrap: anywhere;
+}
 
 /* Tabellen ---------------------------------------------------------------- */
 

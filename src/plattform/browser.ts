@@ -21,6 +21,7 @@ export const browserPlattform: Plattform = {
   ort: 'in diesem Browser',
   oeffnen: async () => null,
   startDatei: async () => null,
+  // Sicherung und Beratungsakte sind JSON; der Blob schreibt den Text als UTF-8
   speichernUnter: async (vorschlag, inhalt) => {
     herunterladen(inhalt, vorschlag)
     return vorschlag

@@ -12,6 +12,9 @@ export interface Datei {
   inhalt: string
 }
 
+/** Art einer Exportdatei: Sicherung (`.sicherheitscheck`) oder Beratungsakte (`.beratungsakte.json`) */
+export type DateiArt = 'sicherung' | 'beratungsakte'
+
 export interface NetzOptionen {
   anbieter: DohAnbieter
   /** bricht laufende Abfragen ab (Knopf „Abbrechen“) */
@@ -27,8 +30,11 @@ export interface Plattform {
   oeffnen(): Promise<Datei | null>
   /** Sicherung, mit der das Programm gestartet wurde (Doppelklick im Explorer) */
   startDatei(): Promise<Datei | null>
-  /** Speichert eine Exportdatei: im Programm mit Dialog, im Browser als Download. Rückgabe: Dateiname, null bei Abbruch. */
-  speichernUnter(vorschlag: string, inhalt: string): Promise<string | null>
+  /**
+   * Speichert eine Exportdatei (JSON): im Programm mit Dialog und dem Filter der Dateiart
+   * (Standard: Sicherung), im Browser als Download. Rückgabe: Dateiname, null bei Abbruch.
+   */
+  speichernUnter(vorschlag: string, inhalt: string, art?: DateiArt): Promise<string | null>
   /** Bericht als PDF ohne Druckdialog (nur im Programm). Rückgabe: Dateiname, null bei Abbruch. */
   alsPdf(vorschlag: string): Promise<string | null>
   setzeTitel(titel: string): void

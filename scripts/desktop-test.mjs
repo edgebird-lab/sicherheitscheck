@@ -97,6 +97,8 @@ function starte(args = []) {
       SICHERHEITSCHECK_TEST_SPEICHERN: datei('sicherung.sicherheitscheck'),
       SICHERHEITSCHECK_TEST_OEFFNEN: datei('sicherung.sicherheitscheck'),
       SICHERHEITSCHECK_TEST_PDF: datei('bericht.pdf'),
+      // ohne Endung: Das Programm ergänzt „.beratungsakte.json“
+      SICHERHEITSCHECK_TEST_SPEICHERN_BERATUNGSAKTE: datei('akte'),
     },
     stdio: 'ignore',
   })
@@ -241,6 +243,19 @@ try {
   const seiten = pdf.match(/\/Type\s*\/Page(?!s)/g)?.length ?? 0
   pruefe(seiten >= 3, `PDF hat mindestens 3 Seiten (${seiten})`)
   pruefe(!existsSync(datei('bericht.pdf.speichern.tmp')), 'keine Hilfsdatei übrig')
+
+  // Für die Beratungsakte speichern: über speichern_unter mit eigener Dateiart und zweiteiliger Endung
+  console.log('Beratungsakte')
+  await seite.getByRole('button', { name: 'Für die Beratungsakte speichern' }).click()
+  await seite.getByRole('dialog', { name: 'Für die Beratungsakte speichern' }).getByRole('button', { name: 'Speichern' }).click()
+  await warte(() => existsSync(datei('akte.beratungsakte.json')), 'Beratungsakte gespeichert, Endung ergänzt')
+  await seite.getByRole('status').filter({ hasText: 'Gespeichert als „akte.beratungsakte.json“.' }).waitFor({ timeout: 10000 })
+  pruefe(true, 'Meldung nennt den Dateinamen')
+  const akte = JSON.parse(readFileSync(datei('akte.beratungsakte.json'), 'utf8'))
+  pruefe(akte.format === 'beratungsakte' && akte.erzeugtVon.app === 'sicherheitscheck' && akte.mandant.name === 'Tischlerei Beispiel GmbH (fiktiv)', 'die Akte nennt Format, App und den vorbelegten Mandanten')
+  pruefe(akte.befunde.length === 13 && akte.massnahmen.length === 13, `13 Befunde und 13 Maßnahmen (${akte.befunde.length}, ${akte.massnahmen.length})`)
+  const unbekannt = await seite.evaluate(() => window.__TAURI_INTERNALS__.invoke('speichern_unter', { vorschlag: 'x.exe', inhalt: 'x', art: 'exe' }).then(() => 'angenommen', (e) => String(e)))
+  pruefe(unbekannt.includes('Unbekannte Dateiart'), `speichern_unter lehnt unbekannte Dateiarten ab (${unbekannt})`)
 
   // D-04: Netzbefehle ohne Freigabe: abgelehnt, bevor ein Name aufgelöst oder verbunden wird
   console.log('D-04 Netzbefehle ohne Freigabe')

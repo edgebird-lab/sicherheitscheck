@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { KATALOG } from '../../katalog'
 import { heuteLokal, zeitpunktDeutsch } from '../../modell/datum'
 import { gleicheMassnahmenAb } from '../../modell/massnahmen'
@@ -6,6 +6,7 @@ import { abschliessen, aenderePruefung, pruefeAbschluss, wiederOeffnen, type Mel
 import { plattform } from '../../plattform'
 import { sichererName } from '../../speicher/datei'
 import { Bericht } from '../Bericht'
+import { BeratungsakteDialog } from '../BeratungsakteDialog'
 import { Feld } from '../Eingaben'
 import { useBestaetigen } from '../frage'
 import { useApp, useAuswahl } from '../kontext'
@@ -30,6 +31,8 @@ export function BerichtSchritt() {
   const bestaetigen = useBestaetigen()
   const entwurf = pruefung?.status === 'entwurf'
   const [pdfLaeuft, setPdfLaeuft] = useState(false)
+  const [akteOffen, setAkteOffen] = useState(false)
+  const akteKnopf = useRef<HTMLButtonElement>(null)
 
   // Maßnahmen im Entwurf abgleichen, damit die Vorschau aktuell ist (6.8)
   useEffect(() => {
@@ -51,6 +54,12 @@ export function BerichtSchritt() {
     } finally {
       setPdfLaeuft(false)
     }
+  }
+
+  // Dialog schließen; der Fokus kehrt auf den Knopf zurück
+  const schliesseAkte = () => {
+    setAkteOffen(false)
+    requestAnimationFrame(() => akteKnopf.current?.focus())
   }
 
   const springe = (m: Meldung) => {
@@ -175,6 +184,27 @@ export function BerichtSchritt() {
           )}
         </div>
       </div>
+
+      <div className="karte nur-bildschirm" role="group" aria-labelledby="akte-titel">
+        <h2 id="akte-titel">Weitergeben</h2>
+        <p className="leise">Kennzahlen, Befunde und Maßnahmen dieser Prüfung als Datei im offenen Format Beratungsakte v1 (JSON), etwa für die Akte des Betriebs.</p>
+        <div className="knopfreihe">
+          <button type="button" className="knopf" ref={akteKnopf} onClick={() => setAkteOffen(true)}>
+            Für die Beratungsakte speichern
+          </button>
+        </div>
+      </div>
+      {akteOffen && (
+        <BeratungsakteDialog
+          betrieb={betrieb}
+          pruefung={p}
+          onSchliessen={schliesseAkte}
+          onFertig={(name) => {
+            schliesseAkte()
+            melde(`Gespeichert als „${name}“.`)
+          }}
+        />
+      )}
 
       <div className="bericht-vorschau">
         <Bericht k={KATALOG} betrieb={betrieb} pruefung={p} einstellungen={z.bestand.einstellungen} />
