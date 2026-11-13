@@ -103,8 +103,8 @@ describe('Beratungsakte aus dem Beispielbetrieb', () => {
       ['anforderung:A24', 'mittel'],
       ['aussen:spf:example.com', 'mittel'],
       ['aussen:dmarc:example.com', 'mittel'],
-      ['aussen:dnssec:example.com', 'niedrig'],
-      ['aussen:caa:example.com', 'niedrig'],
+      ['aussen:dnssec:example.com', 'hinweis'],
+      ['aussen:caa:example.com', 'hinweis'],
     ])
     const a02 = KATALOG.anforderungen.find((a) => a.id === 'A02')!
     expect(akte.befunde[0]).toEqual({
@@ -153,12 +153,22 @@ describe('Beratungsakte aus dem Beispielbetrieb', () => {
     const kennungen = new Set(akte.befunde.map((b) => b.kennung))
     expect(akte.massnahmen.every((m) => m.befunde.length === 1 && kennungen.has(m.befunde[0]))).toBe(true)
   })
+
+  it('behält verworfene Maßnahmen, Stand maschinenlesbar im Namensraum', () => {
+    const { betrieb, pruefung } = beispiel()
+    const verworfen = { ...pruefung, massnahmen: pruefung.massnahmen.map((m, i) => (i === 0 ? { ...m, status: 'verworfen' as const } : m)) }
+    const akte = beratungsakteAusPruefung({ k: KATALOG, betrieb, pruefung: verworfen, mandant: { name: 'M' }, jetzt: JETZT })
+    gueltigOhneHinweise(akte)
+    expect(akte.massnahmen).toHaveLength(pruefung.massnahmen.length)
+    const m = akte.massnahmen.find((x) => ns(x)?.status === 'verworfen')!
+    expect(m.text).toMatch(/ Verworfen\.$/)
+  })
 })
 
 describe('Abbildung der Stufen', () => {
   it('Tabellen: Anforderungen, Stufen der Außenprüfung und Prioritäten', () => {
     expect(ANFORDERUNG_IN_AKTE).toEqual({ top: 'hoch', basis: 'mittel' })
-    expect(STUFE_IN_AKTE).toEqual({ kritisch: 'kritisch', warnung: 'mittel', hinweis: 'niedrig', fehler: 'hinweis' })
+    expect(STUFE_IN_AKTE).toEqual({ kritisch: 'kritisch', warnung: 'mittel', hinweis: 'hinweis', fehler: 'hinweis' })
     expect(PRIORITAET_IN_AKTE).toEqual({ 1: 'hoch', 2: 'mittel', 3: 'niedrig' })
   })
 
@@ -182,7 +192,7 @@ describe('Abbildung der Stufen', () => {
       ['aussen:spf:example.com', 'kritisch', 'kritisch'],
       ['aussen:dmarc:example.com', 'warnung', 'mittel'],
       ['aussen:dkim:example.com', 'fehler', 'hinweis'],
-      ['aussen:dnssec:example.com', 'hinweis', 'niedrig'],
+      ['aussen:dnssec:example.com', 'hinweis', 'hinweis'],
     ])
     // Maßnahmen gibt es nur ab Stufe hinweis; die CAA-Maßnahme des Beispiels widerlegt der Lauf mit „ok“. Kritisch → Priorität hoch, warnung → mittel, hinweis → niedrig
     const aussenMassnahmen = akte.massnahmen.filter((m) => m.kennung.startsWith('aussen:'))

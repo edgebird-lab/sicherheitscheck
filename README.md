@@ -72,12 +72,12 @@ Die Regeln stehen mit Stufe in der Spezifikation (6.5, 6.6), die Texte für Laie
 
 ## Export im offenen Format Beratungsakte v1
 
-Im Schritt Bericht speichert „Für die Beratungsakte speichern“ das Ergebnis einer Prüfung als Datei im offenen Format Beratungsakte v1 (JSON, UTF-8). Der Dialog fragt nach dem Mandanten (vorbelegt mit dem Namen des Betriebs) und optional nach einer Mandantennummer und zeigt Inhalt und Dateinamen. Im Browser entsteht ein Download, im Windows-Programm öffnet sich der Speichern-Dialog mit dem Filter „Beratungsakte (*.beratungsakte.json)“. Die Datei ist nicht verschlüsselt.
+Im Schritt Bericht speichert „Für die Beratungsakte speichern“ das Ergebnis einer Prüfung als Datei im offenen Format Beratungsakte v1 (JSON, UTF-8). Der Dialog fragt nach dem Mandanten (vorbelegt mit dem Namen des Betriebs) und optional nach einer Mandantennummer und zeigt Inhalt und Dateinamen. Im Browser entsteht ein Download, im Windows-Programm öffnet sich der Speichern-Dialog mit dem Filter „Beratungsakte (*.beratungsakte.json)“. Der Dialog weist darauf hin, dass die Datei unverschlüsselt ist und Daten des Mandanten enthält.
 
 - **Dateiname:** `<Mandant>-sicherheitscheck-<Datum>.beratungsakte.json`, z. B. `Tischlerei-Beispiel-GmbH-(fiktiv)-sicherheitscheck-2026-11-13.beratungsakte.json`.
 - **Kennzahlen:** Statuswert, Höchstwert und Prozent, Anteil je Themenbereich (wie die Tabelle zum Netzdiagramm), Anzahl nicht erfüllter Anforderungen (davon TOP) und nicht relevanter Anforderungen, Anzahl der Befunde der Außenprüfung je Stufe, Maßnahmen offen, erledigt und überfällig.
-- **Befunde:** jede relevante Anforderung mit „nicht erfüllt“ (TOP `hoch`, Basis `mittel`) und jeder Befund der Außenprüfung mit Handlungsbedarf (`kritisch` → `kritisch`, Warnung → `mittel`, Hinweis → `niedrig`, nicht prüfbar → `hinweis`).
-- **Maßnahmen:** der Maßnahmenplan in seiner Reihenfolge mit Frist; Priorität 1/2/3 → `hoch`/`mittel`/`niedrig`, Aufwand „nicht geschätzt“, Bezug auf den Befund der Ursache.
+- **Befunde:** jede relevante Anforderung mit „nicht erfüllt“ (TOP `hoch`, Basis `mittel`) und jeder Befund der Außenprüfung mit Handlungsbedarf (`kritisch` → `kritisch`, Warnung → `mittel`, Hinweis → `hinweis`, nicht prüfbar → `hinweis`).
+- **Maßnahmen:** der ganze Maßnahmenplan in seiner Reihenfolge mit Frist, auch erledigte und verworfene (Stand als `status` im Namensraum); Priorität 1/2/3 → `hoch`/`mittel`/`niedrig`, Aufwand „nicht geschätzt“, Bezug auf den Befund der Ursache.
 - **Namensraum `sicherheitscheck`:** Anforderungsnummer, Themenbereich und TOP-Kennzeichen, Prüfung, Ziel, Stufe und Regel der Außenprüfung, Status, Verantwortliche und Priorität der App, Rohpunkte, Prüfungsnummer und Katalogversion.
 
 Die Abbildung steht in `src/modell/beratungsakte.ts`. Bibliothek und Schema des Formats liegen als Kopie in `src/beratungsakte/` (Version in `src/beratungsakte/VERSION`, derzeit 1.0.1), Beispieldateien in `testdaten/beratungsakte/`; die Kopie wird nicht von Hand geändert.

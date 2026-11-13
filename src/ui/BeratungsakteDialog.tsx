@@ -86,6 +86,7 @@ export function BeratungsakteDialog({ betrieb, pruefung, onFertig, onSchliessen 
           {anzahl(vorschau.massnahmen.length, 'Maßnahme', 'Maßnahmen')}
           <span className="akte-datei">Datei: {dateiname}</span>
         </p>
+        <p className="akte-datenschutz">Die Datei ist unverschlüsselt und enthält Daten des Mandanten.</p>
         <div className="knopfreihe dialog-knoepfe">
           <button type="button" className="knopf" onClick={onSchliessen} disabled={arbeitet}>
             Abbrechen

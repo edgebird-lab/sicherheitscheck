@@ -35,6 +35,7 @@ test('Dialog: Vorbelegung, Pflichtfeld, Abbrechen, Escape und Fokus; Speichern l
   await expect(mandant).toBeFocused()
   await expect(mandant).toHaveValue('Tischlerei Beispiel GmbH (fiktiv)')
   await expect(dialog).toContainText('Enthält: 19 Kennzahlen, 13 Befunde, 13 Maßnahmen')
+  await expect(dialog).toContainText('Die Datei ist unverschlüsselt und enthält Daten des Mandanten.')
   await expect(dialog).toContainText(`Datei: Tischlerei-Beispiel-GmbH-(fiktiv)-sicherheitscheck-${heute()}.beratungsakte.json`)
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()

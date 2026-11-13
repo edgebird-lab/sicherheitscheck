@@ -19,12 +19,15 @@
  * | Anforderung nicht erfüllt, Basis         | Befund `mittel`      |
  * | Außenprüfung `kritisch`                  | Befund `kritisch`    |
  * | Außenprüfung `warnung`                   | Befund `mittel`      |
- * | Außenprüfung `hinweis`                   | Befund `niedrig`     |
+ * | Außenprüfung `hinweis`                   | Befund `hinweis`     |
  * | Außenprüfung `fehler` (nicht prüfbar)    | Befund `hinweis`     |
  * | Außenprüfung `ok`, `info`, `nicht_geprueft` | kein Befund (nur Kennzahl) |
  * | Priorität 1 (Sofort)                     | Priorität `hoch`     |
  * | Priorität 2 (Zeitnah)                    | Priorität `mittel`   |
  * | Priorität 3 (Geplant)                    | Priorität `niedrig`  |
+ *
+ * Erledigte und verworfene Maßnahmen bleiben in der Akte; ihr Stand steht maschinenlesbar im
+ * Namensraum (`status`, ggf. `erledigtAm`) und als Satz im Text.
  *
  * Es zählt die wirksame Priorität (eine Priorität von Hand geht vor). Die App schätzt keinen
  * Aufwand („nicht geschätzt“). Eine Maßnahme antwortet auf den Befund ihrer Ursache (Anforderung
@@ -47,7 +50,7 @@ export const APP_ANZEIGENAME = 'Sicherheitscheck'
 export const STUFE_IN_AKTE: Partial<Record<Stufe, Schwere>> = {
   kritisch: 'kritisch',
   warnung: 'mittel',
-  hinweis: 'niedrig',
+  hinweis: 'hinweis',
   fehler: 'hinweis',
 }
 

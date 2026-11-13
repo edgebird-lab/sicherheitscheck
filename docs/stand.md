@@ -61,6 +61,7 @@ Letzte Aktualisierung: 12.11.2026, Version 0.1.0 veröffentlicht (Repo öffentli
 ## Weitere Funktionen
 
 - [x] **Export im offenen Format Beratungsakte v1** (13.11.2026). *Knopf „Für die Beratungsakte speichern“ im Schritt Bericht mit Dialog (Mandant vorbelegt, Mandantennummer, Inhalt, Dateiname); Browser: Download, Programm: `speichern_unter` mit Dateiart `beratungsakte`. Abbildung in `src/modell/beratungsakte.ts` (E35), Kopie der Bibliothek 1.0.1 in `src/beratungsakte/`, Beispiele in `testdaten/beratungsakte/`. Tests: Unit (Beispielbetrieb mit den README-Werten, alle Stufen, Grenzfälle, Kopie der Bibliothek), Browsertests mit axe hell und dunkel, Rust-Test für Dateiart und Endung, Schritt im Desktop-Test.*
+  - [x] Nacharbeit (13.11.2026): Hinweise der Außenprüfung als `hinweis` statt `niedrig`, Test für verworfene Maßnahmen (bleiben mit `status` in der Akte), Hinweis im Dialog „Die Datei ist unverschlüsselt und enthält Daten des Mandanten.“
 
 ## Phase 6 – Abnahme und Portfolio (später)
 
